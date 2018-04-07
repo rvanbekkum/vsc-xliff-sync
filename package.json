@@ -1,0 +1,53 @@
+{
+  "name": "angular-localization-helper",
+  "displayName": "Angular Localization Helper",
+  "description":
+    "Keeps angular i18n translation files (xliff 1.2, xliff 2 and xmb files) in sync, finds and adds missing translations",
+  "version": "0.0.1",
+  "publisher": "manux54",
+  "engines": {
+    "vscode": "^1.21.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onCommand:extension.synchronizeFiles"],
+  "main": "./out/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.synchronizeFiles",
+        "title": "Angular i18n: Synchronize Files"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.synchronizeFiles",
+        "key": "ctrl+alt+S"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "@types/xml2js": "^0.4.2",
+    "@types/xml2json": "^0.10.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.6"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "always"
+  },
+  "dependencies": {
+    "xml2js": "^0.4.19"
+  }
+}
