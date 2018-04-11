@@ -1,5 +1,6 @@
 import { workspace, Uri } from 'vscode';
 import { parseString, Builder } from 'xml2js';
+import {} from 'sax';
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -53,7 +54,10 @@ export class XLiffBuilder implements TranslationBuilder {
       });
     }
 
-    const builder = new Builder();
+    const builder = new Builder({
+      preserveChildrenOrder: true,
+    });
+
     return builder.buildObject(outputDocument);
   }
 
@@ -93,13 +97,19 @@ export class XLiffBuilder implements TranslationBuilder {
 
   private parseXliff(source: string): Promise<XliffDocument> {
     return new Promise((resolve, reject) =>
-      parseString(source, (err: any, result: XliffDocument) => {
-        if (result && result.xliff && result.xliff.$ && result.xliff.$.version === '1.2') {
-          resolve(result);
-        } else {
-          throw new Error('Invalid file Format');
-        }
-      }),
+      parseString(
+        source,
+        {
+          preserveChildrenOrder: true,
+        },
+        (err: any, result: XliffDocument) => {
+          if (result && result.xliff && result.xliff.$ && result.xliff.$.version === '1.2') {
+            resolve(result);
+          } else {
+            throw new Error('Invalid file Format');
+          }
+        },
+      ),
     );
   }
 

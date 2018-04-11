@@ -1,10 +1,13 @@
 import { commands, ExtensionContext, window, workspace, Uri, Range } from 'vscode';
 import { XLiffBuilder } from './xliff-builder';
 import { TranslationBuilder } from './translation-builder';
+import { XmlBuilder, XmlParser } from './tools';
+import { XlfTranslator } from './tools/xlf-translator';
 
 export function activate(context: ExtensionContext) {
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
     try {
+      // TODO: search for any available files and automatically select the type.
       const fileType = await window.showQuickPick(['xliff 1.2'], {
         placeHolder: 'Select Translation File Type: ',
       });
@@ -67,7 +70,22 @@ export function activate(context: ExtensionContext) {
         targetUri = uris.find((uri) => uri.fsPath === targetPath)!;
       }
 
-      const outputDocument = await builder.consolidateTranslationFiles(sourceUri, targetUri);
+      const source = await workspace.openTextDocument(sourceUri);
+      const sourceText = source && source.getText();
+
+      const target = await workspace.openTextDocument(targetUri);
+      const targetText = target && target.getText();
+
+      const parser = new XmlParser();
+      const sourceDocument = await parser.parseDocument(sourceText);
+
+      const parser2 = new XmlParser();
+      const targetDocument = await parser2.parseDocument(targetText);
+
+      const output = XlfTranslator.synchronize(sourceDocument, targetDocument);
+
+      const outputDocument: string = XmlBuilder.create(output)!;
+      //      const outputDocument = await builder.consolidateTranslationFiles(sourceUri, targetUri);
 
       const document = await workspace.openTextDocument(targetUri);
       const editor = await window.showTextDocument(document);

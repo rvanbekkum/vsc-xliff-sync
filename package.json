@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "extension.synchronizeFiles",
-        "title": "Angular i18n: Synchronize Files"
+        "title": "i18n Sync"
       }
     ],
     "keybindings": [
@@ -23,7 +23,16 @@
         "command": "extension.synchronizeFiles",
         "key": "ctrl+alt+S"
       }
-    ]
+    ],
+    "menus": {
+      "touchBar": [
+        {
+          "command": "extension.synchronizeFiles",
+          "group": "editing",
+          "when": "resourceExtname == .xlf"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -35,8 +44,10 @@
   "devDependencies": {
     "@types/mocha": "^2.2.42",
     "@types/node": "^7.0.43",
+    "@types/sax": "^1.0.0",
     "@types/xml2js": "^0.4.2",
     "@types/xml2json": "^0.10.0",
+    "@types/xmlbuilder": "0.0.32",
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
     "vscode": "^1.1.6"
@@ -48,6 +59,8 @@
     "arrowParens": "always"
   },
   "dependencies": {
-    "xml2js": "^0.4.19"
+    "sax": "^1.2.4",
+    "xml2js": "^0.4.19",
+    "xmlbuilder": "^9.0.7"
   }
 }
