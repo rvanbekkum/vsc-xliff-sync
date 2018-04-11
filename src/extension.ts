@@ -1,73 +1,76 @@
 import { commands, ExtensionContext, window, workspace, Uri, Range } from 'vscode';
 import { XLiffBuilder } from './xliff-builder';
 import { TranslationBuilder } from './translation-builder';
-import { XmlBuilder, XmlParser } from './tools';
+import { XmlBuilder, XmlParser, FilesHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
 
 export function activate(context: ExtensionContext) {
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
     try {
-      // TODO: search for any available files and automatically select the type.
-      const fileType = await window.showQuickPick(['xliff 1.2'], {
-        placeHolder: 'Select Translation File Type: ',
-      });
+      const baseFile: string = workspace.getConfiguration('i18nSync')['baseFile'];
+      const fileType: string = workspace.getConfiguration('i18nSync')['fileType'];
 
-      let builder: TranslationBuilder;
-
-      switch (fileType) {
-        // TODO: Implements Xliff 2 and XMB
-        case 'xliff 1.2':
-        default:
-          builder = new XLiffBuilder();
-      }
-
-      let uris = (await builder.findTranslationFiles()) || [];
+      // Get the list of i18n files in the opened workspace
+      let uris = (await FilesHelper.findTranslationFiles(fileType)) || [];
 
       if (!uris.length) {
         throw new Error('No translation file found');
       }
 
-      let sourceUri: Uri;
-      let targetUri: Uri;
+      // Find the angular generated i18n file
+      let sourceUri = baseFile ? uris.find((uri) => uri.fsPath.indexOf(baseFile) >= 0) : undefined;
 
-      if (uris.length === 1) {
-        sourceUri = uris[0];
-      } else {
+      if (!sourceUri) {
+        // File not found, request the user to identify the file himself
         const fsPaths = uris.map((uri) => uri.fsPath);
         const sourcePath = await window.showQuickPick(fsPaths, {
-          placeHolder: 'Select Source File: ',
+          placeHolder: 'Select Angular generated i18n file',
         });
 
         if (!sourcePath) {
-          throw new Error('No source file selected');
+          throw new Error('No Angular generated i18n file');
+        }
+
+        sourceUri = uris.find((uri) => uri.fsPath === sourcePath)!;
+        // TODO: update configuration with file name
+      }
+
+      // filter out the base file and request the target file
+      uris = uris.filter((uri) => uri !== sourceUri);
+
+      const activeEditor = window.activeTextEditor;
+
+      let targetUri: Uri | undefined;
+
+      // First try the active file
+      if (activeEditor) {
+        targetUri = uris.find((uri) => uri.fsPath === activeEditor.document.uri.fsPath);
+      }
+
+      if (!targetUri) {
+        const fsPath = [...uris.map((uri) => uri.fsPath), 'New File...'];
+        let targetPath = await window.showQuickPick(fsPath, {
+          placeHolder: 'Select Target File: ',
+        });
+
+        if (!targetPath) {
+          throw new Error('No target file selected');
+        } else if (targetPath === 'New File...') {
+          const targetLanguage = await window.showInputBox({ placeHolder: 'Region/Language Code' });
+
+          if (!targetLanguage) {
+            throw new Error('No target language specified');
+          } else {
+            // TODO: create the empty file
+            targetUri = undefined; // = await builder.createTranslationFile(sourceUri, targetLanguage);
+          }
         } else {
-          sourceUri = uris.find((uri) => uri.fsPath === sourcePath)!;
+          targetUri = uris.find((uri) => uri.fsPath === targetPath)!;
         }
       }
 
-      uris = uris.filter((uri) => uri !== sourceUri);
-      const fsPath = [...uris.map((uri) => uri.fsPath), 'New File...'];
-
-      let targetPath = await window.showQuickPick(fsPath, { placeHolder: 'Select Target File: ' });
-
-      if (!targetPath) {
-        throw new Error('No target file selected');
-      } else if (targetPath === 'New File...') {
-        const targetLanguage = await window.showInputBox({ placeHolder: 'Region/Language Code' });
-
-        if (!targetLanguage) {
-          throw new Error('No target language specified');
-        } else {
-          const targetFile = await builder.createTranslationFile(sourceUri, targetLanguage);
-
-          if (!targetFile) {
-            throw new Error('Unable to create target file');
-          } else {
-            targetUri = targetFile;
-          }
-        }
-      } else {
-        targetUri = uris.find((uri) => uri.fsPath === targetPath)!;
+      if (!targetUri) {
+        throw new Error('No target file specified');
       }
 
       const source = await workspace.openTextDocument(sourceUri);
@@ -103,6 +106,7 @@ export function activate(context: ExtensionContext) {
         editBuilder.replace(range, outputDocument);
       });
     } catch (ex) {
+      // TODO: display error on screen
       console.error('Error writing data to document. ' + ex.message);
     }
   });
