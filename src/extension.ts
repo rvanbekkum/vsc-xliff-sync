@@ -1,8 +1,8 @@
 import { commands, ExtensionContext, window, workspace, Uri, Range } from 'vscode';
-import { XLiffBuilder } from './xliff-builder';
-import { TranslationBuilder } from './translation-builder';
-import { XmlBuilder, XmlParser, FilesHelper } from './tools';
+import { FilesHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
+
+import * as path from 'path';
 
 export function activate(context: ExtensionContext) {
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
@@ -14,6 +14,7 @@ export function activate(context: ExtensionContext) {
       let uris = (await FilesHelper.findTranslationFiles(fileType)) || [];
 
       if (!uris.length) {
+        // TODO: Ask for file type
         throw new Error('No translation file found');
       }
 
@@ -32,7 +33,8 @@ export function activate(context: ExtensionContext) {
         }
 
         sourceUri = uris.find((uri) => uri.fsPath === sourcePath)!;
-        // TODO: update configuration with file name
+        const filename = path.basename(sourceUri.fsPath);
+        workspace.getConfiguration('i18nSync').update('baseFile', filename);
       }
 
       // filter out the base file and request the target file
@@ -73,22 +75,10 @@ export function activate(context: ExtensionContext) {
         throw new Error('No target file specified');
       }
 
-      const source = await workspace.openTextDocument(sourceUri);
-      const sourceText = source && source.getText();
+      const source = (await workspace.openTextDocument(sourceUri)).getText();
+      const target = (await workspace.openTextDocument(targetUri)).getText();
 
-      const target = await workspace.openTextDocument(targetUri);
-      const targetText = target && target.getText();
-
-      const parser = new XmlParser();
-      const sourceDocument = await parser.parseDocument(sourceText);
-
-      const parser2 = new XmlParser();
-      const targetDocument = await parser2.parseDocument(targetText);
-
-      const output = XlfTranslator.synchronize(sourceDocument, targetDocument);
-
-      const outputDocument: string = XmlBuilder.create(output)!;
-      //      const outputDocument = await builder.consolidateTranslationFiles(sourceUri, targetUri);
+      const output = await XlfTranslator.synchronize(source, target);
 
       const document = await workspace.openTextDocument(targetUri);
       const editor = await window.showTextDocument(document);
@@ -103,11 +93,10 @@ export function activate(context: ExtensionContext) {
       );
 
       await editor.edit((editBuilder) => {
-        editBuilder.replace(range, outputDocument);
+        editBuilder.replace(range, output);
       });
     } catch (ex) {
-      // TODO: display error on screen
-      console.error('Error writing data to document. ' + ex.message);
+      window.showErrorMessage(ex.message);
     }
   });
 

@@ -5,6 +5,20 @@
     "Keeps angular i18n translation files (xliff 1.2, xliff 2 and xmb files) in sync, finds and adds missing translations",
   "version": "0.0.1",
   "publisher": "manux54",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manux54/vsc-angular-localization-helper"
+  },
+  "bugs": {
+    "url": "https://github.com/manux54/vsc-angular-localization-helper/issues"
+  },
+  "homepage": "https://github.com/manux54/vsc-angular-localization-helper/blob/master/README.md",
+  "license": "MIT",
+  "icon": "assets/ic_translate_3x.png",
+  "galleryBanner": {
+    "color": "#ccccff",
+    "theme": "light"
+  },
   "engines": {
     "vscode": "^1.21.0"
   },

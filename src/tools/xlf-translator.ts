@@ -1,16 +1,20 @@
 import { XmlNode } from './xml-node';
+import { XmlParser } from './xml-parser';
+import { XmlBuilder } from './xml-builder';
 
 export class XlfTranslator {
-  public static synchronize(source: XmlNode, target: XmlNode): XmlNode {
-    const output: XmlNode = Object.assign({}, source);
-    const language = this.getSourceLanguage(target);
+  public static async synchronize(source: string, target: string): Promise<string> {
+    const output = await new XmlParser().parseDocument(source);
+    const targetDocument = await new XmlParser().parseDocument(target);
+
+    const language = this.getSourceLanguage(targetDocument);
 
     if (language) {
       this.setSourceLanguage(output, language);
     }
 
     const outputTransUnit = this.getTranslationUnitNodes(output);
-    const targetTransUnit = this.getTranslationUnitNodes(target);
+    const targetTransUnit = this.getTranslationUnitNodes(targetDocument);
 
     if (outputTransUnit && targetTransUnit) {
       for (const unit of outputTransUnit) {
@@ -31,7 +35,8 @@ export class XlfTranslator {
         }
       }
     }
-    return output;
+
+    return XmlBuilder.create(output)!;
   }
 
   private static getSourceLanguage(node: XmlNode): string | undefined {
