@@ -39,6 +39,35 @@ export class XlfTranslator {
     return XmlBuilder.create(output)!;
   }
 
+  public static createNewDocument(language: string): string | undefined {
+    const root: XmlNode = {
+      local: 'xliff',
+      attributes: {
+        version: '1.2',
+      },
+      children: [],
+      isSelfClosing: false,
+      name: 'xliff',
+      parent: undefined,
+      prefix: '',
+      uri: '',
+    };
+
+    root.children.push({
+      local: 'file',
+      attributes: {
+        'source-language': language,
+      },
+      children: [],
+      isSelfClosing: false,
+      name: 'file',
+      parent: root,
+      prefix: '',
+      uri: '',
+    });
+    return XmlBuilder.create(root);
+  }
+
   private static getSourceLanguage(node: XmlNode): string | undefined {
     if (node) {
       if (node.name === 'file') {

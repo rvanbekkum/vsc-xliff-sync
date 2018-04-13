@@ -8,13 +8,30 @@ export function activate(context: ExtensionContext) {
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
     try {
       const baseFile: string = workspace.getConfiguration('i18nSync')['baseFile'];
-      const fileType: string = workspace.getConfiguration('i18nSync')['fileType'];
+      let fileType: string | undefined = workspace.getConfiguration('i18nSync')['fileType'];
 
       // Get the list of i18n files in the opened workspace
-      let uris = (await FilesHelper.findTranslationFiles(fileType)) || [];
+      let uris: Uri[] = [];
+
+      if (fileType) {
+        uris = (await FilesHelper.findTranslationFiles(fileType)) || [];
+      }
 
       if (!uris.length) {
-        // TODO: Ask for file type
+        fileType = await window.showQuickPick(['xlf', 'xmb'], {
+          placeHolder: 'Translation file type',
+        });
+
+        if (fileType) {
+          uris = (await FilesHelper.findTranslationFiles(fileType)) || [];
+
+          if (uris.length) {
+            workspace.getConfiguration('i18nSync').update('fileType', fileType);
+          }
+        }
+      }
+
+      if (!uris.length) {
         throw new Error('No translation file found');
       }
 
@@ -64,7 +81,13 @@ export function activate(context: ExtensionContext) {
             throw new Error('No target language specified');
           } else {
             // TODO: create the empty file
-            targetUri = undefined; // = await builder.createTranslationFile(sourceUri, targetLanguage);
+            const newDoc = XlfTranslator.createNewDocument(targetLanguage);
+
+            if (!newDoc) {
+              throw new Error('Unable to generate new localization file');
+            }
+
+            targetUri = await FilesHelper.createTranslationFile(targetLanguage, sourceUri, newDoc);
           }
         } else {
           targetUri = uris.find((uri) => uri.fsPath === targetPath)!;
@@ -95,6 +118,8 @@ export function activate(context: ExtensionContext) {
       await editor.edit((editBuilder) => {
         editBuilder.replace(range, output);
       });
+
+      await document.save();
     } catch (ex) {
       window.showErrorMessage(ex.message);
     }
