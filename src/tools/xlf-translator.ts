@@ -21,22 +21,49 @@ export class XlfTranslator {
         let targetUnit = this.getTranslationUnitById(targetTransUnit, unit.attributes.id);
 
         if (!targetUnit) {
-          targetUnit = this.getTranslationUnitByNotes(targetTransUnit, '', '');
+          const meaning = this.getMeaning(unit);
+
+          if (meaning) {
+            targetUnit = this.getTranslationUnitByMeaning(targetTransUnit, meaning);
+          }
         }
 
+        let targetNode: XmlNode | undefined;
+
         if (targetUnit) {
-          const targetNode = <XmlNode | undefined>targetUnit.children.find(
+          targetNode = <XmlNode | undefined>targetUnit.children.find(
             (child) => typeof child !== 'string' && child.name === 'target',
           );
+        }
 
-          if (targetNode) {
-            this.appendTargetNode(unit, targetNode);
-          }
+        if (!targetNode) {
+          targetNode = {
+            name: 'target',
+            local: 'target',
+            parent: unit,
+            attributes: {},
+            children: ['!MISSING_TRANSLATION!'],
+            isSelfClosing: false,
+            prefix: '',
+            uri: '',
+          };
+        }
+
+        if (targetNode) {
+          this.appendTargetNode(unit, targetNode);
         }
       }
     }
 
-    return XmlBuilder.create(output)!;
+    let retVal = XmlBuilder.create(output)!;
+
+    const rootIdx = retVal.indexOf('<xliff ');
+
+    if (rootIdx > 0) {
+      retVal = [retVal.slice(0, rootIdx), '\n', retVal.slice(rootIdx)].join('');
+    }
+
+    return retVal;
   }
 
   public static createNewDocument(language: string): string | undefined {
@@ -122,13 +149,28 @@ export class XlfTranslator {
     return nodes.find((node) => node.attributes.id === id);
   }
 
-  private static getTranslationUnitByNotes(
+  private static getMeaning(node: XmlNode): string | undefined {
+    const meaningNote = <XmlNode | undefined>node.children.find(
+      (node) =>
+        typeof node !== 'string' && node.name === 'note' && node.attributes.from === 'meaning',
+    );
+
+    if (
+      meaningNote &&
+      meaningNote.children &&
+      meaningNote.children.length &&
+      typeof meaningNote.children[0] === 'string'
+    ) {
+      return <string>meaningNote.children[0];
+    }
+    return;
+  }
+
+  private static getTranslationUnitByMeaning(
     nodes: XmlNode[],
-    description: string,
     meaning: string,
   ): XmlNode | undefined {
-    // TODO: Implements
-    return;
+    return nodes ? nodes.find((node) => this.getMeaning(node) === meaning) : undefined;
   }
 
   private static appendTargetNode(transUnit: XmlNode, targetNode: XmlNode): void {
@@ -142,7 +184,7 @@ export class XlfTranslator {
     if (targetIdx >= 0) {
       transUnit.children[targetIdx] = targetNode;
     } else if (sourceIdx) {
-      transUnit.children.splice(sourceIdx + 1, 0, targetNode);
+      transUnit.children.splice(sourceIdx + 1, 0, transUnit.children[sourceIdx - 1], targetNode);
     } else {
       transUnit.children.push(targetNode);
     }
