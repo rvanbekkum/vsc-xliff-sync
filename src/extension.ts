@@ -1,10 +1,15 @@
 import { commands, ExtensionContext, window, workspace, Uri, Range } from 'vscode';
+
 import { FilesHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
 
 import * as path from 'path';
 
 export function activate(context: ExtensionContext) {
+  let currentEditor = window.activeTextEditor;
+  let timeout: NodeJS.Timer;
+  console.log('Activating');
+
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
     try {
       const baseFile: string = workspace.getConfiguration('i18nSync')['baseFile'];
@@ -80,7 +85,6 @@ export function activate(context: ExtensionContext) {
           if (!targetLanguage) {
             throw new Error('No target language specified');
           } else {
-            // TODO: create the empty file
             const newDoc = XlfTranslator.createNewDocument(targetLanguage);
 
             if (!newDoc) {
@@ -126,6 +130,56 @@ export function activate(context: ExtensionContext) {
   });
 
   context.subscriptions.push(disposable);
+
+  window.onDidChangeActiveTextEditor((editor) => {
+    currentEditor = editor;
+    pushHighlightUpdate();
+  });
+
+  workspace.onDidChangeTextDocument((event) => {
+    if (currentEditor && event.document === currentEditor.document) {
+      pushHighlightUpdate();
+    }
+  });
+
+  pushHighlightUpdate();
+
+  function highlightUpdate() {
+    if (currentEditor && currentEditor.document) {
+      const document = currentEditor.document;
+      const text = document.getText();
+
+      const missingTranslationKeyword: string = workspace.getConfiguration('i18nSync')[
+        'missingTranslation'
+      ];
+
+      const decorationType = window.createTextEditorDecorationType(
+        workspace.getConfiguration('i18nSync')['decoration'],
+      );
+
+      const regExp = new RegExp(missingTranslationKeyword, 'g');
+
+      let missingTranslation: RegExpExecArray | null;
+      const decorationRanges: Range[] = [];
+
+      while ((missingTranslation = regExp.exec(text))) {
+        const start = document.positionAt(missingTranslation.index);
+        const end = document.positionAt(missingTranslation.index + missingTranslation[0].length);
+
+        decorationRanges.push(new Range(start, end));
+      }
+
+      currentEditor.setDecorations(decorationType, decorationRanges);
+    }
+  }
+
+  function pushHighlightUpdate() {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(highlightUpdate, 1);
+  }
 }
 
 // this method is called when your extension is deactivated

@@ -23,8 +23,8 @@
     "vscode": "^1.21.0"
   },
   "categories": ["Other"],
-  "activationEvents": ["onCommand:extension.synchronizeFiles"],
   "main": "./out/extension",
+  "activationEvents": ["onCommand:extension.synchronizeFiles", "workspaceContains:**/*.xlf"],
   "contributes": {
     "configuration": {
       "title": "Angular i18n Synchronization Configuration",
@@ -38,6 +38,23 @@
           "type": "string",
           "default": "xlf",
           "description": "Specifies the i18n file's type (xlf, xlf2 or xmb)"
+        },
+        "i18nSync.missingTranslation": {
+          "type": "string",
+          "default": "!MISSING_TRANSLATION!",
+          "description": "Target tag content for missing translation"
+        },
+        "i18nSync.decoration": {
+          "type": "object",
+          "default": {
+            "color": "#990000",
+            "backgroundColor": "#ffff00",
+            "overviewRulerColor": "#ffff00",
+            "cursor": "pointer",
+            "border": "1px solid white",
+            "borderRadius": "4px"
+          },
+          "description": "Missing translation decoration"
         }
       }
     },

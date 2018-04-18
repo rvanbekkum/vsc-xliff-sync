@@ -1,11 +1,13 @@
 import { XmlNode } from './xml-node';
 import { XmlParser } from './xml-parser';
 import { XmlBuilder } from './xml-builder';
+import { workspace } from 'vscode';
 
 export class XlfTranslator {
   public static async synchronize(source: string, target: string): Promise<string> {
     const output = await new XmlParser().parseDocument(source);
     const targetDocument = await new XmlParser().parseDocument(target);
+    const missingTranslation: string = workspace.getConfiguration('i18nSync')['missingTranslation'];
 
     const language = this.getSourceLanguage(targetDocument);
 
@@ -13,47 +15,45 @@ export class XlfTranslator {
       this.setSourceLanguage(output, language);
     }
 
-    const outputTransUnit = this.getTranslationUnitNodes(output);
-    const targetTransUnit = this.getTranslationUnitNodes(targetDocument);
+    const outputTransUnit = this.getTranslationUnitNodes(output) || [];
+    const targetTransUnit = this.getTranslationUnitNodes(targetDocument) || [];
 
-    if (outputTransUnit && targetTransUnit) {
-      for (const unit of outputTransUnit) {
-        let targetUnit = this.getTranslationUnitById(targetTransUnit, unit.attributes.id);
+    outputTransUnit.forEach((unit) => {
+      let targetUnit = this.getTranslationUnitById(targetTransUnit, unit.attributes.id);
 
-        if (!targetUnit) {
-          const meaning = this.getMeaning(unit);
+      if (!targetUnit) {
+        const meaning = this.getMeaning(unit);
 
-          if (meaning) {
-            targetUnit = this.getTranslationUnitByMeaning(targetTransUnit, meaning);
-          }
-        }
-
-        let targetNode: XmlNode | undefined;
-
-        if (targetUnit) {
-          targetNode = <XmlNode | undefined>targetUnit.children.find(
-            (child) => typeof child !== 'string' && child.name === 'target',
-          );
-        }
-
-        if (!targetNode) {
-          targetNode = {
-            name: 'target',
-            local: 'target',
-            parent: unit,
-            attributes: {},
-            children: ['!MISSING_TRANSLATION!'],
-            isSelfClosing: false,
-            prefix: '',
-            uri: '',
-          };
-        }
-
-        if (targetNode) {
-          this.appendTargetNode(unit, targetNode);
+        if (meaning) {
+          targetUnit = this.getTranslationUnitByMeaning(targetTransUnit, meaning);
         }
       }
-    }
+
+      let targetNode: XmlNode | undefined;
+
+      if (targetUnit) {
+        targetNode = <XmlNode | undefined>targetUnit.children.find(
+          (child) => typeof child !== 'string' && child.name === 'target',
+        );
+      }
+
+      if (!targetNode) {
+        targetNode = {
+          name: 'target',
+          local: 'target',
+          parent: unit,
+          attributes: {},
+          children: [missingTranslation],
+          isSelfClosing: false,
+          prefix: '',
+          uri: '',
+        };
+      }
+
+      if (targetNode) {
+        this.appendTargetNode(unit, targetNode);
+      }
+    });
 
     let retVal = XmlBuilder.create(output)!;
 

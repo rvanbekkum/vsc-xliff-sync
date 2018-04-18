@@ -42,7 +42,7 @@ Identify the type of localization to process (xlf or xmb)
 ## Known Issues
 
 * Xlf 2.0 and Xmb format are not yet implemented
-* Highlight and Search missing translations are not yet implemented
+* Search/List missing translations are not yet implemented
 
 ## Release Notes
 
