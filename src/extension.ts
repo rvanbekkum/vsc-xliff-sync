@@ -1,4 +1,4 @@
-import { commands, ExtensionContext, window, workspace, Uri, Range } from 'vscode';
+import { commands, ExtensionContext, window, workspace, Uri, Range, Selection } from 'vscode';
 
 import { FilesHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
@@ -8,7 +8,6 @@ import * as path from 'path';
 export function activate(context: ExtensionContext) {
   let currentEditor = window.activeTextEditor;
   let timeout: NodeJS.Timer;
-  console.log('Activating');
 
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
     try {
@@ -130,6 +129,57 @@ export function activate(context: ExtensionContext) {
   });
 
   context.subscriptions.push(disposable);
+
+  const findNextDisposable = commands.registerCommand(
+    'extension.findNextMissingTarget',
+    async () => {
+      try {
+        if (currentEditor && currentEditor.document) {
+          const document = currentEditor.document;
+          const text = document.getText();
+
+          const missingTranslationKeyword: string = workspace.getConfiguration('i18nSync')[
+            'missingTranslation'
+          ];
+
+          const regExp = new RegExp(missingTranslationKeyword, 'g');
+
+          let missingTranslation: RegExpExecArray | null;
+          const currentPosition = currentEditor.selection.isEmpty
+            ? currentEditor.selection.active
+            : currentEditor.selection.end;
+
+          let range: Range | undefined;
+          let firstRange: Range | undefined;
+
+          while (!range && (missingTranslation = regExp.exec(text))) {
+            const start = document.positionAt(missingTranslation.index);
+            const end = document.positionAt(
+              missingTranslation.index + missingTranslation[0].length,
+            );
+
+            if (!firstRange) {
+              firstRange = new Range(start, end);
+            }
+
+            if (end.isAfter(currentPosition)) {
+              range = new Range(start, end);
+            }
+          }
+
+          range = range || firstRange;
+
+          if (range) {
+            currentEditor.selection = new Selection(range.start, range.end);
+          }
+        }
+      } catch (ex) {
+        window.showErrorMessage(ex.message);
+      }
+    },
+  );
+
+  context.subscriptions.push(findNextDisposable);
 
   window.onDidChangeActiveTextEditor((editor) => {
     currentEditor = editor;

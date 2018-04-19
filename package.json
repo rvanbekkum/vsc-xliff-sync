@@ -24,7 +24,11 @@
   },
   "categories": ["Other"],
   "main": "./out/extension",
-  "activationEvents": ["onCommand:extension.synchronizeFiles", "workspaceContains:**/*.xlf"],
+  "activationEvents": [
+    "onCommand:extension.synchronizeFiles",
+    "workspaceContains:**/*.xlf",
+    "onCommand:extension.findNextMissingTarget"
+  ],
   "contributes": {
     "configuration": {
       "title": "Angular i18n Synchronization Configuration",
@@ -61,7 +65,13 @@
     "commands": [
       {
         "command": "extension.synchronizeFiles",
-        "title": "i18n Sync"
+        "title": "Merge",
+        "category": "Angular i18n"
+      },
+      {
+        "command": "extension.findNextMissingTarget",
+        "title": "Next",
+        "category": "Angular i18n"
       }
     ],
     "keybindings": [
@@ -75,6 +85,17 @@
         {
           "command": "extension.synchronizeFiles",
           "group": "editing",
+          "when": "resourceExtname == .xlf"
+        },
+        {
+          "command": "extension.findNextMissingTarget",
+          "group": "editing",
+          "when": "resourceExtname == .xlf"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "extension.findNextMissingTarget",
           "when": "resourceExtname == .xlf"
         }
       ]
