@@ -19,6 +19,7 @@
     "color": "#ccccff",
     "theme": "light"
   },
+  "keywords": ["Angular", "i18n", "xliff", "localization"],
   "engines": {
     "vscode": "^1.21.0"
   },
