@@ -18,7 +18,7 @@ Install through terminal: `ext install angular-localization-helper`
 
 ## Usage
 
-Generate/Update the base localization using the angular-cli, then use the extension to merge the changes into existing file.
+Generate/Update the base localization file using the angular-cli, then use the extension to merge the changes into existing file.
 
 ### Using the Command Palette
 
@@ -27,7 +27,7 @@ Generate/Update the base localization using the angular-cli, then use the extens
 
 By default, the extension expects the base file to be named `messages.xlf`. If no corresponding file is found, you are prompted to identify the base file. This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update. You can also create a new file.
 
-On Macbook Pros the extension's commands appear on the touchbar.
+On Macbook Pros the extension's commands appear on the touchbar within xlf files.
 
 ## Extension Settings
 
@@ -50,7 +50,6 @@ Missing translation highlight decoration
 ## Known Issues
 
 * Xlf 2.0 and Xmb format are not yet implemented
-* Incorrect highlight on find next missing translation
 * List missing translations are not yet implemented
 
 ## Release Notes
