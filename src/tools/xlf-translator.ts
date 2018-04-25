@@ -23,8 +23,24 @@ export class XlfTranslator {
 
       if (!targetUnit) {
         const meaning = this.getMeaning(unit);
+        const description = this.getDescription(unit);
+        const source = this.getSource(unit);
 
-        if (meaning) {
+        if (meaning && source) {
+          targetUnit = this.getTranslationUnitByMeaningAndSource(targetTransUnit, meaning, source);
+        }
+
+        // TODO: enable this through an option
+        if (!targetUnit && meaning && description) {
+          targetUnit = this.getTranslationUnitByMeaningAndDescription(
+            targetTransUnit,
+            meaning,
+            description,
+          );
+        }
+
+        // TODO: enable this through an option
+        if (meaning && !targetUnit) {
           targetUnit = this.getTranslationUnitByMeaning(targetTransUnit, meaning);
         }
       }
@@ -149,6 +165,17 @@ export class XlfTranslator {
     return nodes.find((node) => node.attributes.id === id);
   }
 
+  private static getSource(node: XmlNode): string | undefined {
+    const sourceNode = <XmlNode | undefined>node.children.find(
+      (node) => typeof node !== 'string' && node.name === 'source',
+    );
+    if (sourceNode) {
+      return JSON.stringify(sourceNode.children);
+    } else {
+      return undefined;
+    }
+  }
+
   private static getMeaning(node: XmlNode): string | undefined {
     const meaningNote = <XmlNode | undefined>node.children.find(
       (node) =>
@@ -166,11 +193,50 @@ export class XlfTranslator {
     return;
   }
 
+  private static getDescription(node: XmlNode): string | undefined {
+    const descriptionNote = <XmlNode | undefined>node.children.find(
+      (node) =>
+        typeof node !== 'string' && node.name === 'note' && node.attributes.from === 'description',
+    );
+
+    if (
+      descriptionNote &&
+      descriptionNote.children &&
+      descriptionNote.children.length &&
+      typeof descriptionNote.children[0] === 'string'
+    ) {
+      return <string>descriptionNote.children[0];
+    }
+    return;
+  }
+
+  private static getTranslationUnitByMeaningAndSource(
+    nodes: XmlNode[],
+    meaning: string,
+    source: string,
+  ): XmlNode | undefined {
+    return nodes
+      ? nodes.find((node) => this.getMeaning(node) === meaning && this.getSource(node) === source)
+      : undefined;
+  }
+
   private static getTranslationUnitByMeaning(
     nodes: XmlNode[],
     meaning: string,
   ): XmlNode | undefined {
     return nodes ? nodes.find((node) => this.getMeaning(node) === meaning) : undefined;
+  }
+
+  private static getTranslationUnitByMeaningAndDescription(
+    nodes: XmlNode[],
+    meaning: string,
+    description: string,
+  ): XmlNode | undefined {
+    return nodes
+      ? nodes.find(
+          (node) => this.getMeaning(node) === meaning && this.getDescription(node) === description,
+        )
+      : undefined;
   }
 
   private static appendTargetNode(transUnit: XmlNode, targetNode: XmlNode): void {
