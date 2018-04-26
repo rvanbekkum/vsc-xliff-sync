@@ -10,6 +10,17 @@ export class XmlBuilder {
     const outputNode: XMLElementOrXMLNode = create(root.name, {
       version: '1.0',
       encoding: 'UTF-8',
+      stringify: {
+        attValue: (str: string) =>
+          str
+            .replace(/(?!&\S+;)&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/\t/g, '&#x9;')
+            .replace(/\n/g, '&#xA;')
+            .replace(/\r/g, '&#xD;'),
+      },
     });
 
     if (root.attributes) {
@@ -20,7 +31,7 @@ export class XmlBuilder {
 
     for (const element of root.children) {
       if (typeof element === 'string') {
-        outputNode.text(element);
+        outputNode.raw(element);
       } else {
         this.appendNode(outputNode, element);
       }
