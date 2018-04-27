@@ -44,6 +44,18 @@
           "default": "xlf",
           "description": "Specifies the i18n file's type (xlf, xlf2 or xmb)"
         },
+        "i18nSync.findByMeaningAndDescription": {
+          "type": "boolean",
+          "default": true,
+          "description":
+            "Specifies whether or not the extension will try to find translation unit by meaning and description"
+        },
+        "i18nSync.findByMeaning": {
+          "type": "boolean",
+          "default": true,
+          "description":
+            "Specifies whether or not the extension will try to find translation unit by meaning"
+        },
         "i18nSync.missingTranslation": {
           "type": "string",
           "default": "!MISSING_TRANSLATION!",
@@ -78,11 +90,15 @@
     "keybindings": [
       {
         "command": "extension.synchronizeFiles",
-        "key": "ctrl+alt+s"
+        "key": "ctrl+win+s",
+        "mac": "ctrl+cmd+s",
+        "linux": "ctrl+meta+s"
       },
       {
         "command": "extension.findNextMissingTarget",
-        "key": "ctrl+alt+n",
+        "key": "ctrl+win+n",
+        "mac": "ctrl+cmd+n",
+        "linux": "ctrl+meta+n",
         "when": "resourceExtname == .xlf"
       }
     ],

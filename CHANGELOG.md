@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Merge xliff 1.2 files
 * Highlight and Search for next missing translation
 
-## [0.0.5] - 2018-08-25 (Beta Release)
+## [0.0.5] - 2018-08-26 (Beta Release)
 
 * Merge by Id, by Meaning and Source, by Meaning and Description or Meaning
 * Find next missing translation default keybinding
+* Special character bug fix
+* Highlight Bug Fix
+* Find Next Bug Fix

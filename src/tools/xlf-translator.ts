@@ -8,6 +8,10 @@ export class XlfTranslator {
     const output = await new XmlParser().parseDocument(source);
     const targetDocument = await new XmlParser().parseDocument(target);
     const missingTranslation: string = workspace.getConfiguration('i18nSync')['missingTranslation'];
+    const findByMeaningAndDescription: boolean = workspace.getConfiguration('i18nSync')[
+      'findByMeaningAndDescription'
+    ];
+    const findByMeaning: boolean = workspace.getConfiguration('i18nSync')['findByMeaning'];
 
     const language = this.getSourceLanguage(targetDocument);
 
@@ -30,8 +34,7 @@ export class XlfTranslator {
           targetUnit = this.getTranslationUnitByMeaningAndSource(targetTransUnit, meaning, source);
         }
 
-        // TODO: enable this through an option
-        if (!targetUnit && meaning && description) {
+        if (!targetUnit && findByMeaningAndDescription && meaning && description) {
           targetUnit = this.getTranslationUnitByMeaningAndDescription(
             targetTransUnit,
             meaning,
@@ -39,8 +42,7 @@ export class XlfTranslator {
           );
         }
 
-        // TODO: enable this through an option
-        if (meaning && !targetUnit) {
+        if (!targetUnit && findByMeaning && meaning) {
           targetUnit = this.getTranslationUnitByMeaning(targetTransUnit, meaning);
         }
       }

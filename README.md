@@ -18,14 +18,40 @@ Install through terminal: `ext install angular-localization-helper`
 
 ## Usage
 
-Generate/Update the base localization file using the angular-cli, then use the extension to merge the changes into existing file.
+Generate/Update the base localization file using the angular-cli, then use the extension to merge the changes into a new or an existing translation file.
+
+The extension will try to find corresponding translations units within an existing file for each units in the base file by searching units in the following order:
+
+> 1.  By Id
+> 2.  By Meaning & Source
+> 3.  By Meaning & Description (optional)
+> 4.  By Meaning (optional)
+
+If no translation unit is found, the unit is added and tagged as missing.
 
 ### Using the Command Palette
 
-> 1.  CMD + Shift + P to open the command palette
-> 2.  i18n Sync
+> 1.  F1 or CMD + Shift + P to open the command palette
+> 2.  Angular i18n: Sync
+
+### Using keyboard shortcut
+
+> 1.  Ctrl + Windows + S or Ctrl + Cmd + S (default shortcut)
 
 By default, the extension expects the base file to be named `messages.xlf`. If no corresponding file is found, you are prompted to identify the base file. This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update. You can also create a new file.
+
+## Find Missing Translations
+
+Missing Translations are tagged and highlighted. You can use the extension to navigate between missing tranaslations
+
+### Using the Command Palette
+
+> 1.  F1 or CMD + Shift + P to open the command palette
+> 2.  Angular i18n: Next
+
+### Using keyboard shortcut
+
+> 1.  Ctrl + Windows + N or Ctrl + Cmd + N (default shortcut)
 
 On Macbook Pros the extension's commands appear on the touchbar within xlf files.
 
@@ -50,7 +76,7 @@ Missing translation highlight decoration
 ## Known Issues
 
 * Xlf 2.0 and Xmb format are not yet implemented
-* List missing translations are not yet implemented
+* List missing translations is not yet implemented
 
 ## Release Notes
 

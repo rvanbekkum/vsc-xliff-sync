@@ -1,4 +1,14 @@
-import { commands, ExtensionContext, window, workspace, Uri, Range, Selection } from 'vscode';
+import {
+  commands,
+  ExtensionContext,
+  window,
+  workspace,
+  Uri,
+  Range,
+  Selection,
+  TextEditorDecorationType,
+  TextEditorRevealType,
+} from 'vscode';
 
 import { FilesHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
@@ -8,6 +18,10 @@ import * as path from 'path';
 export function activate(context: ExtensionContext) {
   let currentEditor = window.activeTextEditor;
   let timeout: NodeJS.Timer;
+
+  const decorationType: TextEditorDecorationType = window.createTextEditorDecorationType(
+    workspace.getConfiguration('i18nSync')['decoration'],
+  );
 
   const disposable = commands.registerCommand('extension.synchronizeFiles', async () => {
     try {
@@ -171,6 +185,9 @@ export function activate(context: ExtensionContext) {
 
           if (range) {
             currentEditor.selection = new Selection(range.start, range.end);
+            currentEditor.revealRange(range, TextEditorRevealType.InCenterIfOutsideViewport);
+          } else {
+            window.showInformationMessage('All missing translations have been resolved');
           }
         }
       } catch (ex) {
@@ -202,10 +219,6 @@ export function activate(context: ExtensionContext) {
       const missingTranslationKeyword: string = workspace.getConfiguration('i18nSync')[
         'missingTranslation'
       ];
-
-      const decorationType = window.createTextEditorDecorationType(
-        workspace.getConfiguration('i18nSync')['decoration'],
-      );
 
       const regExp = new RegExp(missingTranslationKeyword, 'g');
 
