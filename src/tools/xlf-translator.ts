@@ -172,7 +172,7 @@ export class XlfTranslator {
       (node) => typeof node !== 'string' && node.name === 'source',
     );
     if (sourceNode) {
-      return JSON.stringify(sourceNode.children);
+      return XmlBuilder.create(sourceNode);
     } else {
       return undefined;
     }

@@ -52,7 +52,7 @@ export class XmlBuilder {
 
     for (const element of source.children) {
       if (typeof element === 'string') {
-        appendedNode.text(element);
+        appendedNode.raw(element);
       } else {
         this.appendNode(appendedNode, element);
       }
