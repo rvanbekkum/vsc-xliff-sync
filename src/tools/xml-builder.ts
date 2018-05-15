@@ -31,7 +31,7 @@ export class XmlBuilder {
 
     for (const element of root.children) {
       if (typeof element === 'string') {
-        outputNode.raw(element);
+        outputNode.text(element);
       } else {
         this.appendNode(outputNode, element);
       }
@@ -52,7 +52,7 @@ export class XmlBuilder {
 
     for (const element of source.children) {
       if (typeof element === 'string') {
-        appendedNode.raw(element);
+        appendedNode.text(element);
       } else {
         this.appendNode(appendedNode, element);
       }

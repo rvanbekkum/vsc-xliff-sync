@@ -7,16 +7,15 @@ export class XlfTranslator {
   public static async synchronize(source: string, target: string): Promise<string> {
     const output = await new XmlParser().parseDocument(source);
     const targetDocument = await new XmlParser().parseDocument(target);
-    const missingTranslation: string = workspace.getConfiguration('i18nSync')['missingTranslation'];
     const findByMeaningAndDescription: boolean = workspace.getConfiguration('i18nSync')[
       'findByMeaningAndDescription'
     ];
     const findByMeaning: boolean = workspace.getConfiguration('i18nSync')['findByMeaning'];
 
-    const language = this.getSourceLanguage(targetDocument);
+    const language = this.getTargetLanguage(targetDocument);
 
     if (language) {
-      this.setSourceLanguage(output, language);
+      this.setTargetLanguage(output, language);
     }
 
     const outputTransUnit = this.getTranslationUnitNodes(output) || [];
@@ -47,30 +46,7 @@ export class XlfTranslator {
         }
       }
 
-      let targetNode: XmlNode | undefined;
-
-      if (targetUnit) {
-        targetNode = <XmlNode | undefined>targetUnit.children.find(
-          (child) => typeof child !== 'string' && child.name === 'target',
-        );
-      }
-
-      if (!targetNode) {
-        targetNode = {
-          name: 'target',
-          local: 'target',
-          parent: unit,
-          attributes: {},
-          children: [missingTranslation],
-          isSelfClosing: false,
-          prefix: '',
-          uri: '',
-        };
-      }
-
-      if (targetNode) {
-        this.appendTargetNode(unit, targetNode);
-      }
+      this.mergeUnit(unit, targetUnit);
     });
 
     let retVal = XmlBuilder.create(output)!;
@@ -101,7 +77,7 @@ export class XlfTranslator {
     root.children.push({
       local: 'file',
       attributes: {
-        'source-language': language,
+        'target-language': language,
       },
       children: [],
       isSelfClosing: false,
@@ -113,14 +89,14 @@ export class XlfTranslator {
     return XmlBuilder.create(root);
   }
 
-  private static getSourceLanguage(node: XmlNode): string | undefined {
+  private static getTargetLanguage(node: XmlNode): string | undefined {
     if (node) {
       if (node.name === 'file') {
-        return node.attributes['source-language'];
+        return node.attributes['target-language'];
       } else {
         for (const child of node.children) {
           if (typeof child !== 'string') {
-            const language = this.getSourceLanguage(child);
+            const language = this.getTargetLanguage(child);
             if (language) {
               return language;
             }
@@ -131,15 +107,15 @@ export class XlfTranslator {
     return;
   }
 
-  private static setSourceLanguage(node: XmlNode, language: string): void {
+  private static setTargetLanguage(node: XmlNode, language: string): void {
     if (node) {
       if (node.name === 'file') {
-        node.attributes['source-language'] = language;
+        node.attributes['target-language'] = language;
         return;
       } else {
         for (const child of node.children) {
           if (typeof child !== 'string') {
-            this.setSourceLanguage(child, language);
+            this.setTargetLanguage(child, language);
           }
         }
       }
@@ -255,6 +231,57 @@ export class XlfTranslator {
       transUnit.children.splice(sourceIdx + 1, 0, transUnit.children[sourceIdx - 1], targetNode);
     } else {
       transUnit.children.push(targetNode);
+    }
+  }
+
+  private static mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined): void {
+    let targetNode: XmlNode | undefined;
+
+    // TODO: Fetch from options
+    const preserveTargetOrder = true;
+
+    if (targetUnit) {
+      if (preserveTargetOrder) {
+        const sourceAttributes = sourceUnit.attributes;
+        sourceUnit.attributes = targetUnit.attributes;
+        sourceUnit.attributes['id'] = sourceAttributes['id'];
+        for (const attr in sourceAttributes) {
+          if (!sourceUnit.attributes[attr]) {
+            sourceUnit.attributes[attr] = sourceAttributes[attr];
+          }
+        }
+      } else {
+        for (const attr in targetUnit.attributes) {
+          if (attr !== 'id') {
+            sourceUnit.attributes[attr] = targetUnit.attributes[attr];
+          }
+        }
+      }
+
+      targetNode = <XmlNode | undefined>targetUnit.children.find(
+        (child) => typeof child !== 'string' && child.name === 'target',
+      );
+    }
+
+    if (!targetNode) {
+      const missingTranslation: string = workspace.getConfiguration('i18nSync')[
+        'missingTranslation'
+      ];
+
+      targetNode = {
+        name: 'target',
+        local: 'target',
+        parent: sourceUnit,
+        attributes: {},
+        children: [missingTranslation],
+        isSelfClosing: false,
+        prefix: '',
+        uri: '',
+      };
+    }
+
+    if (targetNode) {
+      this.appendTargetNode(sourceUnit, targetNode);
     }
   }
 }
