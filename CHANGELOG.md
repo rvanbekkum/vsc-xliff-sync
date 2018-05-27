@@ -7,21 +7,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.1.2] - 2018-05-16 (RC 3)
+## [0.2.0] - 2018-05-27
+
+### Added
+
+* Support for Xlf 2.0
+* Convert between Xlf 1.2 and 2.0
+
+## [0.1.2] - 2018-05-16
 
 ### Fixed
 
 * Preserve target file attributes
 * target language bug fix
 
-## [0.1.1] - 2018-04-29 (RC 2)
+## [0.1.1] - 2018-04-29
 
 ### Fixed
 
 * Special character bug fix
 * Source compare bug fix
 
-## [0.1.0] - 2018-04-26 (RC 1)
+## [0.1.0] - 2018-04-26
 
 ### Added
 

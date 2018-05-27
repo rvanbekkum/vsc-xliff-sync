@@ -6,8 +6,9 @@ Visual Studio Code extension to help maintaining angular i18n localization files
 
 * Merge @angular-cli generated file into existing localization file.
 * Search and highlight missing translations.
-* Currently support Xliff 1.2
-* Upcoming support for Xliff 2.0 and Xmb files
+* Currently support Xliff 1.2 and 2.0
+* Convert between Xliff 1.2 and 2.0 format
+* Upcoming support for Xmb files
 * Macbook Pro Touchbar support.
 
 ## Installation
@@ -18,7 +19,7 @@ Install through terminal: `ext install angular-localization-helper`
 
 ## Usage
 
-Generate/Update the base localization file using the angular-cli, then use the extension to merge the changes into a new or an existing translation file.
+Generate/Update the base localization file using the [angular-cli](https://angular.io/guide/i18n), then use the extension to merge the changes into a new or an existing translation file.
 
 The extension will try to find corresponding translations units within an existing file for each units in the base file by searching units in the following order:
 
@@ -28,6 +29,8 @@ The extension will try to find corresponding translations units within an existi
 > 4.  By Meaning (optional)
 
 If no translation unit is found, the unit is added and tagged as missing.
+
+The extension can convert translations files from one type to another. Simply generate the base file from the angular-cli with a new file type and then merge the translation files. They will be automatically changed to the new file type.
 
 ### Using the Command Palette
 
@@ -75,14 +78,8 @@ Missing translation highlight decoration
 
 ## Known Issues
 
-* Xlf 2.0 and Xmb format are not yet implemented
+* Xmb format is not yet implemented
 * List missing translations is not yet implemented
-
-## Release Notes
-
-### 1.0.0
-
-Initial release. Synchronize Xlf 1.2 files
 
 ---
 

@@ -8,6 +8,7 @@ import {
   Selection,
   TextEditorDecorationType,
   TextEditorRevealType,
+  TextDocument,
 } from 'vscode';
 
 import { FilesHelper } from './tools';
@@ -78,6 +79,7 @@ export function activate(context: ExtensionContext) {
       const activeEditor = window.activeTextEditor;
 
       let targetUri: Uri | undefined;
+      let targetLanguage: string | undefined;
 
       // First try the active file
       if (activeEditor) {
@@ -93,34 +95,40 @@ export function activate(context: ExtensionContext) {
         if (!targetPath) {
           throw new Error('No target file selected');
         } else if (targetPath === 'New File...') {
-          const targetLanguage = await window.showInputBox({ placeHolder: 'Region/Language Code' });
+          targetLanguage = await window.showInputBox({ placeHolder: 'Region/Language Code' });
 
           if (!targetLanguage) {
             throw new Error('No target language specified');
-          } else {
-            const newDoc = XlfTranslator.createNewDocument(targetLanguage);
-
-            if (!newDoc) {
-              throw new Error('Unable to generate new localization file');
-            }
-
-            targetUri = await FilesHelper.createTranslationFile(targetLanguage, sourceUri, newDoc);
           }
         } else {
           targetUri = uris.find((uri) => uri.fsPath === targetPath)!;
         }
       }
 
-      if (!targetUri) {
+      if (!targetUri && !targetLanguage) {
         throw new Error('No target file specified');
       }
 
       const source = (await workspace.openTextDocument(sourceUri)).getText();
-      const target = (await workspace.openTextDocument(targetUri)).getText();
+      const target = targetUri
+        ? (await workspace.openTextDocument(targetUri)).getText()
+        : undefined;
 
-      const output = await XlfTranslator.synchronize(source, target);
+      const output = await XlfTranslator.synchronize(source, target, targetLanguage);
 
-      const document = await workspace.openTextDocument(targetUri);
+      if (!output) {
+        throw new Error('No ouput generated');
+      }
+
+      let document: TextDocument;
+
+      if (targetUri) {
+        document = await workspace.openTextDocument(targetUri);
+      } else {
+        targetUri = await FilesHelper.createTranslationFile(targetLanguage!, sourceUri, output);
+        document = await workspace.openTextDocument(targetUri);
+      }
+
       const editor = await window.showTextDocument(document);
 
       if (!editor) {
