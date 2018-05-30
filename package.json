@@ -2,7 +2,7 @@
     "name": "angular-localization-helper",
     "displayName": "Angular Localization Helper",
     "description": "Keeps angular i18n translation files (xliff 1.2, xliff 2 and xmb files) in sync, finds and adds missing translations",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "publisher": "manux54",
     "repository": {
         "type": "git",

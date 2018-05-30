@@ -137,7 +137,7 @@ export function activate(context: ExtensionContext) {
 
       const range = new Range(
         document.positionAt(0),
-        document.positionAt(document.getText().length - 1),
+        document.positionAt(document.getText().length),
       );
 
       await editor.edit((editBuilder) => {
