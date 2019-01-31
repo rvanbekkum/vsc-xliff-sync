@@ -74,7 +74,7 @@ By default, the extension expects the base-XLIFF file to be named `translations.
 #### Using the Command Palette
 
 > 1.  F1 or CMD + Shift + P to open the command palette
-> 2.  Angular i18n: Next
+> 2.  **XLIFF: Next Missing Translation**
 
 #### Using keyboard shortcut
 
