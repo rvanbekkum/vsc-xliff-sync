@@ -80,14 +80,15 @@ export class XlfDocument {
     if (!this.root) {
       return [];
     }
+    let transUnits: XmlNode[] = [];
 
     switch (this.version) {
       case '1.2':
         const bodyNode = this.getNode('body', this.root);
         if (bodyNode) {
-          return <XmlNode[]>bodyNode.children.filter(
-            (node) => typeof node !== 'string' && node.name === 'trans-unit',
-          );
+          transUnits = this.getTranslationUnitsFromRoot(bodyNode);
+          transUnits = transUnits.concat(this.getGroupTranslationUnitNodes(bodyNode));
+          return transUnits;
         } else {
           return [];
         }
@@ -103,6 +104,26 @@ export class XlfDocument {
       default:
         return [];
     }
+  }
+
+  private getGroupTranslationUnitNodes(rootNode: XmlNode): XmlNode[] {
+    let transUnits: XmlNode[] = [];
+    let groupNodes: XmlNode[] = <XmlNode[]> rootNode.children.filter(
+      (node) => typeof node !== 'string' && node.name === 'group',
+    );
+    groupNodes.forEach(
+      groupNode => {
+        transUnits = transUnits.concat(this.getTranslationUnitsFromRoot(groupNode));
+        transUnits = transUnits.concat(this.getGroupTranslationUnitNodes(groupNode));
+      }
+    );
+    return transUnits;
+  }
+
+  private getTranslationUnitsFromRoot(rootNode: XmlNode): XmlNode[] {
+    return <XmlNode[]> rootNode.children.filter(
+      (node) => typeof node !== 'string' && node.name === 'trans-unit',
+    );
   }
 
   private root: XmlNode | undefined;
@@ -310,7 +331,7 @@ export class XlfDocument {
     }
 
     if (!targetNode) {
-      const missingTranslation: string = workspace.getConfiguration('i18nSync')[
+      const missingTranslation: string = workspace.getConfiguration('xliffSync')[
         'missingTranslation'
       ];
 

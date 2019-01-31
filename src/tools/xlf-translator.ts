@@ -7,11 +7,11 @@ export class XlfTranslator {
     target: string | undefined,
     targetLanguage: string | undefined,
   ): Promise<string | undefined> {
-    const findByMeaningAndDescription: boolean = workspace.getConfiguration('i18nSync')[
+    const findByMeaningAndDescription: boolean = workspace.getConfiguration('xliffSync')[
       'findByMeaningAndDescription'
     ];
 
-    const findByMeaning: boolean = workspace.getConfiguration('i18nSync')['findByMeaning'];
+    const findByMeaning: boolean = workspace.getConfiguration('xliffSync')['findByMeaning'];
 
     const mergedDocument = await XlfDocument.load(source);
 
