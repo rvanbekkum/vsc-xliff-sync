@@ -22,6 +22,11 @@ export class FilesHelper {
     const newFilePath = path.parse(baseUri.fsPath);
     newFilePath.name += `.${language}`;
     newFilePath.base = newFilePath.name + newFilePath.ext;
+    //TODO: Make this configurable?
+    if (newFilePath.base.endsWith(`.g.${language}.xlf`)) {
+      newFilePath.name = newFilePath.name.replace(`.g.${language}`, `.${language}`);
+      newFilePath.base = newFilePath.base.replace(`.g.${language}.xlf`, `.${language}.xlf`);
+    }
     const xlfPath = path.format(newFilePath);
 
     return new Promise<Uri>((resolve, reject) => {

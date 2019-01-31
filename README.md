@@ -33,7 +33,7 @@ This extension is a fork of the [Angular Localization Helper extension](https://
 | ------- | ------- | ----------- |
 | xliffSync.baseFile | `translations.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the next you use the Synchronize command. |
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
-| xliffSync.missingTranslation | `!MISSING_TRANSLATION!` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. |
+| xliffSync.missingTranslation | `!MISSING_TRANSLATION!` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.findByMeaningAndDescription | `true` | Specifies whether or not the extension will try to find trans-units by meaning and description. |
 | xliffSync.findByMeaning | `true` | Specifies whether or not the extension will try to find translation unit by meaning. |
 

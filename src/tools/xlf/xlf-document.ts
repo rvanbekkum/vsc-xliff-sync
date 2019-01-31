@@ -331,9 +331,12 @@ export class XlfDocument {
     }
 
     if (!targetNode) {
-      const missingTranslation: string = workspace.getConfiguration('xliffSync')[
+      let missingTranslation: string = workspace.getConfiguration('xliffSync')[
         'missingTranslation'
       ];
+      if (missingTranslation == '%EMPTY%') {
+        missingTranslation = '';
+      }
 
       targetNode = {
         name: 'target',
