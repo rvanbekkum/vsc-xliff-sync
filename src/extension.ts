@@ -3,7 +3,7 @@ import {
     ExtensionContext
 } from 'vscode';
 
-import { synchronizeFiles } from './features/trans-sync';
+import { synchronizeFiles, synchronizeWithSelectedFile } from './features/trans-sync';
 import { XliffTranslationChecker } from './features/trans-check';
 
 export function activate(context: ExtensionContext) {
@@ -16,8 +16,13 @@ export function activate(context: ExtensionContext) {
     );
 
     context.subscriptions.push(
-        commands.registerCommand('xliffSync.synchronizeAllFiles', async () => {
-            synchronizeFiles(true);
+        commands.registerCommand('xliffSync.synchronizeSources', async (fileUri?) => {
+            if (!fileUri) {
+                synchronizeFiles(true);
+            }
+            else {
+                synchronizeWithSelectedFile(fileUri);
+            }
         })
     );
 }
