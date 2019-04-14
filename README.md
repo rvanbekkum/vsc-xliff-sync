@@ -30,6 +30,8 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open workspace folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
 | **XLIFF: Next Missing Translation** | In an XLIFF that is currently opened in the active editor, search for the next missing translation. |
 
+![XLIFF Sync Command Palette Commands](resources/xliffSync_commandPaletteCommands.png)
+
 ### Settings
 
 | Setting | Default | Explanation |
@@ -82,6 +84,8 @@ By default, the extension expects the base-XLIFF file to be named `application.g
 If you select the base-XLIFF file, then translation units will be synced to all other XLIFF files in the workspace.
 If you select any other XLIFF file, then translation untis will be synced from the base-XLIFF file to the selected file.
 
+![XLIFF Sync Sync. Translation Units from Context Menu](resources/xliffSync_synchronizeTranslationUnits_contextMenu.png)
+
 ### Check for Missing Translations
 
 #### Using the Command Palette
@@ -89,7 +93,9 @@ If you select any other XLIFF file, then translation untis will be synced from t
 > 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
 > 2. **XLIFF: Check for Missing Translations**
 
-This will check all XLIFF files in the workspace and notify about any missing translations in the files.
+This will check all XLIFF files in the workspace and notify about any missing translations in the files. You also have the option to open files with missing translations with your default XLIFF editor using the **Open Externally** button from the informational message.
+
+![XLIFF Sync Check Missing Translations Messages](resources/xliffSync_checkMissingTranslations.png)
 
 ### Find Next Missing Translation in XLIFF File
 
