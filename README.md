@@ -108,4 +108,3 @@ On a Macbook Pro, the extension's commands appear on the touchbar within XLIFF f
 ## Known Issues
 
 * Automatically inserting new group nodes into target files may not work yet.
-* The "Next Missing Translation" command won't work at the moment when using the empty string for missing translations.
