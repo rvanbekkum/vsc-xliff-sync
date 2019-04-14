@@ -1,6 +1,5 @@
 import { workspace } from 'vscode';
 import { XlfDocument } from './xlf/xlf-document';
-import { XmlNode } from './xml-node';
 
 export class XlfTranslator {
   public static async synchronize(

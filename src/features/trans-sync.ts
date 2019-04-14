@@ -55,7 +55,7 @@ export async function synchronizeWithSelectedFile(fileUri: Uri) {
 * 
 * @returns An array of all file URIs to the XLIFF files in the current workspace.
 */
-async function getXliffFileUrisInWorkSpace(): Promise<Uri[]> {
+export async function getXliffFileUrisInWorkSpace(): Promise<Uri[]> {
     let fileType: string | undefined = workspace.getConfiguration('xliffSync')['fileType'];
     let uris: Uri[] = [];
 
@@ -91,7 +91,7 @@ async function getXliffFileUrisInWorkSpace(): Promise<Uri[]> {
  * @param {Uri[]} xliffUris Array of XLIFF file URIs.
  * @returns The Uri of the base/source XLIFF file.
  */
-async function getXliffSourceFile(xliffUris: Uri[]): Promise<Uri> {
+export async function getXliffSourceFile(xliffUris: Uri[]): Promise<Uri> {
     const baseFile: string = workspace.getConfiguration('xliffSync')['baseFile'];
     let sourceUri = baseFile ? xliffUris.find((uri) => uri.fsPath.indexOf(baseFile) >= 0) : undefined;
 
