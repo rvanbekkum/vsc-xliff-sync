@@ -88,7 +88,7 @@ async function getXliffFileUrisInWorkSpace(): Promise<Uri[]> {
  * Retrieves the base/source/generated XLIFF file from a collection of XLIFF file URIs.
  * Also prompts the user to specify a base file, if this wasn't done already.
  * 
- * @param {Uri[]} Array of XLIFF file URIs.
+ * @param {Uri[]} xliffUris Array of XLIFF file URIs.
  * @returns The Uri of the base/source XLIFF file.
  */
 async function getXliffSourceFile(xliffUris: Uri[]): Promise<Uri> {

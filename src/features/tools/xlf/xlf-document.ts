@@ -215,10 +215,23 @@ export class XlfDocument {
     );
   }
 
+  public findFirstTranslationUnitBySource(source: string): XmlNode | undefined {
+    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source);
+  }
+
   public getUnitSource(unitNode: XmlNode): string | undefined {
     const sourceNode = this.getNode('source', unitNode);
     if (sourceNode) {
       return XmlBuilder.create(sourceNode);
+    } else {
+      return undefined;
+    }
+  }
+
+  public getUnitTranslation(unitNode: XmlNode): string | undefined {
+    const translationNode = this.getNode('target', unitNode);
+    if (translationNode && typeof translationNode.children[0] === 'string') {
+      return translationNode.children[0] as string;
     } else {
       return undefined;
     }
@@ -303,7 +316,7 @@ export class XlfDocument {
     return undefined;
   }
 
-  public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined): void {
+  public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translation?: string): void {
     let targetNode: XmlNode | undefined;
 
     // TODO: Fetch from options
@@ -331,19 +344,26 @@ export class XlfDocument {
     }
 
     if (!targetNode) {
-      let missingTranslation: string = workspace.getConfiguration('xliffSync')[
-        'missingTranslation'
-      ];
-      if (missingTranslation == '%EMPTY%') {
-        missingTranslation = '';
+      let attributes: { [key: string]: string; } = {};
+      if (!translation) {
+        let missingTranslation: string = workspace.getConfiguration('xliffSync')[
+          'missingTranslation'
+        ];
+        if (missingTranslation == '%EMPTY%') {
+          missingTranslation = '';
+        }
+        translation = missingTranslation;
+      }
+      else {
+        attributes['state'] = 'translated';
       }
 
       targetNode = {
         name: 'target',
         local: 'target',
         parent: sourceUnit,
-        attributes: {},
-        children: [missingTranslation],
+        attributes: attributes,
+        children: [translation],
         isSelfClosing: false,
         prefix: '',
         uri: '',

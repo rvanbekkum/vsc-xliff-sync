@@ -1,5 +1,6 @@
 import { workspace } from 'vscode';
 import { XlfDocument } from './xlf/xlf-document';
+import { XmlNode } from './xml-node';
 
 export class XlfTranslator {
   public static async synchronize(
@@ -12,6 +13,8 @@ export class XlfTranslator {
     ];
 
     const findByMeaning: boolean = workspace.getConfiguration('xliffSync')['findByMeaning'];
+
+    const findBySource: boolean = workspace.getConfiguration('xliffSync')['findBySource'];
 
     const mergedDocument = await XlfDocument.load(source);
 
@@ -32,8 +35,11 @@ export class XlfTranslator {
       mergedDocument.targetLanguage = language;
     }
 
+    let sourceTranslations: { [key: string]: string | undefined; } = {};
+
     mergedDocument.translationUnitNodes.forEach((unit) => {
       let targetUnit = targetDocument.findTranslationUnit(unit.attributes.id);
+      let translation = undefined;
 
       if (!targetUnit) {
         const meaning = mergedDocument.getUnitMeaning(unit);
@@ -54,9 +60,22 @@ export class XlfTranslator {
         if (!targetUnit && findByMeaning && meaning) {
           targetUnit = targetDocument.findTranslationUnitByMeaning(meaning);
         }
+
+        if (!targetUnit && findBySource && source) {
+          if (!(source in sourceTranslations)) {
+            targetUnit = targetDocument.findFirstTranslationUnitBySource(source);
+            if (targetUnit) {
+              translation = targetDocument.getUnitTranslation(targetUnit);
+              sourceTranslations[source] = translation;
+            }
+          }
+          else {
+            translation = sourceTranslations[source];
+          }
+        }
       }
 
-      mergedDocument.mergeUnit(unit, targetUnit);
+      mergedDocument.mergeUnit(unit, targetUnit, translation);
     });
 
     return mergedDocument.extract();
