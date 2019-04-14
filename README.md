@@ -27,6 +27,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | ------- | ----------- |
 | **XLIFF: Synchronize to Single File** | Merge new trans-units from base-XLIFF file into a manually specified target XLIFF file. |
 | **XLIFF: Synchronize Translation Units** | Merge new trans-units from base-XLIFF file into all other XLIFF files in the open workspace folder. |
+| **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open workspace folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
 | **XLIFF: Next Missing Translation** | In an XLIFF that is currently opened in the active editor, search for the next missing translation. |
 
 ### Settings
@@ -80,6 +81,15 @@ By default, the extension expects the base-XLIFF file to be named `application.g
 
 If you select the base-XLIFF file, then translation units will be synced to all other XLIFF files in the workspace.
 If you select any other XLIFF file, then translation untis will be synced from the base-XLIFF file to the selected file.
+
+### Check for Missing Translations
+
+#### Using the Command Palette
+
+> 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
+> 2. **XLIFF: Check for Missing Translations**
+
+This will check all XLIFF files in the workspace and notify about any missing translations in the files.
 
 ### Find Next Missing Translation in XLIFF File
 

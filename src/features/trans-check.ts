@@ -1,5 +1,6 @@
 import {
     commands,
+    env,
     ExtensionContext,
     Range,
     Selection,
@@ -8,7 +9,10 @@ import {
     TextEditorRevealType,
     window,
     workspace,
+    Uri,
 } from 'vscode';
+import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
+import { XlfDocument } from './tools/xlf/xlf-document';
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
@@ -28,8 +32,16 @@ export class XliffTranslationChecker {
                 this.findNextMissingTranslation();
             },
         );
+
+        const checkForMissingTranslationsDisposable = commands.registerCommand(
+            'xliffSync.checkForMissingTranslations', 
+            async() => {
+                this.checkForMissingTranslations();
+            }
+        );
         
         context.subscriptions.push(findNextDisposable);
+        context.subscriptions.push(checkForMissingTranslationsDisposable);
 
         window.onDidChangeActiveTextEditor((editor) => {
             currentEditor = editor;
@@ -45,15 +57,68 @@ export class XliffTranslationChecker {
         this.pushHighlightUpdate();
     }
 
+    private async checkForMissingTranslations() {
+        try {
+            let uris: Uri[] = await getXliffFileUrisInWorkSpace();
+
+            let sourceUri: Uri = await getXliffSourceFile(uris);
+            let targetUris = uris.filter((uri) => uri !== sourceUri);
+
+            let missingTranslation: string = workspace.getConfiguration('xliffSync')[
+                'missingTranslation'
+            ];
+            if (missingTranslation == '%EMPTY%') {
+                missingTranslation = '';
+            }
+
+            for (let index = 0; index < targetUris.length; index++) {
+                let targetUri: Uri = targetUris[index];
+                if (!targetUri) {
+                    continue;
+                }
+                const target = targetUri
+                    ? (await workspace.openTextDocument(targetUri)).getText()
+                    : undefined;
+                if (!target) {
+                    continue;
+                }
+
+                let missingCount = 0;
+                const targetDocument = await XlfDocument.load(target);
+                targetDocument.translationUnitNodes.forEach((unit) => {
+                    const translation = targetDocument.getUnitTranslation(unit);
+                    if (!translation || translation === missingTranslation) {
+                        missingCount += 1;
+                    }
+                });
+
+                if (missingCount > 0) {
+                    const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
+                    window.showInformationMessage(`"${fileName}": ${missingCount} missing translations.`, 'Open Externally').then(selection => {
+                        if (selection == 'Open Externally') {
+                            env.openExternal(targetUri);
+                        }
+                    });
+                }
+            }
+        }
+        catch (ex) {
+            window.showErrorMessage(ex.message);
+        }
+    }
+
     private async findNextMissingTranslation() {
         try {
             if (currentEditor && currentEditor.document) {
                 const document = currentEditor.document;
                 const text = document.getText();
 
-                const missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
+                let missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
                     'missingTranslation'
                 ];
+                if (missingTranslationKeyword == '%EMPTY%') {
+                    missingTranslationKeyword = '<target/>';
+                }
 
                 const regExp = new RegExp(missingTranslationKeyword, 'g');
 

@@ -21,7 +21,7 @@
         "al"
     ],
     "engines": {
-        "vscode": "^1.21.0"
+        "vscode": "^1.31.0"
     },
     "categories": [
         "Other"
@@ -95,6 +95,11 @@
                 "command": "xliffSync.findNextMissingTarget",
                 "title": "Next Missing Translation",
                 "category": "XLIFF"
+            },
+            {
+                "command": "xliffSync.checkForMissingTranslations",
+                "title": "Check for Missing Translations",
+                "category": "XLIFF"
             }
         ],
         "keybindings": [
@@ -131,13 +136,13 @@
                     "when": "resourceExtname == .xlf"
                 }
             ],
-			"explorer/context": [
-				{
-					"command": "xliffSync.synchronizeSources",
-					"group": "navigation",
-					"when": "resourceExtname == .xlf"
-				}
-			]
+            "explorer/context": [
+                {
+                    "command": "xliffSync.synchronizeSources",
+                    "group": "navigation",
+                    "when": "resourceExtname == .xlf"
+                }
+            ]
         }
     },
     "scripts": {
@@ -156,7 +161,7 @@
         "@types/xmlbuilder": "0.0.32",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.17"
+        "vscode": "^1.1.33"
     },
     "prettier": {
         "printWidth": 100,
