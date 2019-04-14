@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -55,6 +55,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Specifies whether or not the extension will try to find translation units by meaning"
+                },
+                "xliffSync.findBySource": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether or not the extension will try to find translation units by source"
                 },
                 "xliffSync.missingTranslation": {
                     "type": "string",

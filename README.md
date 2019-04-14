@@ -38,6 +38,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.missingTranslation | `!MISSING_TRANSLATION!` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.findByMeaningAndDescription | `true` | Specifies whether or not the extension will try to find trans-units by meaning and description. |
 | xliffSync.findByMeaning | `true` | Specifies whether or not the extension will try to find translation unit by meaning. |
+| xliffSync.findBySource | `false` | Specifies whether or not the extension will try to find translation unit by source. If there are multiple translation units with the same source, then the translation of the first translation unit is used for all units. |
 
 ## Usage
 
@@ -47,6 +48,7 @@ The extension will try to find corresponding translations units within an existi
 > 2.  By Meaning & Source
 > 3.  By Meaning & Description (optional)
 > 4.  By Meaning (optional)
+> 5.  By Source (optional)
 
 If no translation unit is found, the unit is added and tagged as missing.
 
