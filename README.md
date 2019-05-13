@@ -39,18 +39,20 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.baseFile | `application.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the next you use the Synchronize command. |
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
-| xliffSync.findByMeaningAndDescription | `true` | Specifies whether or not the extension will try to find trans-units by meaning and description. |
-| xliffSync.findByMeaning | `true` | Specifies whether or not the extension will try to find translation unit by meaning. |
+| "xliffSync.findByXliffGeneratorAndDeveloperNote" | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and developer note. |
+| xliffSync.findByXliffGeneratorNote | `true` | Specifies whether or not the extension will try to find translation unit by XLIFF generator note. |
 | xliffSync.findBySource | `false` | Specifies whether or not the extension will try to find translation unit by source. If there are multiple translation units with the same source, then the translation of the first translation unit is used for all units. |
+| xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
+| xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
 
 ## Usage
 
 The extension will try to find corresponding translations units within an existing file for each units in the base file by searching units in the following order:
 
 > 1.  By Id
-> 2.  By Meaning & Source
-> 3.  By Meaning & Description (optional)
-> 4.  By Meaning (optional)
+> 2.  By XLIFF Generator note & Source
+> 3.  By XLIFF Generator note & Developer Note (optional)
+> 4.  By XLIFF Generator note (optional)
 > 5.  By Source (optional)
 
 If no translation unit is found, the unit is added and tagged as missing.
