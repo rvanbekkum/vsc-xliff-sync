@@ -62,9 +62,9 @@ export class XlfTranslator {
 
         if (!targetUnit && findBySource && source) {
           if (!(source in sourceTranslations)) {
-            targetUnit = targetDocument.findFirstTranslationUnitBySource(source);
-            if (targetUnit) {
-              translation = targetDocument.getUnitTranslation(targetUnit);
+            let transUnitTrl = targetDocument.findFirstTranslationUnitBySource(source);
+            if (transUnitTrl) {
+              translation = targetDocument.getUnitTranslation(transUnitTrl);
               sourceTranslations[source] = translation;
             }
           }

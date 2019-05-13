@@ -225,7 +225,7 @@ export class XlfDocument {
   }
 
   public findFirstTranslationUnitBySource(source: string): XmlNode | undefined {
-    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source);
+    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) != undefined);
   }
 
   public getUnitSource(unitNode: XmlNode): string | undefined {
