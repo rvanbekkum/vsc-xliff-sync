@@ -7,11 +7,11 @@ export class XlfTranslator {
     target: string | undefined,
     targetLanguage: string | undefined,
   ): Promise<string | undefined> {
-    const findByMeaningAndDescription: boolean = workspace.getConfiguration('xliffSync')[
-      'findByMeaningAndDescription'
+    const findByXliffGeneratorAndDeveloperNote: boolean = workspace.getConfiguration('xliffSync')[
+      'findByXliffGeneratorAndDeveloperNote'
     ];
 
-    const findByMeaning: boolean = workspace.getConfiguration('xliffSync')['findByMeaning'];
+    const findByXliffGeneratorNote: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorNote'];
 
     const findBySource: boolean = workspace.getConfiguration('xliffSync')['findBySource'];
 
@@ -41,23 +41,23 @@ export class XlfTranslator {
       let translation = undefined;
 
       if (!targetUnit) {
-        const meaning = mergedDocument.getUnitMeaning(unit);
-        const description = mergedDocument.getUnitDescription(unit);
+        const xliffGeneratorNote = mergedDocument.getUnitXliffGeneratorNote(unit);
+        const developerNote = mergedDocument.getUnitDeveloperNote(unit);
         const source = mergedDocument.getUnitSource(unit);
 
-        if (meaning && source) {
-          targetUnit = targetDocument.findTranslationUnitByMeaningAndSource(meaning, source);
+        if (xliffGeneratorNote && source) {
+          targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNoteAndSource(xliffGeneratorNote, source);
         }
 
-        if (!targetUnit && findByMeaningAndDescription && meaning && description) {
-          targetUnit = targetDocument.findTranslationUnitByMeaningAndDescription(
-            meaning,
-            description,
+        if (!targetUnit && findByXliffGeneratorAndDeveloperNote && xliffGeneratorNote && developerNote) {
+          targetUnit = targetDocument.findTranslationUnitByXliffGeneratorAndDeveloperNote(
+            xliffGeneratorNote,
+            developerNote,
           );
         }
 
-        if (!targetUnit && findByMeaning && meaning) {
-          targetUnit = targetDocument.findTranslationUnitByMeaning(meaning);
+        if (!targetUnit && findByXliffGeneratorNote && xliffGeneratorNote) {
+          targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNote(xliffGeneratorNote);
         }
 
         if (!targetUnit && findBySource && source) {

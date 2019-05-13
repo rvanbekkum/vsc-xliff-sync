@@ -49,12 +49,12 @@
                 "xliffSync.findByXliffGeneratorAndDeveloperNote": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Specifies whether or not the extension will try to find translation units by meaning and description"
+                    "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note and developer note"
                 },
                 "xliffSync.findByXliffGeneratorNote": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Specifies whether or not the extension will try to find translation units by meaning"
+                    "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note"
                 },
                 "xliffSync.findBySource": {
                     "type": "boolean",
@@ -65,6 +65,16 @@
                     "type": "string",
                     "default": "%EMPTY%",
                     "description": "Target tag content for missing translation (use %EMPTY% to leave new targets empty)"
+                },
+                "xliffSync.developerNoteDesignation": {
+                    "type" : "string",
+                    "default" : "Developer",
+                    "description": "Specifies the name that is used to designate a developer note"
+                },
+                "xliffSync.xliffGeneratorNoteDesignation": {
+                    "type" : "string",
+                    "default" : "Xliff Generator",
+                    "description": "Specifies the name that is used to designate a XLIFF generator note"
                 },
                 "xliffSync.decoration": {
                     "type": "object",

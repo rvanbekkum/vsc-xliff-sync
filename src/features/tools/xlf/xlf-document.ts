@@ -127,8 +127,17 @@ export class XlfDocument {
   }
 
   private root: XmlNode | undefined;
+  private developerNoteDesignation: string;
+  private xliffGeneratorNoteDesignation: string;
 
-  private constructor() {}
+  private constructor() {
+    this.developerNoteDesignation = workspace.getConfiguration('xliffSync')[
+      'developerNoteDesignation'
+    ];
+    this.xliffGeneratorNoteDesignation = workspace.getConfiguration('xliffSync')[
+      'xliffGeneratorNoteDesignation'
+    ];
+  }
 
   public static async load(source: string): Promise<XlfDocument> {
     const doc = new XlfDocument();
@@ -192,26 +201,26 @@ export class XlfDocument {
     return this.translationUnitNodes.find((node) => node.attributes.id === id);
   }
 
-  public findTranslationUnitByMeaningAndSource(
-    meaning: string,
+  public findTranslationUnitByXliffGeneratorNoteAndSource(
+    xliffGenNote: string,
     source: string,
   ): XmlNode | undefined {
     return this.translationUnitNodes.find(
-      (node) => this.getUnitMeaning(node) === meaning && this.getUnitSource(node) === source,
+      (node) => this.getUnitXliffGeneratorNote(node) === xliffGenNote && this.getUnitSource(node) === source,
     );
   }
 
-  public findTranslationUnitByMeaning(meaning: string): XmlNode | undefined {
-    return this.translationUnitNodes.find((node) => this.getUnitMeaning(node) === meaning);
+  public findTranslationUnitByXliffGeneratorNote(xliffGenNote: string): XmlNode | undefined {
+    return this.translationUnitNodes.find((node) => this.getUnitXliffGeneratorNote(node) === xliffGenNote);
   }
 
-  public findTranslationUnitByMeaningAndDescription(
-    meaning: string,
-    description: string,
+  public findTranslationUnitByXliffGeneratorAndDeveloperNote(
+    xliffGenNote: string,
+    devNote: string,
   ): XmlNode | undefined {
     return this.translationUnitNodes.find(
       (node) =>
-        this.getUnitMeaning(node) === meaning && this.getUnitDescription(node) === description,
+        this.getUnitXliffGeneratorNote(node) === xliffGenNote && this.getUnitDeveloperNote(node) === devNote,
     );
   }
 
@@ -237,25 +246,25 @@ export class XlfDocument {
     }
   }
 
-  public getUnitMeaning(unitNode: XmlNode): string | undefined {
-    let meaningNode: XmlNode | undefined;
+  public getUnitXliffGeneratorNote(unitNode: XmlNode): string | undefined {
+    let xliffGenNode: XmlNode | undefined;
 
     switch (this.version) {
       case '1.2':
-        meaningNode = <XmlNode | undefined>unitNode.children.find(
+        xliffGenNode = <XmlNode | undefined>unitNode.children.find(
           (node) =>
-            typeof node !== 'string' && node.name === 'note' && node.attributes.from === 'meaning',
+            typeof node !== 'string' && node.name === 'note' && node.attributes.from === this.xliffGeneratorNoteDesignation,
         );
         break;
 
       case '2.0':
         const notesNode = this.getNode('notes', unitNode);
         if (notesNode) {
-          meaningNode = <XmlNode | undefined>notesNode.children.find(
+          xliffGenNode = <XmlNode | undefined>notesNode.children.find(
             (node) =>
               typeof node !== 'string' &&
               node.name === 'note' &&
-              node.attributes.category === 'meaning',
+              node.attributes.category === this.xliffGeneratorNoteDesignation,
           );
         }
         break;
@@ -264,38 +273,38 @@ export class XlfDocument {
         break;
     }
     if (
-      meaningNode &&
-      meaningNode.children &&
-      meaningNode.children.length &&
-      typeof meaningNode.children[0] === 'string'
+      xliffGenNode &&
+      xliffGenNode.children &&
+      xliffGenNode.children.length &&
+      typeof xliffGenNode.children[0] === 'string'
     ) {
-      return <string>meaningNode.children[0];
+      return <string>xliffGenNode.children[0];
     }
 
     return undefined;
   }
 
-  public getUnitDescription(unitNode: XmlNode): string | undefined {
-    let descriptionNode: XmlNode | undefined;
+  public getUnitDeveloperNote(unitNode: XmlNode): string | undefined {
+    let devNode: XmlNode | undefined;
 
     switch (this.version) {
       case '1.2':
-        descriptionNode = <XmlNode | undefined>unitNode.children.find(
+        devNode = <XmlNode | undefined>unitNode.children.find(
           (node) =>
             typeof node !== 'string' &&
             node.name === 'note' &&
-            node.attributes.from === 'description',
+            node.attributes.from === this.developerNoteDesignation,
         );
         break;
 
       case '2.0':
         const notesNode = this.getNode('notes', unitNode);
         if (notesNode) {
-          descriptionNode = <XmlNode | undefined>notesNode.children.find(
+          devNode = <XmlNode | undefined>notesNode.children.find(
             (node) =>
               typeof node !== 'string' &&
               node.name === 'note' &&
-              node.attributes.category === 'description',
+              node.attributes.category === this.developerNoteDesignation,
           );
         }
         break;
@@ -305,12 +314,12 @@ export class XlfDocument {
     }
 
     if (
-      descriptionNode &&
-      descriptionNode.children &&
-      descriptionNode.children.length &&
-      typeof descriptionNode.children[0] === 'string'
+      devNode &&
+      devNode.children &&
+      devNode.children.length &&
+      typeof devNode.children[0] === 'string'
     ) {
-      return <string>descriptionNode.children[0];
+      return <string>devNode.children[0];
     }
 
     return undefined;
