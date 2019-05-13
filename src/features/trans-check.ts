@@ -58,59 +58,7 @@ export class XliffTranslationChecker {
     }
 
     private async checkForMissingTranslations() {
-        try {
-            let uris: Uri[] = await getXliffFileUrisInWorkSpace();
-
-            let sourceUri: Uri = await getXliffSourceFile(uris);
-            let targetUris = uris.filter((uri) => uri !== sourceUri);
-
-            let missingTranslation: string = workspace.getConfiguration('xliffSync')[
-                'missingTranslation'
-            ];
-            if (missingTranslation == '%EMPTY%') {
-                missingTranslation = '';
-            }
-
-            let missingTranslations: boolean = false;
-            for (let index = 0; index < targetUris.length; index++) {
-                let targetUri: Uri = targetUris[index];
-                if (!targetUri) {
-                    continue;
-                }
-                const target = targetUri
-                    ? (await workspace.openTextDocument(targetUri)).getText()
-                    : undefined;
-                if (!target) {
-                    continue;
-                }
-
-                let missingCount = 0;
-                const targetDocument = await XlfDocument.load(target);
-                targetDocument.translationUnitNodes.forEach((unit) => {
-                    const translation = targetDocument.getUnitTranslation(unit);
-                    if (!translation || translation === missingTranslation) {
-                        missingCount += 1;
-                    }
-                });
-
-                if (missingCount > 0) {
-                    missingTranslations = true;
-                    const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
-                    window.showInformationMessage(`"${fileName}": ${missingCount} missing translation(s).`, 'Open Externally').then(selection => {
-                        if (selection == 'Open Externally') {
-                            env.openExternal(targetUri);
-                        }
-                    });
-                }
-            }
-
-            if (!missingTranslations) {
-                window.showInformationMessage("No missing translations have been found!");
-            }
-        }
-        catch (ex) {
-            window.showErrorMessage(ex.message);
-        }
+        checkForMissingTranslations();
     }
 
     private async findNextMissingTranslation() {
@@ -198,5 +146,61 @@ export class XliffTranslationChecker {
         }
 
         timeout = setTimeout(this.highlightUpdate, 1);
+    }
+}
+
+export async function checkForMissingTranslations() {
+    try {
+        let uris: Uri[] = await getXliffFileUrisInWorkSpace();
+
+        let sourceUri: Uri = await getXliffSourceFile(uris);
+        let targetUris = uris.filter((uri) => uri !== sourceUri);
+
+        let missingTranslation: string = workspace.getConfiguration('xliffSync')[
+            'missingTranslation'
+        ];
+        if (missingTranslation == '%EMPTY%') {
+            missingTranslation = '';
+        }
+
+        let missingTranslations: boolean = false;
+        for (let index = 0; index < targetUris.length; index++) {
+            let targetUri: Uri = targetUris[index];
+            if (!targetUri) {
+                continue;
+            }
+            const target = targetUri
+                ? (await workspace.openTextDocument(targetUri)).getText()
+                : undefined;
+            if (!target) {
+                continue;
+            }
+
+            let missingCount = 0;
+            const targetDocument = await XlfDocument.load(target);
+            targetDocument.translationUnitNodes.forEach((unit) => {
+                const translation = targetDocument.getUnitTranslation(unit);
+                if (!translation || translation === missingTranslation) {
+                    missingCount += 1;
+                }
+            });
+
+            if (missingCount > 0) {
+                missingTranslations = true;
+                const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
+                window.showInformationMessage(`"${fileName}": ${missingCount} missing translation(s).`, 'Open Externally').then(selection => {
+                    if (selection == 'Open Externally') {
+                        env.openExternal(targetUri);
+                    }
+                });
+            }
+        }
+
+        if (!missingTranslations) {
+            window.showInformationMessage("No missing translations have been found!");
+        }
+    }
+    catch (ex) {
+        window.showErrorMessage(ex.message);
     }
 }

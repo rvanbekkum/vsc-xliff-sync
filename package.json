@@ -76,6 +76,11 @@
                     "default" : "Xliff Generator",
                     "description": "Specifies the name that is used to designate a XLIFF generator note"
                 },
+                "xliffSync.autoCheckMissingTranslations": {
+                    "type" : "boolean",
+                    "default" : false,
+                    "description": "Specifies whether or not the extension should automatically check for missing translations after syncing"
+                },
                 "xliffSync.decoration": {
                     "type": "object",
                     "default": {
