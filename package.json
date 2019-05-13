@@ -46,12 +46,12 @@
                     "default": "xlf",
                     "description": "Specifies the translation files' type (xlf, xlf2)"
                 },
-                "xliffSync.findByMeaningAndDescription": {
+                "xliffSync.findByXliffGeneratorAndDeveloperNote": {
                     "type": "boolean",
                     "default": true,
                     "description": "Specifies whether or not the extension will try to find translation units by meaning and description"
                 },
-                "xliffSync.findByMeaning": {
+                "xliffSync.findByXliffGeneratorNote": {
                     "type": "boolean",
                     "default": true,
                     "description": "Specifies whether or not the extension will try to find translation units by meaning"
@@ -63,7 +63,7 @@
                 },
                 "xliffSync.missingTranslation": {
                     "type": "string",
-                    "default": "!MISSING_TRANSLATION!",
+                    "default": "%EMPTY%",
                     "description": "Target tag content for missing translation (use %EMPTY% to leave new targets empty)"
                 },
                 "xliffSync.decoration": {
