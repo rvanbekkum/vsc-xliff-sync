@@ -71,6 +71,7 @@ export class XliffTranslationChecker {
                 missingTranslation = '';
             }
 
+            let missingTranslations: boolean = false;
             for (let index = 0; index < targetUris.length; index++) {
                 let targetUri: Uri = targetUris[index];
                 if (!targetUri) {
@@ -93,13 +94,18 @@ export class XliffTranslationChecker {
                 });
 
                 if (missingCount > 0) {
+                    missingTranslations = true;
                     const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
-                    window.showInformationMessage(`"${fileName}": ${missingCount} missing translations.`, 'Open Externally').then(selection => {
+                    window.showInformationMessage(`"${fileName}": ${missingCount} missing translation(s).`, 'Open Externally').then(selection => {
                         if (selection == 'Open Externally') {
                             env.openExternal(targetUri);
                         }
                     });
                 }
+            }
+
+            if (!missingTranslations) {
+                window.showInformationMessage("No missing translations have been found!");
             }
         }
         catch (ex) {
