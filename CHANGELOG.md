@@ -2,28 +2,26 @@
 
 All notable changes to the "XLIFF Sync" extension will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-
 ## [Unreleased]
 
 ## [0.1.4]
 * Changed default value of setting "xliffSync.missingTranslation" to `%EMPTY%`.
-* Changed setting `xliffSync.findByMeaningAndDescription` to `xliffSync.findByXliffGeneratorAndDeveloperNote`, and `xliffSync.findByMeaning` to `xliffSync.findByXliffGeneratorNote`. Also introduced settings `xliffSync.developerNoteDesignation` and `xliffSync.xliffGeneratorNoteDesignation` that can be used to customize the designations for note tags that will be used to merge trans-units, if merging/syncing based on ID fails.
-* Fixed bug in merging translation files based on source tag (N.B., when `xliffSync.findBySource` is set to `true`).
+* Changed setting `xliffSync.findByMeaningAndDescription` to `xliffSync.findByXliffGeneratorAndDeveloperNote`, and `xliffSync.findByMeaning` to `xliffSync.findByXliffGeneratorNote`. Also introduced settings `xliffSync.developerNoteDesignation` and `xliffSync.xliffGeneratorNoteDesignation` that can be used to customize the designations for note tags that will be used to merge trans-units, if merging/syncing based on ID fails (GitHub issue [#6](https://github.com/rvanbekkum/vsc-xliff-sync/issues/6)).
+* Fixed bug in merging translation files based on source tag (N.B., when `xliffSync.findBySource` is set to `true`) (GitHub issue [#3](https://github.com/rvanbekkum/vsc-xliff-sync/issues/3)).
+* After running "XLIFF: Check for Missing Translations", show a message if no missing translations were found (GitHub issue [#5](https://github.com/rvanbekkum/vsc-xliff-sync/issues/5)).
 
 ## [Prereleases]
 
 ## [0.1.3] 14-04-2019
 * Added setting to synchronize translation units based on "source" (disabled by default). Please note that if there are multiple translation units in the target XLIFF file(s) with the same source, then the translation of the first translation unit is used for all new units is used.
-* Added new command "XLIFF: Check for Missing Translations" to the command palette. This command will show an informational message for each XLIFF file with missing translations. From these messages you can also open the XLIFF file(s) with your default XLIFF editor with the **Open Externally* button.
+* Added new command "XLIFF: Check for Missing Translations" to the command palette. This command will show an informational message for each XLIFF file with missing translations. From these messages you can also open the XLIFF file(s) with your default XLIFF editor with the **Open Externally* button. (GitHub issue [#1](https://github.com/rvanbekkum/vsc-xliff-sync/issues/1))
 * The command "XLIFF: Next Missing Translation" will now also jump to the next empty translation if setting `xliffSync.missingTranslation` is set to `%EMPTY%`.
 * Updated the README file with screenshots and added setting/command.
 
 ## [0.1.2] 01-03-2019
 * Updated project information (in package.json and README.md)
 * Renamed commands
-* Add option in the explorer context-menu for XLIFF files, which will do the following:
+* Add option in the explorer context-menu for XLIFF files, which will do the following (GitHub issue [#2](https://github.com/rvanbekkum/vsc-xliff-sync/issues/2)):
   * In case the base-XLIFF file was selected, then the translation units of the base-XLIFF file will be synced to all other XLIFF files in the workspace.
   * In case any file other than the base-XLIFF file was selected, then only the selected file will be synced with the base-XLIFF file.
 
