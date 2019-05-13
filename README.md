@@ -44,6 +44,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.findBySource | `false` | Specifies whether or not the extension will try to find translation unit by source. If there are multiple translation units with the same source, then the translation of the first translation unit is used for all units. |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
+| xliffSync.autoCheckMissingTranslations | `false` | Specifies whether or not the extension should automatically check for missing translations after syncing. |
 
 ## Usage
 
