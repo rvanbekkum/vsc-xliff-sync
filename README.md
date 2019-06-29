@@ -36,7 +36,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 
 | Setting | Default | Explanation |
 | ------- | ------- | ----------- |
-| xliffSync.baseFile | `application.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the next you use the Synchronize command. |
+| xliffSync.baseFile | `application.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the first time you use the Synchronize command. |
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | "xliffSync.findByXliffGeneratorAndDeveloperNote" | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and developer note. |
@@ -45,6 +45,8 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
 | xliffSync.autoCheckMissingTranslations | `false` | Specifies whether or not the extension should automatically check for missing translations after syncing. |
+| xliffSync.preserveTargetAttributes | `false` | Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing. |
+| xliffSync.preserveTargetAttributesOrder | `false` | Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. |
 
 ## Usage
 
@@ -117,3 +119,4 @@ On a Macbook Pro, the extension's commands appear on the touchbar within XLIFF f
 ## Known Issues
 
 * Automatically inserting new group nodes into target files may not work yet.
+* The NAV2018 generated .g.xlf file does not include the Xliff Generator notes, therefore you should only synchronize based on ID with NAV2018.
