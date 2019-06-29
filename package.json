@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -80,6 +80,16 @@
                     "type" : "boolean",
                     "default" : false,
                     "description": "Specifies whether or not the extension should automatically check for missing translations after syncing"
+                },
+                "xliffSync.preserveTargetAttributes": {
+                    "type" : "boolean",
+                    "default" : false,
+                    "description": "Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing."
+                },
+                "xliffSync.preserveTargetAttributesOrder": {
+                    "type" : "boolean",
+                    "default" : false,
+                    "description": "Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing."
                 },
                 "xliffSync.decoration": {
                     "type": "object",
