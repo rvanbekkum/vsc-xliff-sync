@@ -228,6 +228,14 @@ export class XlfDocument {
     return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) != undefined);
   }
 
+  public getUnitNeedsTranslation(unitNode: XmlNode): boolean {
+    const translateAttribute = unitNode.attributes['translate'];
+    if (translateAttribute) {
+      return translateAttribute === 'yes';
+    }
+    return true;
+  }
+
   public getUnitSource(unitNode: XmlNode): string | undefined {
     const sourceNode = this.getNode('source', unitNode);
     if (sourceNode) {
@@ -368,7 +376,8 @@ export class XlfDocument {
       targetNode = this.getNode('target', targetUnit);
     }
 
-    if (!targetNode) {
+    const needsTranslation: boolean = this.getUnitNeedsTranslation(sourceUnit);
+    if (needsTranslation && !targetNode) {
       let attributes: { [key: string]: string; } = {};
       if (!translation) {
         let missingTranslation: string = workspace.getConfiguration('xliffSync')[
