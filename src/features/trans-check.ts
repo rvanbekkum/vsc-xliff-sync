@@ -179,9 +179,12 @@ export async function checkForMissingTranslations() {
             let missingCount = 0;
             const targetDocument = await XlfDocument.load(target);
             targetDocument.translationUnitNodes.forEach((unit) => {
-                const translation = targetDocument.getUnitTranslation(unit);
-                if (!translation || translation === missingTranslation) {
-                    missingCount += 1;
+                const needsTranslation: boolean = targetDocument.getUnitNeedsTranslation(unit);
+                if (needsTranslation) {
+                    const translation = targetDocument.getUnitTranslation(unit);
+                    if (!translation || translation === missingTranslation) {
+                        missingCount += 1;
+                    }
                 }
             });
 
