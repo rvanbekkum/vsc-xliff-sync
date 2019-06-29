@@ -31,7 +31,7 @@ export class XmlBuilder {
 
     for (const element of root.children) {
       if (typeof element === 'string') {
-        outputNode.text(element.replace('\r\n', '\n'));
+        outputNode.text(element.replace(/\r\n/g, '\n'));
       } else {
         this.appendNode(outputNode, element);
       }
@@ -52,7 +52,7 @@ export class XmlBuilder {
 
     for (const element of source.children) {
       if (typeof element === 'string') {
-        appendedNode.text(element.replace('\r\n', '\n'));
+        appendedNode.text(element.replace(/\r\n/g, '\n'));
       } else {
         this.appendNode(appendedNode, element);
       }
