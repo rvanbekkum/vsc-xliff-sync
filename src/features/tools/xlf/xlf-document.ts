@@ -403,8 +403,11 @@ export class XlfDocument {
         uri: '',
       };
     }
+    else if (!needsTranslation && targetNode) {
+      this.deleteTargetNode(sourceUnit);
+    }
 
-    if (targetNode) {
+    if (needsTranslation && targetNode) {
       this.appendTargetNode(sourceUnit, targetNode);
     }
   }
@@ -457,6 +460,15 @@ export class XlfDocument {
         break;
       default:
         break;
+    }
+  }
+
+  private deleteTargetNode(unit: XmlNode) {
+    if (unit) {
+      const index = unit.children.indexOf('target', 0);
+      if (index > -1) {
+        unit.children.splice(index, 1);
+      }
     }
   }
 
