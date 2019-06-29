@@ -8,6 +8,15 @@ N.A.
 
 ## [Prereleases]
 
+## [0.1.5] 29-06-2019
+* (Addressing GitHub issue [#9](https://github.com/rvanbekkum/vsc-xliff-sync/issues/9)): Added new settings which change the behaviour on how the extension deals with trans-unit node attributes from the source and target files:
+  * `xliffSync.preserveTargetAttributes` : Specifies whether or not the extension should use the attributes from the target files for the trans-unit nodes while syncing. (**Default**: `false`)
+  * `xliffSync.preserveTargetAttributesOrder` : Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. (**Default**: `false`)
+* While syncing translations there is now a check for the "translate" attribute. If translate="no", then the trans-unit node in the target file(s) won't get a new empty target-node. (GitHub issue [#8](https://github.com/rvanbekkum/vsc-xliff-sync/issues/8))
+* Also, while syncing, if a trans-unit node is found with translate="no" and it has a target-tag (a translation), then it will be deleted from the target file in question. (GitHub issue [#8](https://github.com/rvanbekkum/vsc-xliff-sync/issues/8))
+* The `XLIFF: Check for Missing Translations` command now also checks for the translate attribute, and won't count trans-unit nodes with translate="no" as missing anymore. (GitHub issue [#8](https://github.com/rvanbekkum/vsc-xliff-sync/issues/8))
+* Fixed bug where only the first occurrence of `\r\n` in elements were replaced with `\n`, leading to the issue that the string `&#xD;` would end up in multi-line translations while syncing when it shouldn't. (GitHub issue [#7](https://github.com/rvanbekkum/vsc-xliff-sync/issues/7))
+
 ## [0.1.4] 13-05-2019
 * Changed default value of setting "xliffSync.missingTranslation" to `%EMPTY%`.
 * Changed setting `xliffSync.findByMeaningAndDescription` to `xliffSync.findByXliffGeneratorAndDeveloperNote`, and `xliffSync.findByMeaning` to `xliffSync.findByXliffGeneratorNote`. Also introduced settings `xliffSync.developerNoteDesignation` and `xliffSync.xliffGeneratorNoteDesignation` that can be used to customize the designations for note tags that will be used to merge trans-units, if merging/syncing based on ID fails (GitHub issue [#6](https://github.com/rvanbekkum/vsc-xliff-sync/issues/6)).
