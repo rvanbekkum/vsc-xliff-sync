@@ -328,23 +328,39 @@ export class XlfDocument {
   public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translation?: string): void {
     let targetNode: XmlNode | undefined;
 
-    // TODO: Fetch from options
-    const preserveTargetOrder = true;
+    const preserveTargetAttributes: boolean = workspace.getConfiguration('xliffSync')[
+      'preserveTargetAttributes'
+    ];
+    const preserveTargetOrder: boolean = workspace.getConfiguration('xliffSync')[
+      'preserveTargetAttributesOrder'
+    ];
 
     if (targetUnit) {
-      if (preserveTargetOrder) {
-        const sourceAttributes = sourceUnit.attributes;
-        sourceUnit.attributes = targetUnit.attributes;
-        sourceUnit.attributes['id'] = sourceAttributes['id'];
-        for (const attr in sourceAttributes) {
-          if (!sourceUnit.attributes[attr]) {
-            sourceUnit.attributes[attr] = sourceAttributes[attr];
+      if (preserveTargetAttributes) {
+        // Use the target's attribute values
+        if (preserveTargetOrder) {
+          const sourceAttributes = sourceUnit.attributes;
+          sourceUnit.attributes = targetUnit.attributes;
+          sourceUnit.attributes['id'] = sourceAttributes['id'];
+          for (const attr in sourceAttributes) {
+            if (!sourceUnit.attributes[attr]) {
+              sourceUnit.attributes[attr] = sourceAttributes[attr];
+            }
+          }
+        } else {
+          for (const attr in targetUnit.attributes) {
+            if (attr !== 'id') {
+              sourceUnit.attributes[attr] = targetUnit.attributes[attr];
+            }
           }
         }
-      } else {
-        for (const attr in targetUnit.attributes) {
-          if (attr !== 'id') {
-            sourceUnit.attributes[attr] = targetUnit.attributes[attr];
+      }
+      else {
+        // Use the source's attribute values for the attributes in common, and extend these with any extra attributes from the target.
+        const targetAttributes = targetUnit.attributes;
+        for (const attr in targetAttributes) {
+          if (!sourceUnit.attributes[attr]) {
+            sourceUnit.attributes[attr] = targetAttributes[attr];
           }
         }
       }
