@@ -11,7 +11,7 @@ import { FilesHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
 
 import * as path from 'path';
-import { checkForMissingTranslations } from './trans-check';
+import { runTranslationChecks } from './trans-check';
 
 export async function synchronizeFiles(allFiles: boolean) {
     try {
@@ -195,9 +195,11 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
     const autoCheckMissingTranslations: boolean = workspace.getConfiguration('xliffSync')[
         'autoCheckMissingTranslations'
     ];
-    if (autoCheckMissingTranslations) {
-        checkForMissingTranslations();
-    }
+    const autoCheckNeedWorkTranslations: boolean = workspace.getConfiguration('xliffSync')[
+        'autoCheckNeedWorkTranslations'
+    ];
+
+    runTranslationChecks(autoCheckMissingTranslations, autoCheckNeedWorkTranslations);
 }
 
 async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[]) {
@@ -235,7 +237,9 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[]) {
     const autoCheckMissingTranslations: boolean = workspace.getConfiguration('xliffSync')[
         'autoCheckMissingTranslations'
     ];
-    if (autoCheckMissingTranslations) {
-        checkForMissingTranslations();
-    }
+    const autoCheckNeedWorkTranslations: boolean = workspace.getConfiguration('xliffSync')[
+        'autoCheckNeedWorkTranslations'
+    ];
+
+    runTranslationChecks(autoCheckMissingTranslations, autoCheckNeedWorkTranslations);
 }
