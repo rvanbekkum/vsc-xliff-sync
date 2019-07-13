@@ -387,21 +387,13 @@ export class XlfDocument {
           missingTranslation = '';
         }
         translation = missingTranslation;
+        attributes['state'] = 'needs-translation';
       }
       else {
         attributes['state'] = 'translated';
       }
 
-      targetNode = {
-        name: 'target',
-        local: 'target',
-        parent: sourceUnit,
-        attributes: attributes,
-        children: [translation],
-        isSelfClosing: false,
-        prefix: '',
-        uri: '',
-      };
+      targetNode = this.createTargetNode(sourceUnit, attributes, translation);
     }
     else if (!needsTranslation && targetNode) {
       this.deleteTargetNode(sourceUnit);
@@ -410,6 +402,19 @@ export class XlfDocument {
     if (needsTranslation && targetNode) {
       this.appendTargetNode(sourceUnit, targetNode);
     }
+  }
+
+  public createTargetNode(parentUnit: XmlNode, attributes: { [key: string]: string; }, translation: string): XmlNode {
+    return {
+      name: 'target',
+      local: 'target',
+      parent: parentUnit,
+      attributes: attributes,
+      children: [translation],
+      isSelfClosing: false,
+      prefix: '',
+      uri: '',
+    };
   }
 
   public appendTargetNode(unit: XmlNode, targetNode: XmlNode): void {
@@ -460,6 +465,19 @@ export class XlfDocument {
         break;
       default:
         break;
+    }
+  }
+
+  public setTargetAttribute(unit: XmlNode, attribute: string, attributeValue: string) {
+    let targetNode = this.getNode('target', unit);
+    if (!targetNode) {
+      let attributes: { [key: string]: string; } = {};
+      attributes[attribute] = attributeValue;
+      targetNode = this.createTargetNode(unit, attributes, "");
+      this.appendTargetNode(unit, targetNode);
+    }
+    else {
+      targetNode.attributes[attribute] = attributeValue;
     }
   }
 
