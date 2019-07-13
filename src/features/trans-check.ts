@@ -10,6 +10,7 @@ import {
     window,
     workspace,
     Uri,
+    TextDocument,
 } from 'vscode';
 import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { XlfDocument } from './tools/xlf/xlf-document';
@@ -195,34 +196,59 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
             const targetDocument = await XlfDocument.load(target);
             targetDocument.translationUnitNodes.forEach((unit) => {
                 if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
+                    targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
                     missingCount += 1;
                 }
                 if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit)) {
+                    targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
                     needWorkCount += 1;
                 }
             });
 
-            let showMessageForFile: boolean = false;
+            let problemDetectedInFile: boolean = false;
             let messagesText: string = "";
             if (missingCount > 0) {
                 noMissingTranslations = false;
-                showMessageForFile = true;
+                problemDetectedInFile = true;
                 messagesText += `${missingCount} missing translation(s).`;
             }
 
             if (needWorkCount > 0) {
                 noNeedWorkTranslations = false;
-                showMessageForFile = true;
+                problemDetectedInFile = true;
                 messagesText += `${needWorkCount} translation(s) that need work.`;
             }
 
-            if (showMessageForFile) {
+            if (problemDetectedInFile) {
                 const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
                 window.showInformationMessage(`"${fileName}": ${messagesText}`, 'Open Externally').then(selection => {
                     if (selection == 'Open Externally') {
                         env.openExternal(targetUri);
                     }
                 });
+
+                //TODO: The code below is copy-pasted from trans-sync.ts -> This should be put in a function that can be used by both files.
+                // Update the target document file with added needs-translation and need-adaptation attribute values
+                const output = targetDocument.extract();
+
+                if (!output) {
+                    throw new Error('No ouput generated');
+                }
+    
+                let document: TextDocument = await workspace.openTextDocument(targetUri);
+    
+                const range = new Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length),
+                );
+                
+                const editor: TextEditor = await window.showTextDocument(document);
+    
+                await editor.edit((editBuilder) => {
+                    editBuilder.replace(range, output);
+                });
+    
+                await document.save();
             }
         }
 
@@ -237,6 +263,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
     catch (ex) {
         window.showErrorMessage(ex.message);
     }
+    return false;
 }
 
 function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, missingTranslationText: string) : boolean {
@@ -251,6 +278,23 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
 }
 
 function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode) : boolean {
-    //TODO: Implement technical checks here
-    return false;
+    const sourceText = targetDocument.getUnitSource(unit);
+    const translText = targetDocument.getUnitTranslation(unit);
+    let problemDetected: boolean = false;
+    if (!sourceText || !translText) {
+        return problemDetected;
+    }
+
+    problemDetected = checkForMatchingPlaceHolders(sourceText, translText);
+
+    return problemDetected;
+}
+
+function checkForMatchingPlaceHolders(sourceText: string, translationText: string) {
+    let placeHolderProblemDetected = false;
+    let placeHolders = sourceText.match(/%[0-9]+|\{[0-9]+\}/g); // Match placeholders of the form %1 OR {0}
+    if (placeHolders) {
+        placeHolderProblemDetected = !placeHolders.every(placeholder => translationText.indexOf(placeholder) >= 0)
+    }
+    return placeHolderProblemDetected;
 }
