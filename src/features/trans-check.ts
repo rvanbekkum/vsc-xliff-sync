@@ -278,23 +278,65 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
 }
 
 function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode) : boolean {
-    const sourceText = targetDocument.getUnitSource(unit);
+    const sourceText = targetDocument.getUnitSourceText(unit);
     const translText = targetDocument.getUnitTranslation(unit);
-    let problemDetected: boolean = false;
     if (!sourceText || !translText) {
-        return problemDetected;
+        return false;
+    }
+ 
+    if (checkForPlaceHolderMismatch(sourceText, translText)) {
+        targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of placeholders in the source and translation text do not match.');
+        return true;
     }
 
-    problemDetected = checkForMatchingPlaceHolders(sourceText, translText);
+    if (isOptionCaptionUnit(targetDocument, unit)) {
+        if (checkForOptionMemberCountMismatch(sourceText, translText)) {
+            targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of option members in the source and translation text do not match.');
+            return true;
+        }
+        if (checkForOptionMemberLeadingSpacesMismatch(sourceText, translText)) {
+            targetDocument.setXliffSyncNote(unit, 'Problem detected: The leading spaces in the option values of the source and translation text do not match.');
+            return true;
+        }
+    }
 
-    return problemDetected;
+    targetDocument.deleteXliffSyncNote(unit);
+    return false;
 }
 
-function checkForMatchingPlaceHolders(sourceText: string, translationText: string) {
+function checkForPlaceHolderMismatch(sourceText: string, translationText: string) {
     let placeHolderProblemDetected = false;
     let placeHolders = sourceText.match(/%[0-9]+|\{[0-9]+\}/g); // Match placeholders of the form %1 OR {0}
     if (placeHolders) {
         placeHolderProblemDetected = !placeHolders.every(placeholder => translationText.indexOf(placeholder) >= 0)
     }
     return placeHolderProblemDetected;
+}
+
+
+function isOptionCaptionUnit(targetDocument: XlfDocument, unit: XmlNode) {
+    const xliffGenNote = targetDocument.getUnitXliffGeneratorNote(unit);
+    if (!xliffGenNote) {
+        return false;
+    }
+    return xliffGenNote.indexOf('Property OptionCaption') >= 0;
+}
+
+function checkForOptionMemberCountMismatch(sourceText: string, translationText: string) {
+    let noOfCommasSource = (sourceText.match(/,/g) || []).length;
+    let noOfCommasTransl = (translationText.match(/,/g) || []).length;
+    return noOfCommasSource !== noOfCommasTransl;
+}
+
+function checkForOptionMemberLeadingSpacesMismatch(sourceText: string, translationText: string) {
+    const sourceValues: string[] = sourceText.split(',');
+    const translValues: string[] = translationText.split(',');
+    for (let i in sourceValues) {
+        const whiteSpaceCountSource = sourceValues[i].search(/\S|$/);
+        const whiteSpaceCountTransl = translValues[i].search(/\S|$/);
+        if (whiteSpaceCountSource != whiteSpaceCountTransl) {
+            return true;
+        }
+    }
+    return false;
 }
