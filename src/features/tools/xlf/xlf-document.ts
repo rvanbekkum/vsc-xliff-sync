@@ -477,6 +477,17 @@ export class XlfDocument {
     }
   }
 
+  public getTargetAttribute(unit: XmlNode, attribute: string): string | undefined {
+    let targetNode = this.getNode('target', unit);
+    if (targetNode && targetNode.attributes) {
+      let attributeValue = targetNode.attributes[attribute];
+      if (attributeValue != null && typeof attributeValue !== "undefined") {
+        return attributeValue;
+      }
+    }
+    return undefined;
+  }
+
   public setTargetAttribute(unit: XmlNode, attribute: string, attributeValue: string) {
     let targetNode = this.getNode('target', unit);
     if (!targetNode) {

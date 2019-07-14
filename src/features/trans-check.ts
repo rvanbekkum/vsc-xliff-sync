@@ -300,7 +300,9 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode)
         }
     }
 
-    targetDocument.deleteXliffSyncNote(unit);
+    if (targetDocument.getTargetAttribute(unit, 'state') != 'needs-adaptation') {
+        targetDocument.deleteXliffSyncNote(unit);
+    }
     return false;
 }
 
