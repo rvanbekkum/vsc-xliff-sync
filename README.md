@@ -16,6 +16,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
   - Merge from the base-XLIFF file into a manually specified target XLIFF file.
   - Merge from the base-XLIFF file into all XLIFF files in the open workspace.
 * Search and highlight missing translations in an open XLIFF file.
+* Run technical validations to check for problems in the translations of target XLIFF files.
 * Support for XLIFF 1.2 and 2.0
 * Convert between XLIFF 1.2 and 2.0 format.
 
@@ -26,9 +27,10 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | Command | Explanation |
 | ------- | ----------- |
 | **XLIFF: Synchronize to Single File** | Merge new trans-units from base-XLIFF file into a manually specified target XLIFF file. |
-| **XLIFF: Synchronize Translation Units** | Merge new trans-units from base-XLIFF file into all other XLIFF files in the open workspace folder. |
-| **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open workspace folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
-| **XLIFF: Next Missing Translation** | In an XLIFF that is currently opened in the active editor, search for the next missing translation. |
+| **XLIFF: Synchronize Translation Units** | Merge new trans-units from base-XLIFF file into all other XLIFF files in the open project folder. |
+| **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open project folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
+| **XLIFF: Check for Need Work Translations** | Checks if there are translations that need work in the target XLIFF files in the open project folder. For example, the source text contains placeholders (e.g., "%1" or "{0}") while the translation does not. Translations with problems will be tagged with `needs-adaptation`. For each file with translations that need work, an informational message will be shown (with a button to open the file externally). |
+| **XLIFF: Next Missing Translation** | In an XLIFF file that is currently opened in the active editor, search for the next missing translation. |
 
 ![XLIFF Sync Command Palette Commands](resources/xliffSync_commandPaletteCommands.png)
 
@@ -45,6 +47,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
 | xliffSync.autoCheckMissingTranslations | `false` | Specifies whether or not the extension should automatically check for missing translations after syncing. |
+| xliffSync.autoCheckNeedWorkTranslations | `false` | Specifies whether or not the extension should automatically run a technical validation on translations after syncing |
 | xliffSync.preserveTargetAttributes | `false` | Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing. |
 | xliffSync.preserveTargetAttributesOrder | `false` | Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. |
 

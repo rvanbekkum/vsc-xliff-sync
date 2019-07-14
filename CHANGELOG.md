@@ -8,6 +8,9 @@ N.A.
 
 ## [Prereleases]
 
+## [0.1.6]
+* Added command and setting to check for translations that have problems and need work. The command `XLIFF: Check for Need Work Translations` will report about files that contain translations that need work and adds notes to describe the detected problem. You can also use setting `xliffSync.autoCheckNeedWorkTranslations` to automatically run the checks after syncing. (**Default**: `false`)
+
 ## [0.1.5] 29-06-2019
 * (Addressing GitHub issue [#9](https://github.com/rvanbekkum/vsc-xliff-sync/issues/9)): Added new settings which change the behaviour on how the extension deals with trans-unit node attributes from the source and target files:
   * `xliffSync.preserveTargetAttributes` : Specifies whether or not the extension should use the attributes from the target files for the trans-unit nodes while syncing. (**Default**: `false`)
