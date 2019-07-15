@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -81,6 +81,11 @@
                     "default" : false,
                     "description": "Specifies whether or not the extension should automatically check for missing translations after syncing"
                 },
+                "xliffSync.autoCheckNeedWorkTranslations": {
+                    "type" : "boolean",
+                    "default" : false,
+                    "description": "Specifies whether or not the extension should automatically run a technical validation on translations after syncing"
+                },
                 "xliffSync.preserveTargetAttributes": {
                     "type" : "boolean",
                     "default" : false,
@@ -124,6 +129,11 @@
             {
                 "command": "xliffSync.checkForMissingTranslations",
                 "title": "Check for Missing Translations",
+                "category": "XLIFF"
+            },
+            {
+                "command": "xliffSync.checkForNeedWorkTranslations",
+                "title": "Check for Need Work Translations",
                 "category": "XLIFF"
             }
         ],

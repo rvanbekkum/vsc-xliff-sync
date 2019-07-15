@@ -245,6 +245,15 @@ export class XlfDocument {
     }
   }
 
+  public getUnitSourceText(unitNode: XmlNode): string | undefined {
+    const sourceNode = this.getNode('source', unitNode);
+    if (sourceNode && typeof sourceNode.children[0] === 'string') {
+      return sourceNode.children[0] as string;
+    } else {
+      return undefined;
+    }
+  }
+
   public getUnitTranslation(unitNode: XmlNode): string | undefined {
     const translationNode = this.getNode('target', unitNode);
     if (translationNode && typeof translationNode.children[0] === 'string') {
@@ -387,21 +396,13 @@ export class XlfDocument {
           missingTranslation = '';
         }
         translation = missingTranslation;
+        attributes['state'] = 'needs-translation';
       }
       else {
         attributes['state'] = 'translated';
       }
 
-      targetNode = {
-        name: 'target',
-        local: 'target',
-        parent: sourceUnit,
-        attributes: attributes,
-        children: [translation],
-        isSelfClosing: false,
-        prefix: '',
-        uri: '',
-      };
+      targetNode = this.createTargetNode(sourceUnit, attributes, translation);
     }
     else if (!needsTranslation && targetNode) {
       this.deleteTargetNode(sourceUnit);
@@ -410,6 +411,19 @@ export class XlfDocument {
     if (needsTranslation && targetNode) {
       this.appendTargetNode(sourceUnit, targetNode);
     }
+  }
+
+  public createTargetNode(parentUnit: XmlNode, attributes: { [key: string]: string; }, translation: string): XmlNode {
+    return {
+      name: 'target',
+      local: 'target',
+      parent: parentUnit,
+      attributes: attributes,
+      children: [translation],
+      isSelfClosing: false,
+      prefix: '',
+      uri: '',
+    };
   }
 
   public appendTargetNode(unit: XmlNode, targetNode: XmlNode): void {
@@ -463,12 +477,119 @@ export class XlfDocument {
     }
   }
 
+  public getTargetAttribute(unit: XmlNode, attribute: string): string | undefined {
+    let targetNode = this.getNode('target', unit);
+    if (targetNode && targetNode.attributes) {
+      let attributeValue = targetNode.attributes[attribute];
+      if (attributeValue != null && typeof attributeValue !== "undefined") {
+        return attributeValue;
+      }
+    }
+    return undefined;
+  }
+
+  public setTargetAttribute(unit: XmlNode, attribute: string, attributeValue: string) {
+    let targetNode = this.getNode('target', unit);
+    if (!targetNode) {
+      let attributes: { [key: string]: string; } = {};
+      attributes[attribute] = attributeValue;
+      targetNode = this.createTargetNode(unit, attributes, "");
+      this.appendTargetNode(unit, targetNode);
+    }
+    else {
+      targetNode.attributes[attribute] = attributeValue;
+    }
+  }
+
   private deleteTargetNode(unit: XmlNode) {
     if (unit) {
       const index = unit.children.indexOf('target', 0);
       if (index > -1) {
         unit.children.splice(index, 1);
       }
+    }
+  }
+
+  public setXliffSyncNote(unit: XmlNode, noteText: string) {
+    let noteAttributes: { [key: string]: string; } = {};
+    const fromAttribute = 'XLIFF Sync';
+    let notesParent: XmlNode | undefined = unit;
+    switch (this.version) {
+      case '1.2':
+        noteAttributes['from'] = fromAttribute;
+        break;
+      case '2.0':
+        noteAttributes['category'] = fromAttribute;
+        notesParent = this.getNode('notes', unit);
+        if (!notesParent) {
+          notesParent = {
+            name: 'note',
+            local: 'note',
+            parent: unit,
+            attributes: {},
+            children: [],
+            isSelfClosing: false,
+            prefix: '',
+            uri: '',
+          };
+        }
+        unit.children.push(notesParent);
+        break;
+      default:
+        return;
+    }
+    noteAttributes['annotates'] = 'general';
+    noteAttributes['priority'] = '1';
+
+    let noteNode = {
+      name: 'note',
+      local: 'note',
+      parent: notesParent,
+      attributes: noteAttributes,
+      children: [noteText],
+      isSelfClosing: false,
+      prefix: '',
+      uri: '',
+    };
+
+    let noteIdx = notesParent.children.findIndex(
+      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] == fromAttribute,
+    );
+    let targetIdx = unit.children.findIndex(
+      (child) => typeof child !== 'string' && child && child.name === 'target',
+    );
+    if (noteIdx >= 0) {
+      notesParent.children[noteIdx] = noteNode;
+    }
+    else if (this.version == '1.2' && targetIdx) {
+      unit.children.splice(targetIdx + 1, 0, unit.children[targetIdx - 1], noteNode);
+    }
+    else {
+      notesParent.children.push(noteNode);
+    }
+  }
+
+  public deleteXliffSyncNote(unit: XmlNode) {
+    let notesParent: XmlNode | undefined = unit;
+    switch (this.version) {
+      case '1.2':
+        break;
+      case '2.0':
+        notesParent = this.getNode('notes', unit);
+        break;
+      default:
+        return;
+    }
+    if (!notesParent) {
+      return;
+    }
+
+    const fromAttribute = 'XLIFF Sync';
+    let noteIdx = notesParent.children.findIndex(
+      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] == fromAttribute,
+    );
+    if (noteIdx >= 0) {
+      notesParent.children.splice(noteIdx, 1);
     }
   }
 
