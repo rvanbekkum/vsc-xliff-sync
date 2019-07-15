@@ -1,7 +1,4 @@
 import {
-    Range,
-    TextDocument,
-    TextEditor,
     Uri,
     window,
     workspace
@@ -160,46 +157,14 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
         ? (await workspace.openTextDocument(targetUri)).getText()
         : undefined;
 
-    const output = await XlfTranslator.synchronize(source, target, targetLanguage);
+    const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage);
 
-    if (!output) {
+    if (!newFileContents) {
         throw new Error('No ouput generated');
     }
 
-    let document: TextDocument;
-
-    if (targetUri) {
-        document = await workspace.openTextDocument(targetUri);
-    } else {
-        targetUri = await FilesHelper.createTranslationFile(targetLanguage!, sourceUri, output);
-        document = await workspace.openTextDocument(targetUri);
-    }
-
-    const editor = await window.showTextDocument(document);
-
-    if (!editor) {
-        throw new Error('Failed to open target file');
-    }
-
-    const range = new Range(
-        document.positionAt(0),
-        document.positionAt(document.getText().length),
-    );
-
-    await editor.edit((editBuilder) => {
-        editBuilder.replace(range, output);
-    });
-
-    await document.save();
-
-    const autoCheckMissingTranslations: boolean = workspace.getConfiguration('xliffSync')[
-        'autoCheckMissingTranslations'
-    ];
-    const autoCheckNeedWorkTranslations: boolean = workspace.getConfiguration('xliffSync')[
-        'autoCheckNeedWorkTranslations'
-    ];
-
-    runTranslationChecks(autoCheckMissingTranslations, autoCheckNeedWorkTranslations);
+    FilesHelper.createNewTargetFile(sourceUri, newFileContents, targetUri, targetLanguage);
+    autoRunTranslationChecks();
 }
 
 async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[]) {
@@ -210,30 +175,21 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[]) {
             ? (await workspace.openTextDocument(targetUri)).getText()
             : undefined;
 
-        const output = await XlfTranslator.synchronize(source, target, undefined);
+        const newFileContents = await XlfTranslator.synchronize(source, target, undefined);
 
-        if (!output) {
+        if (!newFileContents) {
             throw new Error('No ouput generated');
         }
 
-        let document: TextDocument = await workspace.openTextDocument(targetUri);
-
-        const range = new Range(
-            document.positionAt(0),
-            document.positionAt(document.getText().length),
-        );
-        
-        const editor: TextEditor = await window.showTextDocument(document);
-
-        await editor.edit((editBuilder) => {
-            editBuilder.replace(range, output);
-        });
-
-        await document.save();
+        FilesHelper.createNewTargetFile(targetUri, newFileContents);
     }
 
     window.showInformationMessage('Translation files successfully synchronized!');
 
+    autoRunTranslationChecks();
+}
+
+async function autoRunTranslationChecks() {
     const autoCheckMissingTranslations: boolean = workspace.getConfiguration('xliffSync')[
         'autoCheckMissingTranslations'
     ];
