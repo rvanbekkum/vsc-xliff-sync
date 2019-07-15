@@ -192,6 +192,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
 
             let missingCount: number = 0;
             let needWorkCount: number = 0;
+            let problemResolvedInFile: boolean = false;
             const targetDocument = await XlfDocument.load(target);
             targetDocument.translationUnitNodes.forEach((unit) => {
                 if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
@@ -201,6 +202,9 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
                 if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit)) {
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
                     needWorkCount += 1;
+                }
+                if (shouldCheckForNeedWorkTranslations && !problemResolvedInFile && checkForResolvedProblem(targetDocument, unit)) {
+                    problemResolvedInFile = true;
                 }
             });
 
@@ -225,8 +229,10 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
                         env.openExternal(targetUri);
                     }
                 });
+            }
 
-                // Update the target document file with added needs-translation and need-adaptation attribute values
+            if (problemDetectedInFile || problemResolvedInFile) {
+                // Update the target document file with added needs-translation, need-adaptation attribute values and removed work-notes
                 const newFileContents = targetDocument.extract();
 
                 if (!newFileContents) {
@@ -285,10 +291,11 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode)
         }
     }
 
-    if (targetDocument.getTargetAttribute(unit, 'state') != 'needs-adaptation') {
-        targetDocument.deleteXliffSyncNote(unit);
-    }
     return false;
+}
+
+function checkForResolvedProblem(targetDocument: XlfDocument, unit: XmlNode) : boolean {
+    return targetDocument.getTargetAttribute(unit, 'state') != 'needs-adaptation' && targetDocument.tryDeleteXliffSyncNote(unit);
 }
 
 function checkForPlaceHolderMismatch(sourceText: string, translationText: string) {

@@ -569,7 +569,30 @@ export class XlfDocument {
     }
   }
 
-  public deleteXliffSyncNote(unit: XmlNode) {
+  public tryDeleteXliffSyncNote(unit: XmlNode): boolean {
+    let notesParent: XmlNode | undefined = this.getNotesParent(unit);
+    if (notesParent) {
+      const noteIdx: number = this.findXliffSyncNoteIndex(unit);
+      if (noteIdx >= 0) {
+        notesParent.children.splice(noteIdx, 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private findXliffSyncNoteIndex(notesParent: XmlNode | undefined): number {
+    if (!notesParent) {
+      return -1;
+    }
+
+    const fromAttribute = 'XLIFF Sync';
+    return notesParent.children.findIndex(
+      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] == fromAttribute,
+    );
+  }
+
+  private getNotesParent(unit: XmlNode): XmlNode | undefined {
     let notesParent: XmlNode | undefined = unit;
     switch (this.version) {
       case '1.2':
@@ -578,19 +601,9 @@ export class XlfDocument {
         notesParent = this.getNode('notes', unit);
         break;
       default:
-        return;
+        return undefined;
     }
-    if (!notesParent) {
-      return;
-    }
-
-    const fromAttribute = 'XLIFF Sync';
-    let noteIdx = notesParent.children.findIndex(
-      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] == fromAttribute,
-    );
-    if (noteIdx >= 0) {
-      notesParent.children.splice(noteIdx, 1);
-    }
+    return notesParent;
   }
 
   private getNode(tag: string, node: XmlNode): XmlNode | undefined {
