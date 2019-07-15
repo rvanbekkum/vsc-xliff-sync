@@ -292,14 +292,20 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode)
 }
 
 function checkForPlaceHolderMismatch(sourceText: string, translationText: string) {
-    let placeHolderProblemDetected = false;
-    let placeHolders = sourceText.match(/%[0-9]+|\{[0-9]+\}/g); // Match placeholders of the form %1 OR {0}
+    return checkForMissingPlaceHolders(sourceText, translationText) ||
+           checkForMissingPlaceHolders(translationText, sourceText);
+}
+
+function checkForMissingPlaceHolders(textWithPlaceHolders: string, textToCheck: string) {
+    const placeHolderRegex = /%[0-9]+|\{[0-9]+\}/g; // Match placeholders of the form %1 OR {0}
+    let placeHolderProblemDetected: boolean = false;
+
+    let placeHolders = textWithPlaceHolders.match(placeHolderRegex);
     if (placeHolders) {
-        placeHolderProblemDetected = !placeHolders.every(placeholder => translationText.indexOf(placeholder) >= 0)
+        placeHolderProblemDetected = !placeHolders.every(placeHolder => textToCheck.indexOf(placeHolder) >= 0);
     }
     return placeHolderProblemDetected;
 }
-
 
 function isOptionCaptionUnit(targetDocument: XlfDocument, unit: XmlNode) {
     const xliffGenNote = targetDocument.getUnitXliffGeneratorNote(unit);
