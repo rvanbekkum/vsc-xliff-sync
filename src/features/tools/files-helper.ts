@@ -1,4 +1,11 @@
-import { workspace, Uri } from 'vscode';
+import {
+  Range,
+  TextDocument,
+  TextEditor,
+  Uri,
+  window,
+  workspace
+} from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -37,5 +44,37 @@ export class FilesHelper {
         resolve(Uri.file(xlfPath));
       });
     });
+  }
+
+  public static async createNewTargetFile(targetUri: Uri | undefined, newFileContents: string, sourceUri?: Uri | undefined, targetLanguage?: string | undefined) {
+    let document: TextDocument;
+
+    if (targetUri) {
+        document = await workspace.openTextDocument(targetUri);
+    } 
+    else if (sourceUri) {
+        targetUri = await FilesHelper.createTranslationFile(targetLanguage!, sourceUri, newFileContents);
+        document = await workspace.openTextDocument(targetUri);
+    }
+    else {
+      throw new Error('Could not generate new target file');
+    }
+
+    const editor: TextEditor = await window.showTextDocument(document);
+
+    if (!editor) {
+        throw new Error('Failed to open target file');
+    }
+
+    const range = new Range(
+        document.positionAt(0),
+        document.positionAt(document.getText().length),
+    );
+
+    await editor.edit((editBuilder) => {
+        editBuilder.replace(range, newFileContents);
+    });
+
+    await document.save();
   }
 }

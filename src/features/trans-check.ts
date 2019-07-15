@@ -10,11 +10,10 @@ import {
     window,
     workspace,
     Uri,
-    TextDocument,
 } from 'vscode';
 import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { XlfDocument } from './tools/xlf/xlf-document';
-import { XmlNode } from './tools';
+import { XmlNode, FilesHelper } from './tools';
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
@@ -210,45 +209,31 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
             if (missingCount > 0) {
                 noMissingTranslations = false;
                 problemDetectedInFile = true;
-                messagesText += `${missingCount} missing translation(s).`;
+                messagesText += ` ${missingCount} missing translation(s).`;
             }
 
             if (needWorkCount > 0) {
                 noNeedWorkTranslations = false;
                 problemDetectedInFile = true;
-                messagesText += `${needWorkCount} translation(s) that need work.`;
+                messagesText += ` ${needWorkCount} translation(s) that need work.`;
             }
 
             if (problemDetectedInFile) {
                 const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
-                window.showInformationMessage(`"${fileName}": ${messagesText}`, 'Open Externally').then(selection => {
+                window.showInformationMessage(`"${fileName}":${messagesText}`, 'Open Externally').then(selection => {
                     if (selection == 'Open Externally') {
                         env.openExternal(targetUri);
                     }
                 });
 
-                //TODO: The code below is copy-pasted from trans-sync.ts -> This should be put in a function that can be used by both files.
                 // Update the target document file with added needs-translation and need-adaptation attribute values
-                const output = targetDocument.extract();
+                const newFileContents = targetDocument.extract();
 
-                if (!output) {
+                if (!newFileContents) {
                     throw new Error('No ouput generated');
                 }
     
-                let document: TextDocument = await workspace.openTextDocument(targetUri);
-    
-                const range = new Range(
-                    document.positionAt(0),
-                    document.positionAt(document.getText().length),
-                );
-                
-                const editor: TextEditor = await window.showTextDocument(document);
-    
-                await editor.edit((editBuilder) => {
-                    editBuilder.replace(range, output);
-                });
-    
-                await document.save();
+                FilesHelper.createNewTargetFile(targetUri, newFileContents);
             }
         }
 
