@@ -31,6 +31,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open project folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
 | **XLIFF: Check for Need Work Translations** | Checks if there are translations that need work in the target XLIFF files in the open project folder. For example, the source text contains placeholders (e.g., "%1" or "{0}") while the translation does not. Translations with problems will be tagged with `needs-adaptation`. For each file with translations that need work, an informational message will be shown (with a button to open the file externally). |
 | **XLIFF: Next Missing Translation** | In an XLIFF file that is currently opened in the active editor, search for the next missing translation. |
+| **XLIFF: Next Needs Work Translation** | In an XLIFF file that is currently opened in the active editor, search for the next translation tagged as `needs-adaptation`. |
 
 ![XLIFF Sync Command Palette Commands](resources/xliffSync_commandPaletteCommands.png)
 
@@ -50,6 +51,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.autoCheckNeedWorkTranslations | `false` | Specifies whether or not the extension should automatically run a technical validation on translations after syncing |
 | xliffSync.preserveTargetAttributes | `false` | Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing. |
 | xliffSync.preserveTargetAttributesOrder | `false` | Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. |
+| xliffSync.decoration | 'Highlight yellow, white border' | Specifies how to highlight missing translations or translations that need work in an XLIFF file opened in the editor. |
 
 ## Usage
 

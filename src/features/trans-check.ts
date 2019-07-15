@@ -27,10 +27,17 @@ export class XliffTranslationChecker {
             workspace.getConfiguration('xliffSync')['decoration'],
         );
 
-        const findNextDisposable = commands.registerCommand(
+        const findNextMissingDisposable = commands.registerCommand(
             'xliffSync.findNextMissingTarget',
             async () => {
                 this.findNextMissingTranslation();
+            },
+        );
+
+        const findNextNeedsWorkDisposable = commands.registerCommand(
+            'xliffSync.findNextNeedsWorkTarget',
+            async () => {
+                this.findNextNeedsWorkTranslation();
             },
         );
 
@@ -48,7 +55,8 @@ export class XliffTranslationChecker {
             }
         );
         
-        context.subscriptions.push(findNextDisposable);
+        context.subscriptions.push(findNextMissingDisposable);
+        context.subscriptions.push(findNextNeedsWorkDisposable);
         context.subscriptions.push(checkForMissingTranslationsDisposable);
         context.subscriptions.push(checkForNeedWorkTranslationsDisposable);
 
@@ -75,21 +83,21 @@ export class XliffTranslationChecker {
     }
 
     private async findNextMissingTranslation() {
+        this.findNext(getMissingTranslationKeyword(), 'All missing translations have been resolved.');
+    }
+
+    private async findNextNeedsWorkTranslation() {
+        this.findNext(getNeedsWorkTranslationKeyword(), 'All translations that need work have been resolved.');
+    }
+
+    private async findNext(keyWord: string, noMoreMatchesFoundText: string) {
         try {
             if (currentEditor && currentEditor.document) {
                 const document = currentEditor.document;
                 const text = document.getText();
+                const regExp = new RegExp(keyWord, 'g');
 
-                let missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
-                    'missingTranslation'
-                ];
-                if (missingTranslationKeyword == '%EMPTY%') {
-                    missingTranslationKeyword = '<target/>';
-                }
-
-                const regExp = new RegExp(missingTranslationKeyword, 'g');
-
-                let missingTranslation: RegExpExecArray | null;
+                let translationKeywordMatch: RegExpExecArray | null;
                 const currentPosition = currentEditor.selection.isEmpty
                     ? currentEditor.selection.active
                     : currentEditor.selection.end;
@@ -97,10 +105,10 @@ export class XliffTranslationChecker {
                 let range: Range | undefined;
                 let firstRange: Range | undefined;
 
-                while (!range && (missingTranslation = regExp.exec(text))) {
-                    const start = document.positionAt(missingTranslation.index);
+                while (!range && (translationKeywordMatch = regExp.exec(text))) {
+                    const start = document.positionAt(translationKeywordMatch.index);
                     const end = document.positionAt(
-                        missingTranslation.index + missingTranslation[0].length,
+                        translationKeywordMatch.index + translationKeywordMatch[0].length,
                     );
 
                     if (!firstRange) {
@@ -119,7 +127,7 @@ export class XliffTranslationChecker {
                     currentEditor.revealRange(range, TextEditorRevealType.InCenterIfOutsideViewport);
                 }
                 else {
-                    window.showInformationMessage('All missing translations have been resolved');
+                    window.showInformationMessage(noMoreMatchesFoundText);
                 }
             }
         }
@@ -133,11 +141,8 @@ export class XliffTranslationChecker {
             const document = currentEditor.document;
             const text = document.getText();
 
-            const missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
-                'missingTranslation'
-            ];
-
-            const regExp = new RegExp(missingTranslationKeyword, 'g');
+            const keyWord: string = `${getMissingTranslationKeyword()}|${getNeedsWorkTranslationKeyword()}`;
+            const regExp = new RegExp(keyWord, 'g');
 
             let missingTranslation: RegExpExecArray | null;
             const decorationRanges: Range[] = [];
@@ -160,6 +165,20 @@ export class XliffTranslationChecker {
 
         timeout = setTimeout(this.highlightUpdate, 1);
     }
+}
+
+function getMissingTranslationKeyword(): string {
+    let missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
+        'missingTranslation'
+    ];
+    if (missingTranslationKeyword == '%EMPTY%') {
+        missingTranslationKeyword = '<target/>|<target></target>|<target state="needs-translation"/>';
+    }
+    return missingTranslationKeyword;
+}
+
+function getNeedsWorkTranslationKeyword() : string {
+    return '<target state="needs-adaptation">.*</target>';
 }
 
 export async function runTranslationChecks(shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean) {
