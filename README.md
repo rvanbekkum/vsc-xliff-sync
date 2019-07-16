@@ -73,7 +73,7 @@ If no translation unit is found, the unit is added and tagged as missing.
 
 #### Using keyboard shortcut
 
-> 1.  Ctrl + Windows + S or Ctrl + Cmd + S (default shortcut)
+> 1.  Ctrl + X, S or Ctrl + Cmd + S (default shortcut)
 
 By default, the extension expects the base-XLIFF file to be named `application.g.xlf`. If no matching file is found, you are prompted to identify the base file. This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update. You can also create a new file.
 
@@ -107,6 +107,24 @@ This will check all XLIFF files in the workspace and notify about any missing tr
 
 ![XLIFF Sync Check Missing Translations Messages](resources/xliffSync_checkMissingTranslations.png)
 
+### Check for Need Work Translations
+
+#### Using the Command Palette
+
+> 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
+> 2. **XLIFF: Check for Need Work Translations**
+
+This will run technical validation/checks for all XLIFF files in the workspace and notify about any translations that need work in the files. You also have the option to open files containing problems with your default XLIFF editor using the **Open Externally** button from the informational message.
+
+![XLIFF Sync Check Need Work Translations Messages](resources/xliffSync_checkNeedWorkTranslations.png)
+
+The currently implemented checks are the following:
+| Check                                                             | Trigger                                   | Example                                                                                                 |
+|-------------------------------------------------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| Placeholders of source and translation are not matching. | Source/Translation text includes placeholders of the form `{0}` or `%1`.   | The source text includes placeholders `%1 %2` , but the translation text only includes `%1` .           |
+| Number of options in caption are not matching.       | Xliff Generator note with `Property OptionCaption` | The source text includes 3 options, `A,B,C` , but the translation text includes 4 options, `A,B,C,D`. |
+| Number of leading spaces in options are not matching.          | Xliff Generator note with `Property OptionCaption` | The source text includes a space, `A, B` , but the translation text does not, `A,B`.                   |
+
 ### Find Next Missing Translation in XLIFF File
 
 #### Using the Command Palette
@@ -116,10 +134,24 @@ This will check all XLIFF files in the workspace and notify about any missing tr
 
 #### Using keyboard shortcut
 
-> 1.  Ctrl + Windows + N or Ctrl + Cmd + N (default shortcut)
+> 1.  Ctrl + X, N or Ctrl + Cmd + N (default shortcut)
 
 Missing translations are tagged and highlighted. You can use the extension to navigate between missing translations.
-On a Macbook Pro, the extension's commands appear on the touchbar within XLIFF files.
+On a Macbook Pro, this command appears on the touchbar within XLIFF files.
+
+### Find Next Needs Work Translation in XLIFF File
+
+#### Using the Command Palette
+
+> 1.  F1 or CMD + Shift + P to open the command palette
+> 2.  **XLIFF: Next Needs Work Translation**
+
+#### Using keyboard shortcut
+
+> 1.  Ctrl + X, W or Ctrl + Cmd + W (default shortcut)
+
+Translations that need work are tagged and highlighted. You can use this command to navigate between translations that need work.
+On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 ## Known Issues
 
