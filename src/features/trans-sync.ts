@@ -163,7 +163,7 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
         throw new Error('No ouput generated');
     }
 
-    FilesHelper.createNewTargetFile(sourceUri, newFileContents, targetUri, targetLanguage);
+    await FilesHelper.createNewTargetFile(sourceUri, newFileContents, targetUri, targetLanguage);
     autoRunTranslationChecks();
 }
 
@@ -181,7 +181,7 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[]) {
             throw new Error('No ouput generated');
         }
 
-        FilesHelper.createNewTargetFile(targetUri, newFileContents);
+        await FilesHelper.createNewTargetFile(targetUri, newFileContents);
     }
 
     window.showInformationMessage('Translation files successfully synchronized!');

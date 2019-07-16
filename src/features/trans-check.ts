@@ -258,7 +258,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
                     throw new Error('No ouput generated');
                 }
     
-                FilesHelper.createNewTargetFile(targetUri, newFileContents);
+                await FilesHelper.createNewTargetFile(targetUri, newFileContents);
             }
         }
 
