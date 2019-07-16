@@ -123,8 +123,8 @@ The currently implemented checks are the following:
 | Check                                                             | Trigger                                   | Example                                                                                                 |
 |-------------------------------------------------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | Placeholders of source and translation are not matching. | Source/Translation text includes placeholders of the form `{0}` or `%1`. | The source text includes placeholders `%1 %2` , but the translation text only includes `%1`. |
-| Number of options in caption are not matching. | Xliff Generator note with `Property OptionCaption`. | The source text includes 3 options, `A,B,C` , but the translation text includes 4 options, `A,B,C,D`. |
-| Number of leading spaces in options are not matching. | Xliff Generator note with `Property OptionCaption`. | The source text includes a space, `A, B` , but the translation text does not, `A,B`. |
+| Number of options in caption are not matching. | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes 3 options, `A,B,C` , but the translation text includes 4 options, `A,B,C,D`. |
+| Number of leading spaces in options are not matching. | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes a space, `A, B` , but the translation text does not, `A,B`. |
 
 ### Find Next Missing Translation in XLIFF File
 

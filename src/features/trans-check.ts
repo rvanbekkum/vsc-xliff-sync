@@ -338,7 +338,8 @@ function isOptionCaptionUnit(targetDocument: XlfDocument, unit: XmlNode) {
     if (!xliffGenNote) {
         return false;
     }
-    return xliffGenNote.indexOf('Property OptionCaption') >= 0;
+    const optionKeywords: string[] = ['Property OptionCaption', 'Property PromotedActionCategories'];
+    return optionKeywords.some(keyword => xliffGenNote.indexOf(keyword) >= 0);
 }
 
 function checkForOptionMemberCountMismatch(sourceText: string, translationText: string) {
