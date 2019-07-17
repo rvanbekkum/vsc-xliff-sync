@@ -574,7 +574,15 @@ export class XlfDocument {
     if (notesParent) {
       const noteIdx: number = this.findXliffSyncNoteIndex(unit);
       if (noteIdx >= 0) {
-        notesParent.children.splice(noteIdx, 1);
+        let deleteCount: number = 1;
+
+        let newLineChild = notesParent.children[noteIdx + 1]
+        if (newLineChild && typeof newLineChild === 'string' && /^\s+$/g.test(newLineChild)) {
+          deleteCount += 1;
+        }
+
+        notesParent.children.splice(noteIdx, deleteCount);
+
         return true;
       }
     }
