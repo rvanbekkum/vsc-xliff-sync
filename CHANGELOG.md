@@ -8,7 +8,18 @@ N.A.
 
 ## [Prereleases]
 
-## [0.1.6]
+## [0.2.0] 17-07-2019
+* The `XLIFF: Check for Need Work Translations` command now checks for missing placeholders in both directions. (GitHub issue [#14](https://github.com/rvanbekkum/vsc-xliff-sync/issues/14))
+* The "XLIFF Sync" notes added when problems are detected will now automatically be removed when problems are resolved if you run the `XLIFF: Check for Need Work Translations` command again. (GitHub issue [#12](https://github.com/rvanbekkum/vsc-xliff-sync/issues/12))
+* New command `XLIFF: Next Needs Work Translation`: In an XLIFF file that is currently opened in the active editor, search for the next translation tagged as `needs-adaptation`. (GitHub issue [#13](https://github.com/rvanbekkum/vsc-xliff-sync/issues/13))
+* The `XLIFF: Next Missing Translation` command will now check for `\<target/\>|\<target\>\</target\>|\<target state="needs-translation"/\>` if `xliffSync.missingTranslation` is set to `%EMPTY%`.
+* Missing translations and translations that need work are now highlighted in the editor. You can change how these are highlighted by changing setting `xliffSync.decoration`. (N.B., if you don't want to have any highlighting, you can set this setting to `{}`)
+* Trigger option checks for trans-units with `Property PromotedActionCategories` as well. (GitHub issue [#13](https://github.com/rvanbekkum/vsc-xliff-sync/issues/15))
+* Fixed bug introduced by refactoring in 0.1.6, missing `await` for creating new target .xlf files. (GitHub issue [#16](https://github.com/rvanbekkum/vsc-xliff-sync/issues/16))
+* Changed default shortcuts, see [README.md](https://github.com/rvanbekkum/vsc-xliff-sync/blob/master/README.md) for details.
+* Updated [README.md](https://github.com/rvanbekkum/vsc-xliff-sync/blob/master/README.md) to describe new features and recent changes. Now also includes overview of the checks that are performed when running the `XLIFF: Check for Need Work Translations` command.
+
+## [0.1.6] 15-07-2019
 * Added command and setting to check for translations that have problems and need work. The command `XLIFF: Check for Need Work Translations` will report about files that contain translations that need work and adds notes to describe the detected problem. You can also use setting `xliffSync.autoCheckNeedWorkTranslations` to automatically run the checks after syncing. (**Default**: `false`)
 
 ## [0.1.5] 29-06-2019
