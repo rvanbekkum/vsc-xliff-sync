@@ -8,6 +8,10 @@ N.A.
 
 ## [Prereleases]
 
+## [0.2.1] 19-07-2019
+* Fixed bug introduced by refactoring in 0.2.0: default shortcuts blocking clipboard. Also, made shortcuts the same for all operating systems.
+* Fixed bug introduced by refactoring in 0.1.6: command `XLIFF: Synchronize to Single File` synchronzing to the wrong file.
+
 ## [0.2.0] 17-07-2019
 * The `XLIFF: Check for Need Work Translations` command now checks for missing placeholders in both directions. (GitHub issue [#14](https://github.com/rvanbekkum/vsc-xliff-sync/issues/14))
 * The "XLIFF Sync" notes added when problems are detected will now automatically be removed when problems are resolved if you run the `XLIFF: Check for Need Work Translations` command again. (GitHub issue [#12](https://github.com/rvanbekkum/vsc-xliff-sync/issues/12))

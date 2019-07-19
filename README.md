@@ -73,7 +73,7 @@ If no translation unit is found, the unit is added and tagged as missing.
 
 #### Using keyboard shortcut
 
-> 1.  Ctrl + X, S or Ctrl + Cmd + S (default shortcut)
+> 1.  Alt + X, S (default shortcut)
 
 By default, the extension expects the base-XLIFF file to be named `application.g.xlf`. If no matching file is found, you are prompted to identify the base file. This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update. You can also create a new file.
 
@@ -85,6 +85,10 @@ By default, the extension expects the base-XLIFF file to be named `application.g
 > 2. **XLIFF: Synchronize Translation Units**
 
 *NOTE*: This command will merge new translations into all XLIFF files in your workspace folder (with, obviously, excluding the base-XLIFF file itself).
+
+#### Using keyboard shortcut
+
+> 1.  Alt + X, M (default shortcut)
 
 #### From the Explorer
 
@@ -135,7 +139,7 @@ The currently implemented checks are the following:
 
 #### Using keyboard shortcut
 
-> 1.  Ctrl + X, N or Ctrl + Cmd + N (default shortcut)
+> 1.  Alt + X, N (default shortcut)
 
 Missing translations are tagged and highlighted. You can use the extension to navigate between missing translations.
 On a Macbook Pro, this command appears on the touchbar within XLIFF files.
@@ -149,7 +153,7 @@ On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 #### Using keyboard shortcut
 
-> 1.  Ctrl + X, W or Ctrl + Cmd + W (default shortcut)
+> 1.  Alt + X, W (default shortcut)
 
 Translations that need work are tagged and highlighted. You can use this command to navigate between translations that need work.
 On a Macbook Pro, this command appears on the touchbar within XLIFF files.

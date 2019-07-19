@@ -163,7 +163,7 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
         throw new Error('No ouput generated');
     }
 
-    await FilesHelper.createNewTargetFile(sourceUri, newFileContents, targetUri, targetLanguage);
+    await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
     autoRunTranslationChecks();
 }
 

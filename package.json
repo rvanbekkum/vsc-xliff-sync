@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -143,22 +143,20 @@
         "keybindings": [
             {
                 "command": "xliffSync.synchronizeFile",
-                "key": "ctrl+x s",
-                "mac": "ctrl+cmd+s",
-                "linux": "ctrl+meta+s"
+                "key": "alt+x s"
+            },
+            {
+                "command": "xliffSync.synchronizeSources",
+                "key": "alt+x m"
             },
             {
                 "command": "xliffSync.findNextMissingTarget",
-                "key": "ctrl+x n",
-                "mac": "ctrl+cmd+n",
-                "linux": "ctrl+meta+n",
+                "key": "alt+x n",
                 "when": "resourceExtname == .xlf"
             },
             {
                 "command": "xliffSync.findNextNeedsWorkTarget",
-                "key": "ctrl+x w",
-                "mac": "ctrl+cmd+w",
-                "linux": "ctrl+meta+w",
+                "key": "alt+x w",
                 "when": "resourceExtname == .xlf"
             }
         ],
