@@ -8,7 +8,7 @@ N.A.
 
 ## [Prereleases]
 
-## [0.2.1] 10-08-2019
+## [0.2.2] 10-08-2019
 * Introduced new setting `xliffSync.needWorkTranslationRules` that can be used which checks need to be run by command `XLIFF: Check for Need Work Translations`.
 * Added new rule `SourceEqualsTarget` which checks that the source and target are the same for files where source and target language are the same. (GitHub issue [#18](https://github.com/rvanbekkum/vsc-xliff-sync/issues/18))
 
