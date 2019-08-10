@@ -49,6 +49,7 @@ This extension is based on the [Angular Localization Helper extension](https://g
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
 | xliffSync.autoCheckMissingTranslations | `false` | Specifies whether or not the extension should automatically check for missing translations after syncing. |
 | xliffSync.autoCheckNeedWorkTranslations | `false` | Specifies whether or not the extension should automatically run a technical validation on translations after syncing |
+| xliffSync.needWorkTranslationRules | `["OptionMemberCount", "OptionLeadingSpaces", "Placeholders"]` | Specifies which technical validation rules should be used. |
 | xliffSync.preserveTargetAttributes | `false` | Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing. |
 | xliffSync.preserveTargetAttributesOrder | `false` | Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. |
 | xliffSync.decoration | 'Highlight yellow, white border' | Specifies how to highlight missing translations or translations that need work in an XLIFF file opened in the editor. |
@@ -122,13 +123,15 @@ This will run technical validation/checks for all XLIFF files in the workspace a
 
 ![XLIFF Sync Check Need Work Translations Messages](resources/xliffSync_checkNeedWorkTranslations.png)
 
+You can configure the checks that need to be run with the `xliffSync.needWorkTranslationRules` setting.
 The currently implemented checks are the following:
 
-| Check                                                             | Trigger                                   | Example                                                                                                 |
-|-------------------------------------------------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| Placeholders of source and translation are not matching. | Source/Translation text includes placeholders of the form `{0}` or `%1`. | The source text includes placeholders `%1 %2` , but the translation text only includes `%1`. |
-| Number of options in caption are not matching. | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes 3 options, `A,B,C` , but the translation text includes 4 options, `A,B,C,D`. |
-| Number of leading spaces in options are not matching. | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes a space, `A, B` , but the translation text does not, `A,B`. |
+| Rule ID               | Check                                                                                                     | Trigger                                                                                    | Example                                                                                                            |
+|-----------------------|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `OptionMemberCount`   | Number of options in caption are not matching.                                                            | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes 3 options, `A,B,C` , but the translation text includes 4 options, `A,B,C,D`.              |
+| `OptionLeadingSpaces` | Number of leading spaces in options are not matching.                                                     | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes a space, `A, B` , but the translation text does not, `A,B`.                               |
+| `Placeholders`        | Placeholders of source and translation are not matching.                                                  | Source/Translation text includes placeholders of the form `{0}` or `%1`.                   | The source text includes placeholders `%1 %2` , but the translation text only includes `%1`.                       |
+| `SourceEqualsTarget`  | Source and translation are not the same, even though source-language = target-language for the .xlf file. | The source-language is the same as the target-language for the .xlf file.                  | The source text is 'A', but the translation text is 'B'. The source-language and target-language are both 'en-US'. |
 
 ### Find Next Missing Translation in XLIFF File
 

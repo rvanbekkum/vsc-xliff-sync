@@ -195,6 +195,10 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
             missingTranslationText = '';
         }
 
+        let needWorkRules: string[] = workspace.getConfiguration('xliffSync')[
+            'needWorkTranslationRules'
+        ];
+
         let noMissingTranslations: boolean = true;
         let noNeedWorkTranslations: boolean = true;
         for (let index = 0; index < targetUris.length; index++) {
@@ -218,7 +222,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
                     missingCount += 1;
                 }
-                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit)) {
+                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, needWorkRules)) {
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
                     needWorkCount += 1;
                 }
@@ -287,24 +291,31 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
     return false;
 }
 
-function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode) : boolean {
+function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, needWorkRules: string[]) : boolean {
     const sourceText = targetDocument.getUnitSourceText(unit);
     const translText = targetDocument.getUnitTranslation(unit);
     if (!sourceText || !translText) {
         return false;
     }
+
+    if (targetDocument.sourceLanguage === targetDocument.targetLanguage) {
+        if ((needWorkRules.indexOf('SourceEqualsTarget') >= 0) && sourceText !== translText) {
+            targetDocument.setXliffSyncNote(unit, 'Problem detected: The source text is not the same as the translation, but the source-language is the same as the target-language.');
+            return true;
+        }
+    }
  
-    if (checkForPlaceHolderMismatch(sourceText, translText)) {
+    if ((needWorkRules.indexOf('Placeholders') >= 0) && checkForPlaceHolderMismatch(sourceText, translText)) {
         targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of placeholders in the source and translation text do not match.');
         return true;
     }
 
     if (isOptionCaptionUnit(targetDocument, unit)) {
-        if (checkForOptionMemberCountMismatch(sourceText, translText)) {
+        if ((needWorkRules.indexOf('OptionMemberCount') >= 0) && checkForOptionMemberCountMismatch(sourceText, translText)) {
             targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of option members in the source and translation text do not match.');
             return true;
         }
-        if (checkForOptionMemberLeadingSpacesMismatch(sourceText, translText)) {
+        if ((needWorkRules.indexOf('OptionLeadingSpaces') >= 0) && checkForOptionMemberLeadingSpacesMismatch(sourceText, translText)) {
             targetDocument.setXliffSyncNote(unit, 'Problem detected: The leading spaces in the option values of the source and translation text do not match.');
             return true;
         }
