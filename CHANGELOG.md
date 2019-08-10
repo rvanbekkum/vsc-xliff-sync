@@ -8,6 +8,10 @@ N.A.
 
 ## [Prereleases]
 
+## [0.2.1] 10-08-2019
+* Introduced new setting `xliffSync.needWorkTranslationRules` that can be used which checks need to be run by command `XLIFF: Check for Need Work Translations`.
+* Added new rule `SourceEqualsTarget` which checks that the source and target are the same for files where source and target language are the same. (GitHub issue [#18](https://github.com/rvanbekkum/vsc-xliff-sync/issues/18))
+
 ## [0.2.1] 19-07-2019
 * Fixed bug introduced by refactoring in 0.2.0: default shortcuts blocking clipboard. Also, made shortcuts the same for all operating systems.
 * Fixed bug introduced by refactoring in 0.1.6: command `XLIFF: Synchronize to Single File` synchronzing to the wrong file.
