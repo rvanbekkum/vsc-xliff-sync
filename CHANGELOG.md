@@ -2,9 +2,11 @@
 
 All notable changes to the "XLIFF Sync" extension will be documented in this file.
 
-## [Unreleased]
+## [Releases]
 
-N.A.
+## [0.2.3] 11-08-2019
+* Added MIT copyright notices for all authors to sources
+* Updated extension logo, adding outline (N.B., to also display nicely in VSCode's Light themes)
 
 ## [Prereleases]
 
