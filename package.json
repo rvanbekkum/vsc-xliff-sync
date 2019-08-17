@@ -20,6 +20,10 @@
         "translation",
         "al"
     ],
+    "galleryBanner": {
+        "color": "#272729",
+        "theme": "dark"
+    },
     "engines": {
         "vscode": "^1.31.0"
     },
