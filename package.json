@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -166,6 +166,11 @@
             {
                 "command": "xliffSync.checkForNeedWorkTranslations",
                 "title": "Check for Need Work Translations",
+                "category": "XLIFF"
+            },
+            {
+                "command": "xliffSync.importTranslationsFromFiles",
+                "title": "Import Translations from File(s)",
                 "category": "XLIFF"
             }
         ],
