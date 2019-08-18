@@ -50,6 +50,11 @@
                     "default": "xlf",
                     "description": "Specifies the translation files' type (xlf, xlf2)"
                 },
+                "xliffSync.findByXliffGeneratorNoteAndSource": {
+                    "type": "boolean",
+                    "default": true,
+                    "description" : "Specifies whether or not the extension will try to find translation units by XLIFF generator note and source"
+                },
                 "xliffSync.findByXliffGeneratorAndDeveloperNote": {
                     "type": "boolean",
                     "default": true,
@@ -59,6 +64,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note"
+                },
+                "xliffSync.findBySourceAndDeveloperNote": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether or not the extension will try to find trans-units by source and developer note"
                 },
                 "xliffSync.findBySource": {
                     "type": "boolean",

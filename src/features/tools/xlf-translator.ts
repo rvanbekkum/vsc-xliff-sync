@@ -31,12 +31,10 @@ export class XlfTranslator {
     target: string | undefined,
     targetLanguage: string | undefined,
   ): Promise<string | undefined> {
-    const findByXliffGeneratorAndDeveloperNote: boolean = workspace.getConfiguration('xliffSync')[
-      'findByXliffGeneratorAndDeveloperNote'
-    ];
-
+    const findByXliffGeneratorNoteAndSource: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorNoteAndSource'];
+    const findByXliffGeneratorAndDeveloperNote: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorAndDeveloperNote'];
     const findByXliffGeneratorNote: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorNote'];
-
+    const findBySourceAndDeveloperNote: boolean = workspace.getConfiguration('xliffSync')['findBySourceAndDeveloperNote'];
     const findBySource: boolean = workspace.getConfiguration('xliffSync')['findBySource'];
 
     const mergedDocument = await XlfDocument.load(source);
@@ -69,7 +67,7 @@ export class XlfTranslator {
         const developerNote = mergedDocument.getUnitDeveloperNote(unit);
         const source = mergedDocument.getUnitSource(unit);
 
-        if (xliffGeneratorNote && source) {
+        if (findByXliffGeneratorNoteAndSource && xliffGeneratorNote && source) {
           targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNoteAndSource(xliffGeneratorNote, source);
         }
 
@@ -84,16 +82,25 @@ export class XlfTranslator {
           targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNote(xliffGeneratorNote);
         }
 
-        if (!targetUnit && findBySource && source) {
-          if (!(source in sourceTranslations)) {
-            let transUnitTrl = targetDocument.findFirstTranslationUnitBySource(source);
+        if (!targetUnit && source) {
+          if (findBySourceAndDeveloperNote && developerNote) {
+            let transUnitTrl = targetDocument.findTranslationUnitBySourceAndDeveloperNote(source, developerNote);
             if (transUnitTrl) {
               translation = targetDocument.getUnitTranslation(transUnitTrl);
-              sourceTranslations[source] = translation;
             }
           }
-          else {
-            translation = sourceTranslations[source];
+
+          if (!translation && findBySource) {
+            if (!(source in sourceTranslations)) {
+              let transUnitTrl = targetDocument.findFirstTranslationUnitBySource(source);
+              if (transUnitTrl) {
+                translation = targetDocument.getUnitTranslation(transUnitTrl);
+                sourceTranslations[source] = translation;
+              }
+            }
+            else {
+              translation = sourceTranslations[source];
+            }
           }
         }
       }

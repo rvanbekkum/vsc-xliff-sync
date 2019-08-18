@@ -248,8 +248,17 @@ export class XlfDocument {
     );
   }
 
+  public findTranslationUnitBySourceAndDeveloperNote(
+    source: string,
+    devNote: string,
+  ): XmlNode | undefined {
+    return this.translationUnitNodes.find(
+      (node) => 
+        (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslation(node) !== undefined);
+  }
+
   public findFirstTranslationUnitBySource(source: string): XmlNode | undefined {
-    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) != undefined);
+    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) !== undefined);
   }
 
   public getUnitNeedsTranslation(unitNode: XmlNode): boolean {
