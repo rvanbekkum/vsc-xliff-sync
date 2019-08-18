@@ -4,6 +4,14 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 
 ## [Releases]
 
+## [0.2.4] 18-08-2019
+* Added new command `XLIFF: Import Translations from File(s)` to import translations based on source and Developer note from external .xlf and .xlf2 files. You can select one more XLIFF files and translations will be merged into trans-units of XLIFF files in the project folder with matching target-language.
+* Added new setting `xliffSync.replaceTranslationsDuringImport` (accompanying the above command) that can be used to specify whether the import of translations from external XLIFF files should replace/overwrite existing translations.
+* Added new settings to further customize how trans-units and translations are synchronized:
+  * `xliffSync.findByXliffGeneratorNoteAndSource`
+  * `xliffSync.findBySourceAndDeveloperNote`
+* Misc. updates in README (e.g., summary, badges)
+
 ## [0.2.3] 11-08-2019
 * Added MIT copyright notices for all authors to sources
 * Updated extension logo, adding outline (N.B., to also display nicely in VSCode's Light themes)
