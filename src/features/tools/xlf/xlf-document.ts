@@ -248,8 +248,17 @@ export class XlfDocument {
     );
   }
 
+  public findTranslationUnitBySourceAndDeveloperNote(
+    source: string,
+    devNote: string | undefined,
+  ): XmlNode | undefined {
+    return this.translationUnitNodes.find(
+      (node) => 
+        (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslation(node) !== undefined);
+  }
+
   public findFirstTranslationUnitBySource(source: string): XmlNode | undefined {
-    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) != undefined);
+    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) !== undefined);
   }
 
   public getUnitNeedsTranslation(unitNode: XmlNode): boolean {
@@ -416,7 +425,7 @@ export class XlfDocument {
         let missingTranslation: string = workspace.getConfiguration('xliffSync')[
           'missingTranslation'
         ];
-        if (missingTranslation == '%EMPTY%') {
+        if (missingTranslation === '%EMPTY%') {
           missingTranslation = '';
         }
         translation = missingTranslation;
@@ -433,6 +442,13 @@ export class XlfDocument {
     }
 
     if (needsTranslation && targetNode) {
+      if (translation) {
+        targetNode.children = [translation];
+        if (!targetNode.attributes) {
+          targetNode.attributes = {};
+        }
+        targetNode.attributes['state'] = 'translated';
+      }
       this.appendTargetNode(sourceUnit, targetNode);
     }
   }
