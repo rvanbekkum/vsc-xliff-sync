@@ -24,7 +24,7 @@
 import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env } from "vscode";
 import { XlfDocument } from './tools/xlf/xlf-document';
-import { FilesHelper } from './tools';
+import { FilesHelper, XmlNode } from './tools';
 
 export class XliffTranslationImport {
     constructor(context: ExtensionContext) {
@@ -74,16 +74,17 @@ async function importTranslationsFromFile(fileUri: Uri, targetUris: Uri[]) {
         window.showErrorMessage('The provided file URI is invalid!');
         return;
     }
+    const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync')['replaceTranslationsDuringImport'];
 
     const selFileContents = (await workspace.openTextDocument(fileUri)).getText();
     const selFileDocument = await XlfDocument.load(selFileContents);
-    let sourceTranslations: { [key: string]: string | undefined; } = {};
+    let sourceDevNoteTranslations: { [key: string]: string | undefined; } = {};
     selFileDocument.translationUnitNodes.forEach((unit) => {
-        const sourceText = selFileDocument.getUnitSourceText(unit);
-        if (sourceText && !(sourceText in sourceTranslations)) {
+        const sourceDevNoteText = getSourceDevNoteText(selFileDocument, unit);
+        if (sourceDevNoteText && !(sourceDevNoteText in sourceDevNoteTranslations)) {
             const translText = selFileDocument.getUnitTranslation(unit);
             if (translText) {
-                sourceTranslations[sourceText] = translText;
+                sourceDevNoteTranslations[sourceDevNoteText] = translText;
             }
         }
     });
@@ -107,9 +108,22 @@ async function importTranslationsFromFile(fileUri: Uri, targetUris: Uri[]) {
 
         let translationsImported: number = 0;
         targetDocument.translationUnitNodes.forEach((unit) => {
-            const sourceText = selFileDocument.getUnitSourceText(unit);
-            if (sourceText && (sourceText in sourceTranslations)) {
-                targetDocument.mergeUnit(unit, unit, sourceTranslations[sourceText]);
+            if (!replaceTranslationsDuringImport && targetDocument.getUnitTranslation(unit)) {
+                return;
+            }
+
+            let sourceDevNoteText = getSourceDevNoteText(targetDocument, unit);
+            if (!sourceDevNoteText) {
+                return;
+            }
+            if (!(sourceDevNoteText in sourceDevNoteTranslations)) {
+                sourceDevNoteText = targetDocument.getUnitSourceText(unit);
+            }
+            if (!sourceDevNoteText) {
+                return;
+            }
+            if (sourceDevNoteText in sourceDevNoteTranslations) {
+                targetDocument.mergeUnit(unit, unit, sourceDevNoteTranslations[sourceDevNoteText]);
                 translationsImported += 1;
             }
         });
@@ -132,5 +146,17 @@ async function importTranslationsFromFile(fileUri: Uri, targetUris: Uri[]) {
 
             await FilesHelper.createNewTargetFile(targetUri, newFileContents);
         }
+    }
+
+    function getSourceDevNoteText(xlfDocument: XlfDocument, unit: XmlNode): string | undefined {
+        let sourceDevNoteText = xlfDocument.getUnitSourceText(unit);
+        if (!sourceDevNoteText) {
+            return undefined;
+        }
+        const devNoteText = xlfDocument.getUnitDeveloperNote(unit);
+        if (devNoteText) {
+            sourceDevNoteText += devNoteText;
+        }
+        return sourceDevNoteText;
     }
 }

@@ -83,7 +83,7 @@ export class XlfTranslator {
         }
 
         if (!targetUnit && source) {
-          if (findBySourceAndDeveloperNote && developerNote) {
+          if (findBySourceAndDeveloperNote) { // Also match on empty/undefined developerNote
             let transUnitTrl = targetDocument.findTranslationUnitBySourceAndDeveloperNote(source, developerNote);
             if (transUnitTrl) {
               translation = targetDocument.getUnitTranslation(transUnitTrl);

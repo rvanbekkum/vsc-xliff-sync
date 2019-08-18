@@ -250,7 +250,7 @@ export class XlfDocument {
 
   public findTranslationUnitBySourceAndDeveloperNote(
     source: string,
-    devNote: string,
+    devNote: string | undefined,
   ): XmlNode | undefined {
     return this.translationUnitNodes.find(
       (node) => 
@@ -425,7 +425,7 @@ export class XlfDocument {
         let missingTranslation: string = workspace.getConfiguration('xliffSync')[
           'missingTranslation'
         ];
-        if (missingTranslation == '%EMPTY%') {
+        if (missingTranslation === '%EMPTY%') {
           missingTranslation = '';
         }
         translation = missingTranslation;
@@ -442,6 +442,13 @@ export class XlfDocument {
     }
 
     if (needsTranslation && targetNode) {
+      if (translation) {
+        targetNode.children = [translation];
+        if (!targetNode.attributes) {
+          targetNode.attributes = {};
+        }
+        targetNode.attributes['state'] = 'translated';
+      }
       this.appendTargetNode(sourceUnit, targetNode);
     }
   }
