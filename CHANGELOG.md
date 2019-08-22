@@ -4,6 +4,10 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 
 ## [Releases]
 
+## [0.2.5] 22-08-2019
+* If a change in the source-text of a trans-unit is detected during synchronization, then the target-node/translation of the trans-unit in the target file will be tagged with `needs-adaptation`. Also an "XLIFF Sync" note will be added to the trans-unit to clarify that a change of the source text was detected.
+* The count reported by the `XLIFF: Check for Need Work Translations` will now also include the trans-units that were already tagged with `needs-adaptation` (i.e., also including trans-units for which this command does not identify any problems, e.g., manually tagged trans-units).
+
 ## [0.2.4] 18-08-2019
 * Added new command `XLIFF: Import Translations from File(s)` to import translations based on source and Developer note from external .xlf and .xlf2 files. You can select one more XLIFF files and translations will be merged into trans-units of XLIFF files in the project folder with matching target-language.
 * Added new setting `xliffSync.replaceTranslationsDuringImport` (accompanying the above command) that can be used to specify whether the import of translations from external XLIFF files should replace/overwrite existing translations.
@@ -24,7 +28,7 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 
 ## [0.2.1] 19-07-2019
 * Fixed bug introduced by refactoring in 0.2.0: default shortcuts blocking clipboard. Also, made shortcuts the same for all operating systems.
-* Fixed bug introduced by refactoring in 0.1.6: command `XLIFF: Synchronize to Single File` synchronzing to the wrong file.
+* Fixed bug introduced by refactoring in 0.1.6: command `XLIFF: Synchronize to Single File` synchronizing to the wrong file.
 
 ## [0.2.0] 17-07-2019
 * The `XLIFF: Check for Need Work Translations` command now checks for missing placeholders in both directions. (GitHub issue [#14](https://github.com/rvanbekkum/vsc-xliff-sync/issues/14))
@@ -39,6 +43,7 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 
 ## [0.1.6] 15-07-2019
 * Added command and setting to check for translations that have problems and need work. The command `XLIFF: Check for Need Work Translations` will report about files that contain translations that need work and adds notes to describe the detected problem. You can also use setting `xliffSync.autoCheckNeedWorkTranslations` to automatically run the checks after syncing. (**Default**: `false`)
+  * Thanks to **[fvet](https://github.com/fvet)** for requesting this feature in GitHub issue [#10](https://github.com/rvanbekkum/vsc-xliff-sync/issues/10).
 
 ## [0.1.5] 29-06-2019
 * (Addressing GitHub issue [#9](https://github.com/rvanbekkum/vsc-xliff-sync/issues/9)): Added new settings which change the behaviour on how the extension deals with trans-unit node attributes from the source and target files:

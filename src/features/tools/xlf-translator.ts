@@ -106,6 +106,16 @@ export class XlfTranslator {
       }
 
       mergedDocument.mergeUnit(unit, targetUnit, translation);
+
+      if (targetUnit) {
+        const mergedSourceText = mergedDocument.getUnitSourceText(unit);
+        const mergedTranslText = mergedDocument.getUnitTranslation(unit);
+        const origSourceText = targetDocument.getUnitSourceText(targetUnit);
+        if (mergedSourceText && origSourceText && mergedTranslText && mergedSourceText !== origSourceText) {
+          mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
+          mergedDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+        }
+      }
     });
 
     return mergedDocument.extract();

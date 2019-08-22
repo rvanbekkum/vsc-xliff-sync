@@ -99,7 +99,7 @@ export class XliffTranslationChecker {
     }
 
     private async checkForMissingTranslations() {
-        runTranslationChecks(true, false)
+        runTranslationChecks(true, false);
     }
 
     private async checkForNeedWorkTranslations() {
@@ -195,7 +195,7 @@ function getMissingTranslationKeyword(): string {
     let missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
         'missingTranslation'
     ];
-    if (missingTranslationKeyword == '%EMPTY%') {
+    if (missingTranslationKeyword === '%EMPTY%') {
         missingTranslationKeyword = '<target/>|<target></target>|<target state="needs-translation"/>';
     }
     return missingTranslationKeyword;
@@ -215,7 +215,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
         let missingTranslationText: string = workspace.getConfiguration('xliffSync')[
             'missingTranslation'
         ];
-        if (missingTranslationText == '%EMPTY%') {
+        if (missingTranslationText === '%EMPTY%') {
             missingTranslationText = '';
         }
 
@@ -272,7 +272,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
             if (problemDetectedInFile) {
                 const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
                 window.showInformationMessage(`"${fileName}":${messagesText}`, 'Open Externally').then(selection => {
-                    if (selection == 'Open Externally') {
+                    if (selection === 'Open Externally') {
                         env.openExternal(targetUri);
                     }
                 });
@@ -345,11 +345,15 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
         }
     }
 
+    if (targetDocument.getTargetAttribute(unit, 'state') === 'needs-adaptation') {
+        return true;
+    }
+
     return false;
 }
 
 function checkForResolvedProblem(targetDocument: XlfDocument, unit: XmlNode) : boolean {
-    return targetDocument.getTargetAttribute(unit, 'state') != 'needs-adaptation' && targetDocument.tryDeleteXliffSyncNote(unit);
+    return targetDocument.getTargetAttribute(unit, 'state') !== 'needs-adaptation' && targetDocument.tryDeleteXliffSyncNote(unit);
 }
 
 function checkForPlaceHolderMismatch(sourceText: string, translationText: string) {
@@ -389,7 +393,7 @@ function checkForOptionMemberLeadingSpacesMismatch(sourceText: string, translati
     for (let i in sourceValues) {
         const whiteSpaceCountSource = sourceValues[i].search(/\S|$/);
         const whiteSpaceCountTransl = translValues[i].search(/\S|$/);
-        if (whiteSpaceCountSource != whiteSpaceCountTransl) {
+        if (whiteSpaceCountSource !== whiteSpaceCountTransl) {
             return true;
         }
     }
