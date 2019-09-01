@@ -1,12 +1,11 @@
 # Change Log
 
-All notable changes to the "XLIFF Sync" extension will be documented in this file.
-
-## [Releases]
-
 ## [0.2.5] 22-08-2019
 * If a change in the source-text of a trans-unit is detected during synchronization, then the target-node/translation of the trans-unit in the target file will be tagged with `needs-adaptation`. Also an "XLIFF Sync" note will be added to the trans-unit to clarify that a change of the source text was detected.
 * The count reported by the `XLIFF: Check for Need Work Translations` will now also include the trans-units that were already tagged with `needs-adaptation` (i.e., also including trans-units for which this command does not identify any problems, e.g., manually tagged trans-units).
+
+### Thank You
+* **[fvet](https://github.com/fvet)** for requesting target nodes to be tagged for review when the source text of the trans-unit changes.
 
 ## [0.2.4] 18-08-2019
 * Added new command `XLIFF: Import Translations from File(s)` to import translations based on source and Developer note from external .xlf and .xlf2 files. You can select one more XLIFF files and translations will be merged into trans-units of XLIFF files in the project folder with matching target-language.
@@ -19,8 +18,6 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 ## [0.2.3] 11-08-2019
 * Added MIT copyright notices for all authors to sources
 * Updated extension logo, adding outline (N.B., to also display nicely in VSCode's Light themes)
-
-## [Prereleases]
 
 ## [0.2.2] 10-08-2019
 * Introduced new setting `xliffSync.needWorkTranslationRules` that can be used which checks need to be run by command `XLIFF: Check for Need Work Translations`.
@@ -41,9 +38,14 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 * Changed default shortcuts, see [README.md](https://github.com/rvanbekkum/vsc-xliff-sync/blob/master/README.md) for details.
 * Updated [README.md](https://github.com/rvanbekkum/vsc-xliff-sync/blob/master/README.md) to describe new features and recent changes. Now also includes overview of the checks that are performed when running the `XLIFF: Check for Need Work Translations` command.
 
+### Thank You
+* **[fvet](https://github.com/fvet)** for testing the "Check for Need Work Translations" command and providing feedback.
+
 ## [0.1.6] 15-07-2019
 * Added command and setting to check for translations that have problems and need work. The command `XLIFF: Check for Need Work Translations` will report about files that contain translations that need work and adds notes to describe the detected problem. You can also use setting `xliffSync.autoCheckNeedWorkTranslations` to automatically run the checks after syncing. (**Default**: `false`)
-  * Thanks to **[fvet](https://github.com/fvet)** for requesting this feature in GitHub issue [#10](https://github.com/rvanbekkum/vsc-xliff-sync/issues/10).
+
+### Thank You
+* **[fvet](https://github.com/fvet)** for requesting this feature in GitHub issue [#10](https://github.com/rvanbekkum/vsc-xliff-sync/issues/10).
 
 ## [0.1.5] 29-06-2019
 * (Addressing GitHub issue [#9](https://github.com/rvanbekkum/vsc-xliff-sync/issues/9)): Added new settings which change the behaviour on how the extension deals with trans-unit node attributes from the source and target files:
@@ -62,7 +64,7 @@ All notable changes to the "XLIFF Sync" extension will be documented in this fil
 * Added new setting `xliffSync.autoCheckMissingTranslations` that can be used to automatically check for missing translations after syncing (GitHub issue [#4](https://github.com/rvanbekkum/vsc-xliff-sync/issues/4)).
 
 ## [0.1.3] 14-04-2019
-* Added setting to synchronize translation units based on "source" (disabled by default). Please note that if there are multiple translation units in the target XLIFF file(s) with the same source, then the translation of the first translation unit is used for all new units is used.
+* Added setting to synchronize translation units based on "source" (disabled by default). Please note that if there are multiple translation units in the target XLIFF file(s) with the same source, then the translation of the first translation unit is used for all new units.
 * Added new command "XLIFF: Check for Missing Translations" to the command palette. This command will show an informational message for each XLIFF file with missing translations. From these messages you can also open the XLIFF file(s) with your default XLIFF editor with the **Open Externally* button. (GitHub issue [#1](https://github.com/rvanbekkum/vsc-xliff-sync/issues/1))
 * The command "XLIFF: Next Missing Translation" will now also jump to the next empty translation if setting `xliffSync.missingTranslation` is set to `%EMPTY%`.
 * Updated the README file with screenshots and added setting/command.
