@@ -20,7 +20,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
   * [Check for Need Work Translations](#check-for-need-work-translations)
   * [Find Next Missing Translation in XLIFF File](#find-next-missing-translation-in-xliff-file)
   * [Find Next Needs Work Translation in XLIFF File](#find-next-needs-work-translation-in-xliff-file)
-  * [Import Translations from File(s)](#import-translations-from-file(s))
+  * [Import Translations from File(s)](#import-translations-from-files)
 * [Known Issues](#known-issues)
 
 ## Features
@@ -74,16 +74,19 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 
 ## Usage
 
-The extension will try to find corresponding trans-units and translations within an existing file for each units in the base file by searching units in the following order:
+The extension will try to find corresponding trans-units and translations within an existing file as follows:
 
-> 1.  By Id
-> 2.  By XLIFF Generator Note & Source (enabled by default, configurable)
-> 3.  By XLIFF Generator Note & Developer Note (enabled by default, configurable)
-> 4.  By XLIFF Generator Note (enabled by default, configurable)
-> 5.  By Source & Developer Note (disabled by default, configurable)
-> 6.  By Source (disabled by default, configurable)
+1. Finding trans-units:
+> 1. By Id
+> 2. By XLIFF Generator Note & Source (enabled by default, configurable)
+> 3. By XLIFF Generator Note & Developer Note (enabled by default, configurable)
+> 4. By XLIFF Generator Note (enabled by default, configurable)
 
-If no translation unit is found, the unit is added and tagged as missing.
+2. Finding translations:
+> 5. By Source & Developer Note (disabled by default, configurable)
+> 6. By Source (disabled by default, configurable)
+
+If no trans-unit is found, the unit is added and its target node is tagged with `state="needs-translation"`.
 
 ### Synchronize to Single File
 
@@ -95,7 +98,12 @@ If no translation unit is found, the unit is added and tagged as missing.
 
 > 1.  Alt + X, S (default shortcut)
 
-By default, the extension expects the base-XLIFF file to be named `application.g.xlf`. If no matching file is found, you are prompted to identify the base file. This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update. You can also create a new file.
+By default, the extension expects the base-XLIFF file to be named `application.g.xlf`.
+If no matching file is found, you are prompted to identify the base file.
+This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update.
+
+You can also use this command to create a new XLIFF file for a language.
+For this, choose the "New File..." option and enter the region/language code for the target language.
 
 ### Synchronize Translation Units
 
@@ -131,7 +139,8 @@ Here's a small demo:
 > 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
 > 2. **XLIFF: Check for Missing Translations**
 
-This will check all XLIFF files in the workspace and notify about any missing translations in the files. You also have the option to open files with missing translations with your default XLIFF editor using the **Open Externally** button from the informational message.
+This will check all XLIFF files in the workspace and notify about any missing translations in the files.
+You also have the option to open files with missing translations with your default XLIFF editor using the **Open Externally** button from the informational message.
 
 ![XLIFF Sync Check Missing Translations Messages](resources/xliffSync_checkMissingTranslations.png)
 
@@ -142,9 +151,14 @@ This will check all XLIFF files in the workspace and notify about any missing tr
 > 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
 > 2. **XLIFF: Check for Need Work Translations**
 
-This will run technical validation/checks for all XLIFF files in the workspace and notify about any translations that need work in the files. You also have the option to open files containing problems with your default XLIFF editor using the **Open Externally** button from the informational message.
+This will run technical validation/checks for all XLIFF files in the workspace and notify about any translations that need work in the files.
+You also have the option to open files containing problems with your default XLIFF editor using the **Open Externally** button from the informational message.
 
 ![XLIFF Sync Check Need Work Translations Messages](resources/xliffSync_checkNeedWorkTranslations.png)
+
+The target node of the trans-units containing problems will be tagged with `state="needs-adaptation"`.
+Additionally, a `note` will be added to the trans-unit to explain which problem was detected.
+When you run the command again after resolving the issue, then this note will be automatically removed.
 
 You can configure the checks that need to be run with the `xliffSync.needWorkTranslationRules` setting.
 The currently implemented checks are the following:
@@ -167,7 +181,8 @@ The currently implemented checks are the following:
 
 > 1.  Alt + X, N (default shortcut)
 
-Missing translations are tagged and highlighted. You can use the extension to navigate between missing translations.
+Missing translations are tagged and highlighted.
+You can use the extension to navigate between missing translations.
 On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 ### Find Next Needs Work Translation in XLIFF File
@@ -181,7 +196,8 @@ On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 > 1.  Alt + X, W (default shortcut)
 
-Translations that need work are tagged and highlighted. You can use this command to navigate between translations that need work.
+Translations that need work are tagged and highlighted.
+You can use this command to navigate between translations that need work.
 On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 ### Import Translations from File(s)
@@ -198,5 +214,5 @@ That way you could utilize the Developer note to have the import perform a more 
 
 ## Known Issues
 
-* Automatically inserting new group nodes into target files may not work yet.
-* The NAV2018 generated XLIFF generators creates Xliff Generator Notes without any identifiers, therefore it is recommended to change the `xliffSync.findBy...` settings to not synchronize trans-units based on Xliff Generator notes.
+* Support for group nodes and automatically inserting new groups into target files is not implemented.
+* The NAV2018 XLIFF generator creates Xliff Generator Notes without any identifiers, therefore it is recommended to change the `xliffSync.findBy...` settings to not synchronize trans-units based on Xliff Generator notes.
