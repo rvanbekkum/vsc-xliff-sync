@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.2.6] 01-09-2019
+* Added new setting `xliffSync.copyFromSourceForSameLanguage` that can be used to specify whether translations should be copied from the source text of trans-units in files for which source-language = target-language. (**Default**: `false`)
+* Misc. updates in README (clarifications, typo-fixes)
+
 ## [0.2.5] 22-08-2019
 * If a change in the source-text of a trans-unit is detected during synchronization, then the target-node/translation of the trans-unit in the target file will be tagged with `needs-adaptation`. Also an "XLIFF Sync" note will be added to the trans-unit to clarify that a change of the source text was detected.
 * The count reported by the `XLIFF: Check for Need Work Translations` will now also include the trans-units that were already tagged with `needs-adaptation` (i.e., also including trans-units for which this command does not identify any problems, e.g., manually tagged trans-units).
