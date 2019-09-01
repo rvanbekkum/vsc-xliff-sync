@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { workspace } from 'vscode';
+import { workspace, WorkspaceConfiguration } from 'vscode';
 import { XlfDocument } from './xlf/xlf-document';
 
 export class XlfTranslator {
@@ -31,11 +31,14 @@ export class XlfTranslator {
     target: string | undefined,
     targetLanguage: string | undefined,
   ): Promise<string | undefined> {
-    const findByXliffGeneratorNoteAndSource: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorNoteAndSource'];
-    const findByXliffGeneratorAndDeveloperNote: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorAndDeveloperNote'];
-    const findByXliffGeneratorNote: boolean = workspace.getConfiguration('xliffSync')['findByXliffGeneratorNote'];
-    const findBySourceAndDeveloperNote: boolean = workspace.getConfiguration('xliffSync')['findBySourceAndDeveloperNote'];
-    const findBySource: boolean = workspace.getConfiguration('xliffSync')['findBySource'];
+    const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync');
+    const findByXliffGeneratorNoteAndSource: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNoteAndSource'];
+    const findByXliffGeneratorAndDeveloperNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorAndDeveloperNote'];
+    const findByXliffGeneratorNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNote'];
+    const findBySourceAndDeveloperNote: boolean = xliffWorkspaceConfiguration['findBySourceAndDeveloperNote'];
+    const findBySource: boolean = xliffWorkspaceConfiguration['findBySource'];
+    const copyFromSourceForSameLanguage: boolean = xliffWorkspaceConfiguration['copyFromSourceForSameLanguage'];
+    let copyFromSource: boolean = false;
 
     const mergedDocument = await XlfDocument.load(source);
 
@@ -54,6 +57,7 @@ export class XlfTranslator {
 
     if (language) {
       mergedDocument.targetLanguage = language;
+      copyFromSource = copyFromSourceForSameLanguage && (mergedDocument.sourceLanguage === language);
     }
 
     let sourceTranslations: { [key: string]: string | undefined; } = {};
@@ -102,6 +106,13 @@ export class XlfTranslator {
               translation = sourceTranslations[source];
             }
           }
+        }
+      }
+
+      if (!translation && copyFromSource) {
+        const hasNoTranslation: boolean = !targetUnit || (targetUnit && !targetDocument.getUnitTranslation(targetUnit));
+        if (hasNoTranslation) {
+          translation = mergedDocument.getUnitSourceText(unit);
         }
       }
 
