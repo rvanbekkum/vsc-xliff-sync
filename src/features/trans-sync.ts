@@ -86,7 +86,7 @@ export async function getXliffFileUrisInWorkSpace(): Promise<Uri[]> {
     }
 
     if (!uris.length) {
-        fileType = await window.showQuickPick(['xlf', 'xmb'], {
+        fileType = await window.showQuickPick(['xlf', 'xlf2'], {
             placeHolder: 'Translation file type',
         });
 

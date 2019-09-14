@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.2.6",
+    "version": "0.3.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -43,67 +43,84 @@
                 "xliffSync.baseFile": {
                     "type": "string",
                     "default": "application.g.xlf",
-                    "description": "Specifies the base XLIFF translation file."
+                    "description": "Specifies the base XLIFF translation file.",
+                    "scope": "resource"
                 },
                 "xliffSync.fileType": {
                     "type": "string",
                     "default": "xlf",
-                    "description": "Specifies the translation files' type (xlf, xlf2)."
+                    "description": "Specifies the translation files' type (xlf, xlf2).",
+                    "enum": [
+                        "xlf", 
+                        "xlf2"
+                    ],
+                    "scope": "resource"
                 },
                 "xliffSync.findByXliffGeneratorNoteAndSource": {
                     "type": "boolean",
                     "default": true,
-                    "description" : "Specifies whether or not the extension will try to find translation units by XLIFF generator note and source."
+                    "description" : "Specifies whether or not the extension will try to find translation units by XLIFF generator note and source.",
+                    "scope": "resource"
                 },
                 "xliffSync.findByXliffGeneratorAndDeveloperNote": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note and developer note."
+                    "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note and developer note.",
+                    "scope": "resource"
                 },
                 "xliffSync.findByXliffGeneratorNote": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note."
+                    "description": "Specifies whether or not the extension will try to find translation units by XLIFF generator note.",
+                    "scope": "resource"
                 },
                 "xliffSync.findBySourceAndDeveloperNote": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Specifies whether or not the extension will try to find trans-units by source and developer note."
+                    "description": "Specifies whether or not the extension will try to find trans-units by source and developer note.",
+                    "scope": "resource"
                 },
                 "xliffSync.findBySource": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Specifies whether or not the extension will try to find translation units by source."
+                    "description": "Specifies whether or not the extension will try to find translation units by source.",
+                    "scope": "resource"
                 },
                 "xliffSync.copyFromSourceForSameLanguage": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Specifies whether translations should be copied from the source text if source-language = target-language."
+                    "description": "Specifies whether translations should be copied from the source text if source-language = target-language.",
+                    "scope": "resource"
                 },
                 "xliffSync.missingTranslation": {
                     "type": "string",
                     "default": "%EMPTY%",
-                    "description": "Target tag content for missing translation (use %EMPTY% to leave new targets empty)."
+                    "description": "Target tag content for missing translation (use %EMPTY% to leave new targets empty).",
+                    "scope": "resource"
                 },
                 "xliffSync.developerNoteDesignation": {
                     "type" : "string",
                     "default" : "Developer",
-                    "description": "Specifies the name that is used to designate a developer note."
+                    "description": "Specifies the name that is used to designate a developer note.",
+                    "scope": "resource"
                 },
                 "xliffSync.xliffGeneratorNoteDesignation": {
                     "type" : "string",
                     "default" : "Xliff Generator",
-                    "description": "Specifies the name that is used to designate a XLIFF generator note."
+                    "description": "Specifies the name that is used to designate a XLIFF generator note.",
+                    "scope": "resource"
                 },
                 "xliffSync.autoCheckMissingTranslations": {
                     "type" : "boolean",
                     "default" : false,
-                    "description": "Specifies whether or not the extension should automatically check for missing translations after syncing."
+                    "description": "Specifies whether or not the extension should automatically check for missing translations after syncing.",
+                    "scope": "resource"
                 },
                 "xliffSync.autoCheckNeedWorkTranslations": {
                     "type" : "boolean",
                     "default" : false,
-                    "description": "Specifies whether or not the extension should automatically run a technical validation on translations after syncing."
+                    "description": "Specifies whether or not the extension should automatically run a technical validation on translations after syncing.",
+                    "scope": "resource"
                 },
                 "xliffSync.needWorkTranslationRules": {
 					"type": "array",
@@ -128,22 +145,26 @@
                         "Placeholders"
                     ],
 					"uniqueItems": true,
-					"description": "Specifies which technical validation rules should be used."
+                    "description": "Specifies which technical validation rules should be used.",
+                    "scope": "resource"
 				},
                 "xliffSync.preserveTargetAttributes": {
                     "type" : "boolean",
                     "default" : false,
-                    "description": "Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing."
+                    "description": "Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing.",
+                    "scope": "resource"
                 },
                 "xliffSync.preserveTargetAttributesOrder": {
                     "type" : "boolean",
                     "default" : false,
-                    "description": "Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing."
+                    "description": "Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing.",
+                    "scope": "resource"
                 },
                 "xliffSync.replaceTranslationsDuringImport": {
                     "type": "boolean",
                     "default" : false,
-                    "description": "Specifies whether existing translations will be replaced when the XLIFF: Import Translations from File(s) command is run."
+                    "description": "Specifies whether existing translations will be replaced when the XLIFF: Import Translations from File(s) command is run.",
+                    "scope": "resource"
                 },
                 "xliffSync.decoration": {
                     "type": "object",
