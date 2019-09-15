@@ -23,7 +23,7 @@
  */
 
 import { XmlNode, XmlParser, XmlBuilder } from '..';
-import { workspace } from 'vscode';
+import { workspace, Uri, WorkspaceConfiguration } from 'vscode';
 
 export class XlfDocument {
   public get valid(): boolean {
@@ -153,24 +153,31 @@ export class XlfDocument {
   private root: XmlNode | undefined;
   private developerNoteDesignation: string;
   private xliffGeneratorNoteDesignation: string;
+  private preserveTargetAttributes: boolean;
+  private preserveTargetOrder: boolean;
+  private missingTranslation: string;
 
-  private constructor() {
-    this.developerNoteDesignation = workspace.getConfiguration('xliffSync')[
-      'developerNoteDesignation'
-    ];
-    this.xliffGeneratorNoteDesignation = workspace.getConfiguration('xliffSync')[
-      'xliffGeneratorNoteDesignation'
-    ];
+  private constructor(resourceUri: Uri) {
+    const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', resourceUri);
+    this.developerNoteDesignation = xliffWorkspaceConfiguration['developerNoteDesignation'];
+    this.xliffGeneratorNoteDesignation = xliffWorkspaceConfiguration['xliffGeneratorNoteDesignation'];
+    this.preserveTargetAttributes = xliffWorkspaceConfiguration['preserveTargetAttributes'];
+    this.preserveTargetOrder = xliffWorkspaceConfiguration['preserveTargetAttributesOrder'];
+
+    this.missingTranslation = xliffWorkspaceConfiguration['missingTranslation'];
+    if (this.missingTranslation === '%EMPTY%') {
+      this.missingTranslation = '';
+    }
   }
 
-  public static async load(source: string): Promise<XlfDocument> {
-    const doc = new XlfDocument();
+  public static async load(resourceUri: Uri, source: string): Promise<XlfDocument> {
+    const doc = new XlfDocument(resourceUri);
     doc.root = await new XmlParser().parseDocument(source);
     return doc;
   }
 
-  public static create(version: '1.2' | '2.0', language: string): XlfDocument {
-    const doc = new XlfDocument();
+  public static create(resourceUri: Uri, version: '1.2' | '2.0', language: string): XlfDocument {
+    const doc = new XlfDocument(resourceUri);
 
     doc.root = {
       local: 'xliff',
@@ -378,17 +385,10 @@ export class XlfDocument {
   public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translation?: string): void {
     let targetNode: XmlNode | undefined;
 
-    const preserveTargetAttributes: boolean = workspace.getConfiguration('xliffSync')[
-      'preserveTargetAttributes'
-    ];
-    const preserveTargetOrder: boolean = workspace.getConfiguration('xliffSync')[
-      'preserveTargetAttributesOrder'
-    ];
-
     if (targetUnit) {
-      if (preserveTargetAttributes) {
+      if (this.preserveTargetAttributes) {
         // Use the target's attribute values
-        if (preserveTargetOrder) {
+        if (this.preserveTargetOrder) {
           const sourceAttributes = sourceUnit.attributes;
           sourceUnit.attributes = targetUnit.attributes;
           sourceUnit.attributes['id'] = sourceAttributes['id'];
@@ -422,13 +422,7 @@ export class XlfDocument {
     if (needsTranslation && !targetNode) {
       let attributes: { [key: string]: string; } = {};
       if (!translation) {
-        let missingTranslation: string = workspace.getConfiguration('xliffSync')[
-          'missingTranslation'
-        ];
-        if (missingTranslation === '%EMPTY%') {
-          missingTranslation = '';
-        }
-        translation = missingTranslation;
+        translation = this.missingTranslation;
         attributes['state'] = 'needs-translation';
       }
       else {
