@@ -229,12 +229,15 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
     }
 }
 
-export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolder: WorkspaceFolder, shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean) {
+export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolder: WorkspaceFolder, shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean, singleTargetUri?: Uri) {
     try {
         let uris: Uri[] = await getXliffFileUrisInWorkSpace(checkWorkspaceFolder);
 
         let sourceUri: Uri = await getXliffSourceFile(checkWorkspaceFolder, uris);
         let targetUris = uris.filter((uri) => uri !== sourceUri);
+        if (singleTargetUri) {
+            targetUris = [singleTargetUri];
+        }
 
         let missingTranslationText: string = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
             'missingTranslation'

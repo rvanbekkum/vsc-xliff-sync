@@ -259,7 +259,7 @@ async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri
 
     await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
     if (targetUri) {
-        await autoRunTranslationChecks(workspaceFolder);
+        await autoRunTranslationChecks(workspaceFolder, targetUri);
     }
 }
 
@@ -285,7 +285,7 @@ async function synchronizeAllFiles(workspaceFolder: WorkspaceFolder, sourceUri: 
     await autoRunTranslationChecks(workspaceFolder);
 }
 
-async function autoRunTranslationChecks(workspaceFolder: WorkspaceFolder) {
+async function autoRunTranslationChecks(workspaceFolder: WorkspaceFolder, targetUri?: Uri) {
     const autoCheckMissingTranslations: boolean = workspace.getConfiguration('xliffSync', workspaceFolder.uri)[
         'autoCheckMissingTranslations'
     ];
@@ -293,5 +293,5 @@ async function autoRunTranslationChecks(workspaceFolder: WorkspaceFolder) {
         'autoCheckNeedWorkTranslations'
     ];
 
-    runTranslationChecksForWorkspaceFolder(workspaceFolder, autoCheckMissingTranslations, autoCheckNeedWorkTranslations);
+    runTranslationChecksForWorkspaceFolder(workspaceFolder, autoCheckMissingTranslations, autoCheckNeedWorkTranslations, targetUri);
 }
