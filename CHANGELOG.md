@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.3.0] 15-09-2019
+* Added support for multi-root workspaces. You can configure settings per workspace folder. The commands of the extension will run for all workspace folders by default, but if you have a file opened in the editor from a workspace folder, then the commands will only run for the XLIFF files in that workspace folder.
+* Added new command `XLIFF: Create New Target File(s)` which can be used to create new target files. If you run this command then you will get a list of language tags for the XLIFF file type that is used in the workspace folder. You can choose one or more language tags from this list, and the command will create new files for the selected languages accordingly.
+* Small fix in the file-type quick pick list.
+* When command `XLIFF: Synchronize to Single File` is run, the check for missing translations and problems will only be run for the single target file when `xliffSync.autoCheckMissingTranslations` and/or `xliffSync.autoCheckNeedWorkTranslations` are enabled. Also, these checks won't be run for newly created target files (as they won't have any translations).
+
 ## [0.2.6] 01-09-2019
 * Added new setting `xliffSync.copyFromSourceForSameLanguage` that can be used to specify whether translations should be copied from the source text of trans-units in files for which source-language = target-language. (**Default**: `false`)
 * Misc. updates in README (clarifications, typo-fixes)
