@@ -32,7 +32,7 @@ export class WorkspaceHelper {
             [currentWorkspaceFolder] :
             workspace.workspaceFolders;
     
-        if (!allFiles && !currentWorkspaceFolder && syncWorkspaceFolders) {
+        if (!allFiles && !currentWorkspaceFolder && syncWorkspaceFolders && syncWorkspaceFolders.length > 1) {
             currentWorkspaceFolder = await window.showWorkspaceFolderPick({
               placeHolder: 'Select a workspace folder' 
             });
