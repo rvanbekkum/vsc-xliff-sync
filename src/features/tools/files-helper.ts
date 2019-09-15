@@ -28,14 +28,17 @@ import {
   TextEditor,
   Uri,
   window,
-  workspace
+  workspace,
+  WorkspaceFolder,
+  RelativePattern
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
 export class FilesHelper {
-  public static async findTranslationFiles(fileExt: string): Promise<Uri[]> {
-    return workspace.findFiles(`**/*.${fileExt}`).then((files) =>
+  public static async findTranslationFiles(workspaceFolder: WorkspaceFolder, fileExt: string): Promise<Uri[]> {
+    let relativePattern: RelativePattern = new RelativePattern(workspaceFolder, `**/*.${fileExt}`);
+    return workspace.findFiles(relativePattern).then((files) =>
       files.sort((a, b) => {
         if (a.fsPath.length !== b.fsPath.length) {
           return a.fsPath.length - b.fsPath.length;

@@ -22,9 +22,9 @@
  */
 
 import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
-import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env } from "vscode";
+import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env, WorkspaceFolder } from "vscode";
 import { XlfDocument } from './tools/xlf/xlf-document';
-import { FilesHelper, XmlNode } from './tools';
+import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
 
 export class XliffTranslationImport {
     constructor(context: ExtensionContext) {
@@ -60,24 +60,39 @@ async function importTranslationsFromFiles(fileUris: Uri[] | undefined) {
         return;
     }
 
-    let uris: Uri[] = await getXliffFileUrisInWorkSpace();
-    let sourceUri: Uri = await getXliffSourceFile(uris);
-    let targetUris = uris.filter((uri) => uri !== sourceUri);
-    for (let index = 0; index < fileUris.length; index++) {
-        let fileUri: Uri = fileUris[index];
-        await importTranslationsFromFile(fileUri, targetUris);
+    const importWorkspaceFolders: WorkspaceFolder[] | undefined = await WorkspaceHelper.getWorkspaceFolders(true);
+    if (!importWorkspaceFolders) {
+        throw new Error(`No workspace folder found to use`);
+    }
+    for (let importWorkspaceFolder of importWorkspaceFolders) {
+        await importTranslationsFromFilesForWorkspaceFolder(importWorkspaceFolder, fileUris);
     }
 }
 
-async function importTranslationsFromFile(fileUri: Uri, targetUris: Uri[]) {
+async function importTranslationsFromFilesForWorkspaceFolder(importWorkspaceFolder: WorkspaceFolder, fileUris: Uri[] | undefined) {
+    if (!fileUris || fileUris.length === 0) {
+        window.showErrorMessage('No files have been provided!');
+        return;
+    }
+
+    let uris: Uri[] = await getXliffFileUrisInWorkSpace(importWorkspaceFolder);
+    let sourceUri: Uri = await getXliffSourceFile(importWorkspaceFolder, uris);
+    let targetUris = uris.filter((uri) => uri !== sourceUri);
+    for (let index = 0; index < fileUris.length; index++) {
+        let fileUri: Uri = fileUris[index];
+        await importTranslationsFromFile(importWorkspaceFolder, fileUri, targetUris);
+    }
+}
+
+async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, fileUri: Uri, targetUris: Uri[]) {
     if (!fileUri) {
         window.showErrorMessage('The provided file URI is invalid!');
         return;
     }
-    const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync')['replaceTranslationsDuringImport'];
+    const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['replaceTranslationsDuringImport'];
 
     const selFileContents = (await workspace.openTextDocument(fileUri)).getText();
-    const selFileDocument = await XlfDocument.load(selFileContents);
+    const selFileDocument = await XlfDocument.load(workspaceFolder.uri, selFileContents);
     let sourceDevNoteTranslations: { [key: string]: string | undefined; } = {};
     selFileDocument.translationUnitNodes.forEach((unit) => {
         const sourceDevNoteText = getSourceDevNoteText(selFileDocument, unit);
@@ -101,7 +116,7 @@ async function importTranslationsFromFile(fileUri: Uri, targetUris: Uri[]) {
             continue;
         }
 
-        const targetDocument = await XlfDocument.load(target);
+        const targetDocument = await XlfDocument.load(workspaceFolder.uri, target);
         if (targetDocument.targetLanguage !== selFileDocument.targetLanguage) {
             continue;
         }

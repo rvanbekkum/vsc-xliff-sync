@@ -34,18 +34,23 @@ import {
     window,
     workspace,
     Uri,
+    WorkspaceFolder,
 } from 'vscode';
 import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { XlfDocument } from './tools/xlf/xlf-document';
-import { XmlNode, FilesHelper } from './tools';
+import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
 var decorationType: TextEditorDecorationType;
 var timeout: NodeJS.Timer;
+var missingTranslationKeywords: string;
+var needsWorkTranslationKeywords: string;
 
 export class XliffTranslationChecker {
     constructor(context: ExtensionContext) {
+        missingTranslationKeywords = this.getMissingTranslationKeywords();
+        needsWorkTranslationKeywords = this.getNeedsWorkTranslationKeywords();
         currentEditor = window.activeTextEditor;
         decorationType = window.createTextEditorDecorationType(
             workspace.getConfiguration('xliffSync')['decoration'],
@@ -107,11 +112,11 @@ export class XliffTranslationChecker {
     }
 
     private async findNextMissingTranslation() {
-        this.findNext(getMissingTranslationKeyword(), 'All missing translations have been resolved.');
+        this.findNext(missingTranslationKeywords, 'All missing translations have been resolved.');
     }
 
     private async findNextNeedsWorkTranslation() {
-        this.findNext(getNeedsWorkTranslationKeyword(), 'All translations that need work have been resolved.');
+        this.findNext(needsWorkTranslationKeywords, 'All translations that need work have been resolved.');
     }
 
     private async findNext(keyWord: string, noMoreMatchesFoundText: string) {
@@ -165,7 +170,7 @@ export class XliffTranslationChecker {
             const document = currentEditor.document;
             const text = document.getText();
 
-            const keyWord: string = `${getMissingTranslationKeyword()}|${getNeedsWorkTranslationKeyword()}`;
+            const keyWord: string = `${missingTranslationKeywords}|${needsWorkTranslationKeywords}`;
             const regExp = new RegExp(keyWord, 'g');
 
             let missingTranslation: RegExpExecArray | null;
@@ -189,37 +194,56 @@ export class XliffTranslationChecker {
 
         timeout = setTimeout(this.highlightUpdate, 1);
     }
-}
 
-function getMissingTranslationKeyword(): string {
-    let missingTranslationKeyword: string = workspace.getConfiguration('xliffSync')[
-        'missingTranslation'
-    ];
-    if (missingTranslationKeyword === '%EMPTY%') {
-        missingTranslationKeyword = '<target/>|<target></target>|<target state="needs-translation"/>';
+    private getMissingTranslationKeywords(): string {
+        const currentWorkspaceFolder: WorkspaceFolder | undefined = window.activeTextEditor ?
+            workspace.getWorkspaceFolder(window.activeTextEditor.document.uri) :
+            undefined;
+        let currentWorkspaceFolderUri: Uri | undefined = undefined;
+        if (currentWorkspaceFolder) {
+            currentWorkspaceFolderUri = currentWorkspaceFolder.uri;
+        }
+
+        let missingTranslationKeyword = workspace.getConfiguration('xliffSync', currentWorkspaceFolderUri)[
+            'missingTranslation'
+        ];
+        if (missingTranslationKeyword === '%EMPTY%') {
+            missingTranslationKeyword = '<target/>|<target></target>|<target state="needs-translation"/>';
+        }
+        return missingTranslationKeyword;
     }
-    return missingTranslationKeyword;
-}
 
-function getNeedsWorkTranslationKeyword() : string {
-    return '<target state="needs-adaptation">.*</target>';
+    private getNeedsWorkTranslationKeywords() : string {
+        return '<target state="needs-adaptation">.*</target>';
+    }
 }
 
 export async function runTranslationChecks(shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean) {
-    try {
-        let uris: Uri[] = await getXliffFileUrisInWorkSpace();
+    const checkWorkspaceFolders: WorkspaceFolder[] | undefined = await WorkspaceHelper.getWorkspaceFolders(true);
+    if (!checkWorkspaceFolders) {
+        throw new Error(`No workspace folder found to use`);
+    }
+    
+    for (let checkWorkspaceFolder of checkWorkspaceFolders) {
+        await runTranslationChecksForWorkspaceFolder(checkWorkspaceFolder, shouldCheckForMissingTranslations, shouldCheckForNeedWorkTranslations);
+    }
+}
 
-        let sourceUri: Uri = await getXliffSourceFile(uris);
+export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolder: WorkspaceFolder, shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean) {
+    try {
+        let uris: Uri[] = await getXliffFileUrisInWorkSpace(checkWorkspaceFolder);
+
+        let sourceUri: Uri = await getXliffSourceFile(checkWorkspaceFolder, uris);
         let targetUris = uris.filter((uri) => uri !== sourceUri);
 
-        let missingTranslationText: string = workspace.getConfiguration('xliffSync')[
+        let missingTranslationText: string = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
             'missingTranslation'
         ];
         if (missingTranslationText === '%EMPTY%') {
             missingTranslationText = '';
         }
 
-        let needWorkRules: string[] = workspace.getConfiguration('xliffSync')[
+        let needWorkRules: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
             'needWorkTranslationRules'
         ];
 
@@ -240,7 +264,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
             let missingCount: number = 0;
             let needWorkCount: number = 0;
             let problemResolvedInFile: boolean = false;
-            const targetDocument = await XlfDocument.load(target);
+            const targetDocument = await XlfDocument.load(checkWorkspaceFolder.uri, target);
             targetDocument.translationUnitNodes.forEach((unit) => {
                 if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
