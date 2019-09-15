@@ -14,6 +14,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
   * [Commands](#commands)
   * [Settings](#settings)
 * [Usage](#usage)
+  * [Create New Target File(s)](#create-new-target-files)
   * [Synchronize to Single File](#synchronize-to-single-file)
   * [Synchronize Translation Units](#synchronize-translation-units)
   * [Check for Missing Translations](#check-for-missing-translations)
@@ -40,6 +41,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 
 | Command | Explanation |
 | ------- | ----------- |
+| **XLIFF: Create New Target File(s)** | Create one or more new target XLIFF files from the base-XLIFF file. |
 | **XLIFF: Synchronize to Single File** | Merge new trans-units from base-XLIFF file into a manually specified target XLIFF file. |
 | **XLIFF: Synchronize Translation Units** | Merge new trans-units from base-XLIFF file into all other XLIFF files in the open project folder. |
 | **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open project folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
@@ -89,6 +91,15 @@ The extension will try to find corresponding trans-units and translations within
 
 If no trans-unit is found, the unit is added and its target node is tagged with `state="needs-translation"`.
 
+### Create New Target File(s)
+
+#### Using the Command Palette
+> 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
+> 2. **XLIFF: Create New Target File(s)**
+
+This command will let you create one or more new target files, letting you choose from a set of RFC 4646 or RFC5646 language tags depending on the XLIFF file type (i.e., `xlf` or `xlf2`).
+The new file is automatically synced with the base file; if it is not known you will be prompted to specify the file to use as the base file first.
+
 ### Synchronize to Single File
 
 #### Using the Command Palette
@@ -101,10 +112,11 @@ If no trans-unit is found, the unit is added and its target node is tagged with 
 
 By default, the extension expects the base-XLIFF file to be named `application.g.xlf`.
 If no matching file is found, you are prompted to identify the base file.
-This setting will be saved for future use. If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update.
+This setting will be saved for future use.
+If the extension is invoked from a localization file, that file will be updated, otherwise the extension will prompt you for the file to update.
 
 You can also use this command to create a new XLIFF file for a language.
-For this, choose the "New File..." option and enter the region/language code for the target language.
+For this, choose the "New File..." option and choose the language tag for the new target language.
 
 ### Synchronize Translation Units
 
@@ -217,5 +229,5 @@ That way you could utilize the Developer note to have the import perform a more 
 
 ## Known Issues
 
-* Support for group nodes and automatically inserting new groups into target files is not implemented.
+* Automatically inserting _new_ groups into target files is not implemented.
 * The NAV2018 XLIFF generator creates Xliff Generator Notes without any identifiers, therefore it is recommended to change the `xliffSync.findBy...` settings to not synchronize trans-units based on Xliff Generator notes.

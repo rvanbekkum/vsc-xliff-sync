@@ -23,13 +23,14 @@
  */
 
 import {
+    QuickPickItem,
     Uri,
     window,
     workspace,
     WorkspaceFolder
 } from 'vscode';
 
-import { FilesHelper, WorkspaceHelper } from './tools';
+import { FilesHelper, LanguageHelper, WorkspaceHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
 
 import * as path from 'path';
@@ -43,6 +44,26 @@ export async function synchronizeFiles(allFiles: boolean) {
     
     for (let syncWorkspaceFolder of syncWorkspaceFolders) {
         await synchronizeFilesForWorkspaceFolder(syncWorkspaceFolder, allFiles);
+    }
+}
+
+export async function createNewTargetFiles() {
+    const syncWorkspaceFolders: WorkspaceFolder[] | undefined = await WorkspaceHelper.getWorkspaceFolders(false);
+    if (!syncWorkspaceFolders) {
+        throw new Error(`No workspace folder found to use`);
+    }
+    const workspaceFolder = syncWorkspaceFolders[0];
+    let uris: Uri[] = await getXliffFileUrisInWorkSpace(workspaceFolder);
+    let sourceUri: Uri = await getXliffSourceFile(workspaceFolder, uris);
+
+    const fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['fileType'];
+    const targetLanguages: string[] | undefined = await selectNewTargetLanguages(fileType!);
+    if (!targetLanguages) {
+        return;
+    }
+
+    for (let targetLanguage of targetLanguages) {
+        await synchronizeTargetFile(workspaceFolder, sourceUri, undefined, targetLanguage);
     }
 }
 
@@ -176,8 +197,8 @@ async function synchronizeSingleFile(workspaceFolder: WorkspaceFolder, sourceUri
             throw new Error('No target file selected');
         } 
         else if (targetPath === 'New File...') {
-            targetLanguage = await window.showInputBox({ placeHolder: 'Region/Language Code' });
-
+            const fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['fileType'];
+            targetLanguage = await selectNewTargetLanguage(fileType!);
             if (!targetLanguage) {
                 throw new Error('No target language specified');
             }
@@ -188,6 +209,36 @@ async function synchronizeSingleFile(workspaceFolder: WorkspaceFolder, sourceUri
     }
 
     synchronizeTargetFile(workspaceFolder, sourceUri, targetUri, targetLanguage);
+}
+
+async function selectNewTargetLanguages(fileType: string): Promise<string[] | undefined> {
+    const targetLanguagePicks: QuickPickItem[] | undefined = await window.showQuickPick<QuickPickItem>(
+        LanguageHelper.getLanguageTagList(fileType),
+        {
+            canPickMany: true,
+            placeHolder: 'Select target languages'
+        }
+    );
+    let targetLanguageTags: string[] | undefined = undefined;
+    if (targetLanguagePicks) {
+        targetLanguageTags = targetLanguagePicks.map(lang => lang.label);
+    }
+    return targetLanguageTags;
+}
+
+async function selectNewTargetLanguage(fileType: string): Promise<string | undefined> {
+    const targetLanguagePick: QuickPickItem | undefined = await window.showQuickPick<QuickPickItem>(
+        LanguageHelper.getLanguageTagList(fileType),
+        {
+            canPickMany: false,
+            placeHolder: 'Select target language'
+        }
+    );
+    let targetLanguageTag: string | undefined = undefined;
+    if (targetLanguagePick) {
+        targetLanguageTag = targetLanguagePick.label;
+    }
+    return targetLanguageTag;
 }
 
 async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined) {
@@ -207,7 +258,9 @@ async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri
     }
 
     await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
-    autoRunTranslationChecks(workspaceFolder);
+    if (targetUri) {
+        await autoRunTranslationChecks(workspaceFolder);
+    }
 }
 
 async function synchronizeAllFiles(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUris: Uri[]) {
@@ -229,7 +282,7 @@ async function synchronizeAllFiles(workspaceFolder: WorkspaceFolder, sourceUri: 
 
     window.showInformationMessage('Translation files successfully synchronized!');
 
-    autoRunTranslationChecks(workspaceFolder);
+    await autoRunTranslationChecks(workspaceFolder);
 }
 
 async function autoRunTranslationChecks(workspaceFolder: WorkspaceFolder) {

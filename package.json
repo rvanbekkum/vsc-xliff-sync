@@ -180,6 +180,11 @@
         },
         "commands": [
             {
+                "command": "xliffSync.createNewTargetFiles",
+                "title": "Create New Target File(s)",
+                "category": "XLIFF"
+            },
+            {
                 "command": "xliffSync.synchronizeFile",
                 "title": "Synchronize to Single File",
                 "category": "XLIFF"
