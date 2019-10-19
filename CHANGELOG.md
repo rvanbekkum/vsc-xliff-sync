@@ -3,6 +3,7 @@
 ## [0.3.1]
 
 * Fix remove duplicate language tag entry `ja-JP` which shows up calling `XLIFF: Create New Target File(s)`.
+* Changed `XLIFF: Create New Target File(s)` command adding two options **Select multiple..** (to select multiple target languages to create a file) and **Enter custom...** (to enter a custom target language tag).
 
 ## [0.3.0] 15-09-2019
 
