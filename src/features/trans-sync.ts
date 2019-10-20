@@ -57,7 +57,7 @@ export async function createNewTargetFiles() {
     let sourceUri: Uri = await getXliffSourceFile(workspaceFolder, uris);
 
     const fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['fileType'];
-    const targetLanguages: string[] | undefined = await selectNewTargetLanguages(fileType!);
+    const targetLanguages: string[] | undefined = await selectNewTargetLanguages(fileType!, true);
     if (!targetLanguages) {
         return;
     }
@@ -211,34 +211,57 @@ async function synchronizeSingleFile(workspaceFolder: WorkspaceFolder, sourceUri
     synchronizeTargetFile(workspaceFolder, sourceUri, targetUri, targetLanguage);
 }
 
-async function selectNewTargetLanguages(fileType: string): Promise<string[] | undefined> {
-    const targetLanguagePicks: QuickPickItem[] | undefined = await window.showQuickPick<QuickPickItem>(
-        LanguageHelper.getLanguageTagList(fileType),
-        {
-            canPickMany: true,
-            placeHolder: 'Select target languages'
-        }
-    );
-    let targetLanguageTags: string[] | undefined = undefined;
-    if (targetLanguagePicks) {
-        targetLanguageTags = targetLanguagePicks.map(lang => lang.label);
+async function selectNewTargetLanguage(fileType: string): Promise<string | undefined> {
+    var targetLanguages: string[] | undefined = await selectNewTargetLanguages(fileType, false);
+    if (targetLanguages) {
+        return targetLanguages[0];
     }
-    return targetLanguageTags;
+    return undefined;
 }
 
-async function selectNewTargetLanguage(fileType: string): Promise<string | undefined> {
-    const targetLanguagePick: QuickPickItem | undefined = await window.showQuickPick<QuickPickItem>(
-        LanguageHelper.getLanguageTagList(fileType),
+async function selectNewTargetLanguages(fileType: string, multiSelectAllowed: boolean): Promise<string[] | undefined> {
+    var languageTagOptions: QuickPickItem[] = LanguageHelper.getLanguageTagList(fileType);
+    var multiSelectLabel = '$(tasklist) Select multiple...';
+    var enterCustomLabel = '$(pencil) Enter custom...';
+    var altActions = [];
+    if (multiSelectAllowed) {
+        altActions.push({label: multiSelectLabel});
+    }
+    altActions.push({label: enterCustomLabel});
+
+    const targetLanguagePickSingle: QuickPickItem | undefined = await window.showQuickPick<QuickPickItem>(
+        altActions.concat(languageTagOptions),
         {
             canPickMany: false,
             placeHolder: 'Select target language'
         }
     );
-    let targetLanguageTag: string | undefined = undefined;
-    if (targetLanguagePick) {
-        targetLanguageTag = targetLanguagePick.label;
+    if (!targetLanguagePickSingle) {
+        return undefined;
     }
-    return targetLanguageTag;
+    if (targetLanguagePickSingle.label === enterCustomLabel) {
+        var customTargetLanguage = await window.showInputBox({prompt: 'Enter target language tag', placeHolder: 'Example: en-US'});
+        if (!customTargetLanguage) {
+            return undefined;
+        }
+        return [customTargetLanguage];
+    }
+    if (targetLanguagePickSingle.label === multiSelectLabel) {
+        const targetLanguagePicks: QuickPickItem[] | undefined = await window.showQuickPick<QuickPickItem>(
+            languageTagOptions,
+            {
+                canPickMany: true,
+                placeHolder: 'Select target languages'
+            }
+        );
+        let targetLanguageTags: string[] | undefined = undefined;
+        if (targetLanguagePicks) {
+            targetLanguageTags = targetLanguagePicks.map(lang => lang.label);
+        }
+        return targetLanguageTags;
+    }
+
+    return [targetLanguagePickSingle.label];
 }
 
 async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined) {

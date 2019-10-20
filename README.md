@@ -100,6 +100,8 @@ If no trans-unit is found, the unit is added and its target node is tagged with 
 This command will let you create one or more new target files, letting you choose from a set of RFC 4646 or RFC5646 language tags depending on the XLIFF file type (i.e., `xlf` or `xlf2`).
 The new file is automatically synced with the base file; if it is not known you will be prompted to specify the file to use as the base file first.
 
+![XLIFF Sync Create New Target Files Options](resources/xliffSync_createNewTargetFilesOptions.png)
+
 ### Synchronize to Single File
 
 #### Using the Command Palette

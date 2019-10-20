@@ -113,7 +113,7 @@ export class LanguageHelper {
         { label: 'zu-ZA', description: 'Zulu (South Africa)'},
         { label: 'it-IT', description: 'Italian (Italy)'},
         { label: 'it-CH', description: 'Italian (Switzerland)'},
-        { label: 'ja-JP', description: 'Japanese (Japan)'},
+        // { label: 'ja-JP', description: 'Japanese (Japan)'},
         { label: 'kn-IN', description: 'Kannada (India)'},
         { label: 'kk-KZ', description: 'Kazakh (Kazakhstan)'},
         { label: 'km-KH', description: 'Khmer (Cambodia)'},
