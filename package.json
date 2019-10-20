@@ -127,12 +127,16 @@
 					"items": {
                         "type" : "string",
                         "enum": [
+                            "ConsecutiveSpacesConsistent",
+                            "ConsecutiveSpacesExist",
                             "OptionMemberCount",
                             "OptionLeadingSpaces",
                             "Placeholders",
                             "SourceEqualsTarget"
                         ],
                         "enumDescriptions": [
+                            "Checks that the 'consecutive space'-occurrences match.",
+                            "Checks whether consecutive spaces exist in the source or translation text.",
                             "Checks that the number of members of the OptionCaption or PromotedActionCategories property match.",
                             "Checks that the leading spaces of members of the OptionCaption or PromotedActionCategories property match.",
                             "Checks that the number of placeholders match.",
