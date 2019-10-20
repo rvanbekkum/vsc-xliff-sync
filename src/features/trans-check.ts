@@ -372,6 +372,22 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
         }
     }
 
+    if (needWorkRules.indexOf('ConsecutiveSpacesExist') >= 0) {
+        if (checkForConsecutiveSpaces(sourceText)) {
+            targetDocument.setXliffSyncNote(unit, 'Problem detected: Consecutive spaces exist in the source text.');
+            return true;
+        }
+        if (checkForConsecutiveSpaces(translText)) {
+            targetDocument.setXliffSyncNote(unit, 'Problem detected: Consecutive spaces exist in the translation text.');
+            return true;
+        }
+    }
+
+    if (needWorkRules.indexOf('ConsecutiveSpacesConsistent') >= 0 && checkForConsecutiveSpacesInconsistency(sourceText, translText)) {
+        targetDocument.setXliffSyncNote(unit, 'Problem detected: The "consecutive space"-occurrences in source and translation text do not match.');
+        return true;
+    }
+
     if (targetDocument.getTargetAttribute(unit, 'state') === 'needs-adaptation') {
         return true;
     }
@@ -414,13 +430,35 @@ function checkForOptionMemberCountMismatch(sourceText: string, translationText: 
     return noOfCommasSource !== noOfCommasTransl;
 }
 
-function checkForOptionMemberLeadingSpacesMismatch(sourceText: string, translationText: string) {
+function checkForOptionMemberLeadingSpacesMismatch(sourceText: string, translationText: string): boolean {
     const sourceValues: string[] = sourceText.split(',');
     const translValues: string[] = translationText.split(',');
     for (let i in sourceValues) {
         const whiteSpaceCountSource = sourceValues[i].search(/\S|$/);
         const whiteSpaceCountTransl = translValues[i].search(/\S|$/);
         if (whiteSpaceCountSource !== whiteSpaceCountTransl) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function getConsecutiveSpacesMatchesFromText(textToCheck: string): RegExpMatchArray {
+    return (textToCheck.match(/\s\s+/g) || []);
+}
+
+function checkForConsecutiveSpaces(textToCheck: string): boolean {
+    return getConsecutiveSpacesMatchesFromText(textToCheck).length !== 0;
+}
+
+function checkForConsecutiveSpacesInconsistency(sourceText: string, translationText: string): boolean {
+    const sourceTextConsecutiveSpaces = getConsecutiveSpacesMatchesFromText(sourceText);
+    const translTextConsecutiveSpaces = getConsecutiveSpacesMatchesFromText(translationText);
+    if (sourceTextConsecutiveSpaces.length !== translTextConsecutiveSpaces.length) {
+        return true;
+    }
+    for (let i in sourceTextConsecutiveSpaces) {
+        if (sourceTextConsecutiveSpaces[i].length !== translTextConsecutiveSpaces[i].length) {
             return true;
         }
     }

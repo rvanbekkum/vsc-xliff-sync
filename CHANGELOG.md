@@ -4,6 +4,10 @@
 
 * Fix remove duplicate language tag entry `ja-JP` which shows up calling `XLIFF: Create New Target File(s)`.
 * Changed `XLIFF: Create New Target File(s)` command adding two options **Select multiple..** (to select multiple target languages to create a file) and **Enter custom...** (to enter a custom target language tag).
+* Added the following new technical checks (disabled by default):
+
+  * `ConsecutiveSpacesConsistent` - Checks that the 'consecutive space'-occurrences match in source and translation.
+  * `ConsecutiveSpacesExist` - Checks whether consecutive spaces exist in the source or translation text.
 
 ## [0.3.0] 15-09-2019
 
