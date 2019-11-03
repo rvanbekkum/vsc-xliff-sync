@@ -1,6 +1,16 @@
 # Changelog
 
-## [0.3.1]
+## [0.3.2] 03-11-2019
+
+* Added the following new technical check (disabled by default):
+
+  * `PlaceholdersDevNote` - Checks that the meaning of placeholders are explained in the Developer note.
+
+* Added new setting `xliffSync.needWorkTranslationRulesEnableAll` to enable all available technical validation rules. If you want to use all rules including those that will be added in the future, you can use this setting. (**Default**: `false`)
+
+* Fix: The XLIFF Sync note would only be removed for the first trans-unit where a problem is resolved. From now on, the XLIFF Sync note will be removed directly from all trans-units where the problems are detected to be resolved.
+
+## [0.3.1] 20-10-2019
 
 * Fix remove duplicate language tag entry `ja-JP` which shows up calling `XLIFF: Create New Target File(s)`.
 * Changed `XLIFF: Create New Target File(s)` command adding two options **Select multiple..** (to select multiple target languages to create a file) and **Enter custom...** (to enter a custom target language tag).
@@ -8,6 +18,11 @@
 
   * `ConsecutiveSpacesConsistent` - Checks that the 'consecutive space'-occurrences match in source and translation.
   * `ConsecutiveSpacesExist` - Checks whether consecutive spaces exist in the source or translation text.
+
+### Thank You
+
+* **[fvet](https://github.com/fvet)** for requesting these new rules to be added. (GitHub issue [#25](https://github.com/rvanbekkum/vsc-xliff-sync/issues/25))
+* **[pmoison](https://github.com/pmoison)** for reporting and explaining your issue which led to the changes to command `XLIFF: Create New Target File(s)`. (GitHub issue [#26](https://github.com/rvanbekkum/vsc-xliff-sync/issues/26))
 
 ## [0.3.0] 15-09-2019
 
