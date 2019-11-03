@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -132,6 +132,7 @@
                             "OptionMemberCount",
                             "OptionLeadingSpaces",
                             "Placeholders",
+                            "PlaceholdersDevNote",
                             "SourceEqualsTarget"
                         ],
                         "enumDescriptions": [
@@ -140,6 +141,7 @@
                             "Checks that the number of members of the OptionCaption or PromotedActionCategories property match.",
                             "Checks that the leading spaces of members of the OptionCaption or PromotedActionCategories property match.",
                             "Checks that the number of placeholders match.",
+                            "Checks that the meaning of placeholders are explained in the Developer note.",
                             "Checks that the source and target are the same for files where source and target language are the same."
                         ]
                     },
@@ -151,7 +153,13 @@
 					"uniqueItems": true,
                     "description": "Specifies which technical validation rules should be used.",
                     "scope": "resource"
-				},
+                },
+                "xliffSync.needWorkTranslationRulesEnableAll": {
+                    "type" : "boolean",
+                    "default" : false,
+                    "description": "Specifies whether or not all available technical validation rules should be used. Enabling this setting makes xliffSync.needWorkTranslationRules redundant.",
+                    "scope": "resource"
+                },
                 "xliffSync.preserveTargetAttributes": {
                     "type" : "boolean",
                     "default" : false,

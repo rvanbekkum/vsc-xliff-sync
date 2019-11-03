@@ -249,6 +249,12 @@ export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolde
         let needWorkRules: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
             'needWorkTranslationRules'
         ];
+        let needWorkRulesEnableAll: boolean = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
+            'needWorkTranslationRulesEnableAll'
+        ];
+        function isRuleEnabledChecker(ruleName: string): boolean {
+            return needWorkRulesEnableAll || needWorkRules.indexOf(ruleName) >= 0;
+        }
 
         let noMissingTranslations: boolean = true;
         let noNeedWorkTranslations: boolean = true;
@@ -273,11 +279,11 @@ export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolde
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
                     missingCount += 1;
                 }
-                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, needWorkRules)) {
+                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, isRuleEnabledChecker)) {
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
                     needWorkCount += 1;
                 }
-                if (shouldCheckForNeedWorkTranslations && !problemResolvedInFile && checkForResolvedProblem(targetDocument, unit)) {
+                if (shouldCheckForNeedWorkTranslations && checkForResolvedProblem(targetDocument, unit)) {
                     problemResolvedInFile = true;
                 }
             });
@@ -342,37 +348,42 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
     return false;
 }
 
-function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, needWorkRules: string[]) : boolean {
+function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, isRuleEnabled: (ruleName: string) => boolean) : boolean {
     const sourceText = targetDocument.getUnitSourceText(unit);
     const translText = targetDocument.getUnitTranslation(unit);
+    const devNoteText = targetDocument.getUnitDeveloperNote(unit) || '';
     if (!sourceText || !translText) {
         return false;
     }
 
     if (targetDocument.sourceLanguage === targetDocument.targetLanguage) {
-        if ((needWorkRules.indexOf('SourceEqualsTarget') >= 0) && sourceText !== translText) {
+        if (isRuleEnabled('SourceEqualsTarget') && sourceText !== translText) {
             targetDocument.setXliffSyncNote(unit, 'Problem detected: The source text is not the same as the translation, but the source-language is the same as the target-language.');
             return true;
         }
     }
- 
-    if ((needWorkRules.indexOf('Placeholders') >= 0) && checkForPlaceHolderMismatch(sourceText, translText)) {
+    
+    if (isRuleEnabled('Placeholders') && checkForPlaceHolderMismatch(sourceText, translText)) {
         targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of placeholders in the source and translation text do not match.');
+        return true;
+    }
+    if (isRuleEnabled('PlaceholdersDevNote') && checkForPlaceHolderMismatch(sourceText, devNoteText)) {
+        targetDocument.setXliffSyncNote(unit, 'Problem detected: One or more placeholders are missing an explanation in the Developer note.');
         return true;
     }
 
     if (isOptionCaptionUnit(targetDocument, unit)) {
-        if ((needWorkRules.indexOf('OptionMemberCount') >= 0) && checkForOptionMemberCountMismatch(sourceText, translText)) {
+        if (isRuleEnabled('OptionMemberCount') && checkForOptionMemberCountMismatch(sourceText, translText)) {
             targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of option members in the source and translation text do not match.');
             return true;
         }
-        if ((needWorkRules.indexOf('OptionLeadingSpaces') >= 0) && checkForOptionMemberLeadingSpacesMismatch(sourceText, translText)) {
+        if (isRuleEnabled('OptionLeadingSpaces') && checkForOptionMemberLeadingSpacesMismatch(sourceText, translText)) {
             targetDocument.setXliffSyncNote(unit, 'Problem detected: The leading spaces in the option values of the source and translation text do not match.');
             return true;
         }
     }
 
-    if (needWorkRules.indexOf('ConsecutiveSpacesExist') >= 0) {
+    if (isRuleEnabled('ConsecutiveSpacesExist')) {
         if (checkForConsecutiveSpaces(sourceText)) {
             targetDocument.setXliffSyncNote(unit, 'Problem detected: Consecutive spaces exist in the source text.');
             return true;
@@ -383,7 +394,7 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
         }
     }
 
-    if (needWorkRules.indexOf('ConsecutiveSpacesConsistent') >= 0 && checkForConsecutiveSpacesInconsistency(sourceText, translText)) {
+    if (isRuleEnabled('ConsecutiveSpacesConsistent') && checkForConsecutiveSpacesInconsistency(sourceText, translText)) {
         targetDocument.setXliffSyncNote(unit, 'Problem detected: The "consecutive space"-occurrences in source and translation text do not match.');
         return true;
     }
