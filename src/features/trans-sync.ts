@@ -23,6 +23,7 @@
  */
 
 import {
+    ProgressLocation,
     QuickPickItem,
     Uri,
     window,
@@ -63,7 +64,7 @@ export async function createNewTargetFiles() {
     }
 
     for (let targetLanguage of targetLanguages) {
-        await synchronizeTargetFile(workspaceFolder, sourceUri, undefined, targetLanguage);
+        await synchronizeAndCheckTargetFile(workspaceFolder, sourceUri, undefined, targetLanguage);
     }
 }
 
@@ -98,7 +99,7 @@ export async function synchronizeWithSelectedFile(fileUri: Uri) {
         let sourceUri: Uri = await getXliffSourceFile(workspaceFolder, uris);
         
         if (sourceUri.fsPath !== fileUri.fsPath) {
-            synchronizeTargetFile(workspaceFolder, sourceUri, fileUri);
+            synchronizeAndCheckTargetFile(workspaceFolder, sourceUri, fileUri);
         }
         else {
             let targetUris = uris.filter((uri) => uri !== sourceUri);
@@ -208,7 +209,7 @@ async function synchronizeSingleFile(workspaceFolder: WorkspaceFolder, sourceUri
         }
     }
 
-    synchronizeTargetFile(workspaceFolder, sourceUri, targetUri, targetLanguage);
+    synchronizeAndCheckTargetFile(workspaceFolder, sourceUri, targetUri, targetLanguage);
 }
 
 async function selectNewTargetLanguage(fileType: string): Promise<string | undefined> {
@@ -264,43 +265,47 @@ async function selectNewTargetLanguages(fileType: string, multiSelectAllowed: bo
     return [targetLanguagePickSingle.label];
 }
 
-async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined) {
-    if (!targetUri && !targetLanguage) {
-        throw new Error('No target file specified');
-    }
-
-    const source = (await workspace.openTextDocument(sourceUri)).getText();
-    const target = targetUri
-        ? (await workspace.openTextDocument(targetUri)).getText()
-        : undefined;
-
-    const newFileContents = await XlfTranslator.synchronize(workspaceFolder, source, target, targetLanguage);
-
-    if (!newFileContents) {
-        throw new Error('No ouput generated');
-    }
-
-    await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
+async function synchronizeAndCheckTargetFile(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined) {
+    await synchronizeTargetFile(workspaceFolder, sourceUri, targetUri, targetLanguage);
     if (targetUri) {
         await autoRunTranslationChecks(workspaceFolder, targetUri);
     }
 }
 
-async function synchronizeAllFiles(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUris: Uri[]) {
-    for (let index = 0; index < targetUris.length; index++) {
-        let targetUri: Uri = targetUris[index];
+async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined) {
+    let fileName: string = targetLanguage || '';
+    if (targetUri) {
+        fileName = FilesHelper.getFileNameFromUri(targetUri);
+    }
+
+    return await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: `Syncing "${fileName}"`,
+        cancellable: false
+    }, async progress => {
+        if (!targetUri && !targetLanguage) {
+            throw new Error('No target file specified');
+        }
+
         const source = (await workspace.openTextDocument(sourceUri)).getText();
         const target = targetUri
             ? (await workspace.openTextDocument(targetUri)).getText()
             : undefined;
 
-        const newFileContents = await XlfTranslator.synchronize(workspaceFolder, source, target, undefined);
+        const newFileContents = await XlfTranslator.synchronize(workspaceFolder, source, target, targetLanguage);
 
         if (!newFileContents) {
             throw new Error('No ouput generated');
         }
+    
+        await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
+    });
+}
 
-        await FilesHelper.createNewTargetFile(targetUri, newFileContents);
+async function synchronizeAllFiles(workspaceFolder: WorkspaceFolder, sourceUri: Uri, targetUris: Uri[]) {
+    for (let index = 0; index < targetUris.length; index++) {
+        let targetUri: Uri = targetUris[index];
+        await synchronizeTargetFile(workspaceFolder, sourceUri, targetUri);
     }
 
     window.showInformationMessage('Translation files successfully synchronized!');

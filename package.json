@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -25,7 +25,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.31.0"
+        "vscode": "^1.32.0"
     },
     "categories": [
         "Other"
@@ -177,6 +177,11 @@
                     "default" : false,
                     "description": "Specifies whether existing translations will be replaced when the XLIFF: Import Translations from File(s) command is run.",
                     "scope": "resource"
+                },
+                "xliffSync.decorationEnabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies whether decorations for missing translations and translations that need work should be applied."
                 },
                 "xliffSync.decoration": {
                     "type": "object",

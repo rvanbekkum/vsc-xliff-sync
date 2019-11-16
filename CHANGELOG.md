@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.3] 16-11-2019
+
+* Added notification that shows that an XLIFF Sync is in progress. This notification includes the name of the target file for which a sync is in progress.
+* Added new setting `xliffSync.decorationEnabled` that can be used to disable decoration/highlight of missing translations and translations that need work in XLIFF files.
+
 ## [0.3.2] 03-11-2019
 
 * Added the following new technical check (disabled by default):

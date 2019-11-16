@@ -104,4 +104,8 @@ export class FilesHelper {
 
     await document.save();
   }
+
+  public static getFileNameFromUri(fileUri: Uri): string {
+    return fileUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
+  }
 }

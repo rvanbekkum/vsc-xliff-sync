@@ -34,7 +34,7 @@ import {
     window,
     workspace,
     Uri,
-    WorkspaceFolder,
+    WorkspaceFolder
 } from 'vscode';
 import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { XlfDocument } from './tools/xlf/xlf-document';
@@ -52,8 +52,10 @@ export class XliffTranslationChecker {
         missingTranslationKeywords = this.getMissingTranslationKeywords();
         needsWorkTranslationKeywords = this.getNeedsWorkTranslationKeywords();
         currentEditor = window.activeTextEditor;
+        const decorationEnabled = workspace.getConfiguration('xliffSync')['decorationEnabled'];
+        const decoration = workspace.getConfiguration('xliffSync')['decoration'];
         decorationType = window.createTextEditorDecorationType(
-            workspace.getConfiguration('xliffSync')['decoration'],
+            decoration
         );
 
         const findNextMissingDisposable = commands.registerCommand(
@@ -89,18 +91,20 @@ export class XliffTranslationChecker {
         context.subscriptions.push(checkForMissingTranslationsDisposable);
         context.subscriptions.push(checkForNeedWorkTranslationsDisposable);
 
-        window.onDidChangeActiveTextEditor((editor) => {
-            currentEditor = editor;
-            this.pushHighlightUpdate();
-        });
-
-        workspace.onDidChangeTextDocument((event) => {
-            if (currentEditor && event.document === currentEditor.document) {
+        if (decorationEnabled) {
+            window.onDidChangeActiveTextEditor((editor) => {
+                currentEditor = editor;
                 this.pushHighlightUpdate();
-            }
-        });
-
-        this.pushHighlightUpdate();
+            });
+    
+            workspace.onDidChangeTextDocument((event) => {
+                if (currentEditor && event.document === currentEditor.document) {
+                    this.pushHighlightUpdate();
+                }
+            });
+    
+            this.pushHighlightUpdate();
+        }
     }
 
     private async checkForMissingTranslations() {
@@ -303,7 +307,7 @@ export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolde
             }
 
             if (problemDetectedInFile) {
-                const fileName = targetUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
+                const fileName = FilesHelper.getFileNameFromUri(targetUri);
                 window.showInformationMessage(`"${fileName}":${messagesText}`, 'Open Externally').then(selection => {
                     if (selection === 'Open Externally') {
                         env.openExternal(targetUri);
