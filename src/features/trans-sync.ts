@@ -278,7 +278,7 @@ async function synchronizeTargetFile(workspaceFolder: WorkspaceFolder, sourceUri
         fileName = FilesHelper.getFileNameFromUri(targetUri);
     }
 
-    return window.withProgress({
+    return await window.withProgress({
         location: ProgressLocation.Notification,
         title: `Syncing "${fileName}"`,
         cancellable: false
