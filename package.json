@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.3",
+    "version": "0.3.4",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -42,7 +42,7 @@
             "properties": {
                 "xliffSync.baseFile": {
                     "type": "string",
-                    "default": "application.g.xlf",
+                    "default": ".g.xlf",
                     "description": "Specifies the base XLIFF translation file.",
                     "scope": "resource"
                 },

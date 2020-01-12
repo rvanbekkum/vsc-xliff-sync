@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.4] 12-01-2019
+
+* Changed default value for setting `xliffSync.baseFile` to `.g.xlf` (GitHub issue [#34](https://github.com/rvanbekkum/vsc-xliff-sync/issues/34))
+
 ## [0.3.3] 16-11-2019
 
 * Added notification that shows that an XLIFF Sync is in progress. This notification includes the name of the target file for which a sync is in progress.
