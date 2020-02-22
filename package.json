@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -90,6 +90,18 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Specifies whether translations should be copied from the source text if source-language = target-language.",
+                    "scope": "resource"
+                },
+                "xliffSync.parseFromDeveloperNote": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translations should be parsed from the developer note.",
+                    "scope": "resource"
+                },
+                "xliffSync.parseFromDeveloperNoteSeparator": {
+                    "type": "string",
+                    "default": "|",
+                    "description": "Specifies the separator that is used when translations are parsed from the developer note.",
                     "scope": "resource"
                 },
                 "xliffSync.missingTranslation": {
