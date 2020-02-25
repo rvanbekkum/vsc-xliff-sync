@@ -86,12 +86,6 @@
                     "description": "Specifies whether or not the extension will try to find translation units by source.",
                     "scope": "resource"
                 },
-                "xliffSync.copyFromSourceForSameLanguage": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Specifies whether translations should be copied from the source text if source-language = target-language.",
-                    "scope": "resource"
-                },
                 "xliffSync.parseFromDeveloperNote": {
                     "type": "boolean",
                     "default": false,
@@ -102,6 +96,12 @@
                     "type": "string",
                     "default": "|",
                     "description": "Specifies the separator that is used when translations are parsed from the developer note.",
+                    "scope": "resource"
+                },
+                "xliffSync.copyFromSourceForSameLanguage": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translations should be copied from the source text if source-language = target-language.",
                     "scope": "resource"
                 },
                 "xliffSync.missingTranslation": {

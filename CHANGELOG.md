@@ -1,8 +1,13 @@
 # Changelog
 
+## [0.3.5] 25-02-2019
+
+* Added new setting `xliffSync.parseFromDeveloperNote` (default: false) to have translations parsed from the Developer note if no matching trans-units or translations can be found. Translations can be retrieved from a Developer note in the following format: `en-US=My translation|nl-NL=Mijn vertaling` (GitHub issue [#37](https://github.com/rvanbekkum/vsc-xliff-sync/issues/37)).
+* Added new setting `xliffSync.parseFromDeveloperNoteSeparator` (default: `|`) accompanying setting `xliffSync.parseFromDeveloperNote` to change the separator for translations.
+
 ## [0.3.4] 12-01-2019
 
-* Changed default value for setting `xliffSync.baseFile` to `.g.xlf` (GitHub issue [#34](https://github.com/rvanbekkum/vsc-xliff-sync/issues/34))
+* Changed default value for setting `xliffSync.baseFile` to `.g.xlf` (GitHub issue [#34](https://github.com/rvanbekkum/vsc-xliff-sync/issues/34)).
 
 ## [0.3.3] 16-11-2019
 
