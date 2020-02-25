@@ -45,7 +45,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | **XLIFF: Synchronize to Single File** | Merge new trans-units from base-XLIFF file into a manually specified target XLIFF file. |
 | **XLIFF: Synchronize Translation Units** | Merge new trans-units from base-XLIFF file into all other XLIFF files in the open project folder. |
 | **XLIFF: Check for Missing Translations** | Checks if there are any missing translations in the target XLIFF files in the open project folder. For each file with missing translations, an informational message will be shown (with a button to open the file externally). |
-| **XLIFF: Check for Need Work Translations** | Checks if there are translations that need work in the target XLIFF files in the open project folder. For example, the source text contains placeholders (e.g., "%1" or "{0}") while the translation does not. Translations with problems will be tagged with `needs-adaptation`. For each file with translations that need work, an informational message will be shown (with a button to open the file externally). |
+| **XLIFF: Check for Need Work Translations** | Checks if there are translations that need work in the target XLIFF files in the open project folder. For example, the source text contains placeholders (e.g., "%1" or "{0}") while the translation does not. Translations with problems will be tagged with `needs-adaptation` and an "XLIFF Sync" note will be added to the trans-unit node. For each file with translations that need work, an informational message will be shown (with a button to open the file externally). |
 | **XLIFF: Next Missing Translation** | In an XLIFF file that is currently opened in the active editor, search for the next missing translation. |
 | **XLIFF: Next Needs Work Translation** | In an XLIFF file that is currently opened in the active editor, search for the next translation tagged as `needs-adaptation`. |
 | **XLIFF: Import Translations from File(s)** | Import/Copy translations from external XLIFF files to trans-units with matching sources of target XLIFF files with the same target-language. |
@@ -64,6 +64,8 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.findByXliffGeneratorNote | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note. |
 | xliffSync.findBySourceAndDeveloperNote | `false` | Specifies whether or not the extension will try to find translations by the combination of source and developer note. |
 | xliffSync.findBySource | `false` | Specifies whether or not the extension will try to find translations by source. If there are multiple trans-units with the same source, then the translation of the first translation unit is used for all units. |
+| xliffSync.parseFromDeveloperNote | `false` | "Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: `en-US=My translation|nl-NL=Mijn vertaling`. |
+| xliffSync.parseFromDeveloperNoteSeparator | `|` | Specifies the separator that is used when translations are parsed from the developer note. |
 | xliffSync.copyFromSourceForSameLanguage | `false` | Specifies whether translations should be copied from the source text if source-language = target-language. This will **not** overwrite existing translations of trans-units in target files. |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
@@ -83,15 +85,19 @@ The extension will try to find corresponding trans-units and translations within
 
 1. Finding trans-units:
 > 1. By Id
-> 2. By XLIFF Generator Note & Source (enabled by default, configurable)
-> 3. By XLIFF Generator Note & Developer Note (enabled by default, configurable)
-> 4. By XLIFF Generator Note (enabled by default, configurable)
+> 2. By XLIFF Generator Note & Source (enabled by default, configurable with `xliffSync.findByXliffGeneratorNoteAndSource`)
+> 3. By XLIFF Generator Note & Developer Note (enabled by default, configurable with `xliffSync.findByXliffGeneratorAndDeveloperNote`)
+> 4. By XLIFF Generator Note (enabled by default, configurable with `xliffSync.findByXliffGeneratorNote`)
 
 2. Finding translations:
-> 5. By Source & Developer Note (disabled by default, configurable)
-> 6. By Source (disabled by default, configurable)
+> 5. By Source & Developer Note (disabled by default, configurable with `xliffSync.findBySourceAndDeveloperNote`)
+> 6. By Source (disabled by default, configurable with `xliffSync.findBySource`)
 
-If no trans-unit is found, the unit is added and its target node is tagged with `state="needs-translation"`.
+3. Initial translation:
+> 7. Parse from Developer Note (disabled by default, configurable with `xliffSync.parseFromDeveloperNote`)
+> 8. Copy from Source if source-language = target-language (disabled by default, configurable with `xliffSync.copyFromSourceForSameLanguage`)
+
+If no trans-unit or translation is found, the unit is added and its target node is tagged with `state="needs-translation"`.
 
 ### Create New Target File(s)
 
@@ -99,7 +105,7 @@ If no trans-unit is found, the unit is added and its target node is tagged with 
 > 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
 > 2. **XLIFF: Create New Target File(s)**
 
-This command will let you create one or more new target files, letting you choose from a set of RFC 4646 or RFC5646 language tags depending on the XLIFF file type (i.e., `xlf` or `xlf2`).
+This command will let you create one or more new target files, letting you choose from a set of RFC 4646 or RFC 5646 language tags depending on the XLIFF file type (i.e., `xlf` or `xlf2`).
 The new file is automatically synced with the base file; if it is not known you will be prompted to specify the file to use as the base file first.
 
 ![XLIFF Sync Create New Target Files Options](resources/xliffSync_createNewTargetFilesOptions.png)

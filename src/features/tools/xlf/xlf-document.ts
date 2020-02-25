@@ -155,6 +155,7 @@ export class XlfDocument {
   private xliffGeneratorNoteDesignation: string;
   private preserveTargetAttributes: boolean;
   private preserveTargetOrder: boolean;
+  private parseFromDeveloperNoteSeparator: string;
   private missingTranslation: string;
 
   private constructor(resourceUri: Uri) {
@@ -163,6 +164,7 @@ export class XlfDocument {
     this.xliffGeneratorNoteDesignation = xliffWorkspaceConfiguration['xliffGeneratorNoteDesignation'];
     this.preserveTargetAttributes = xliffWorkspaceConfiguration['preserveTargetAttributes'];
     this.preserveTargetOrder = xliffWorkspaceConfiguration['preserveTargetAttributesOrder'];
+    this.parseFromDeveloperNoteSeparator = xliffWorkspaceConfiguration['parseFromDeveloperNoteSeparator'];
 
     this.missingTranslation = xliffWorkspaceConfiguration['missingTranslation'];
     if (this.missingTranslation === '%EMPTY%') {
@@ -380,6 +382,30 @@ export class XlfDocument {
     }
 
     return undefined;
+  }
+
+  public getUnitTranslationFromDeveloperNote(unitNode: XmlNode): string | undefined {
+    const developerNote: string | undefined = this.getUnitDeveloperNote(unitNode);
+    if (!developerNote) {
+      return undefined;
+    }
+
+    const translationEntries: string[] = developerNote.split(this.parseFromDeveloperNoteSeparator);
+    let translation: string | undefined = undefined;
+    for (const translationEntry of translationEntries) {
+      const sepIdx: number = translationEntry.indexOf('=');
+      if (sepIdx < 0) {
+        continue;
+      }
+
+      var language = translationEntry.substr(0, sepIdx);
+      if (language === this.targetLanguage) {
+        translation = translationEntry.substr(sepIdx + 1);
+        break;
+      }
+    }
+
+    return translation;
   }
 
   public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translation?: string): void {
