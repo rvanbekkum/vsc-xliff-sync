@@ -24,6 +24,7 @@
 
 import {
     commands,
+    DecorationRenderOptions,
     env,
     ExtensionContext,
     Range,
@@ -42,6 +43,8 @@ import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
+var decorationEnabled: boolean;
+var decorationTargetTextOnly: boolean;
 var decorationType: TextEditorDecorationType;
 var timeout: NodeJS.Timer;
 var missingTranslationKeywords: string;
@@ -49,14 +52,8 @@ var needsWorkTranslationKeywords: string;
 
 export class XliffTranslationChecker {
     constructor(context: ExtensionContext) {
-        missingTranslationKeywords = this.getMissingTranslationKeywords();
-        needsWorkTranslationKeywords = this.getNeedsWorkTranslationKeywords();
         currentEditor = window.activeTextEditor;
-        const decorationEnabled = workspace.getConfiguration('xliffSync')['decorationEnabled'];
-        const decoration = workspace.getConfiguration('xliffSync')['decoration'];
-        decorationType = window.createTextEditorDecorationType(
-            decoration
-        );
+        this.refreshSettings();
 
         const findNextMissingDisposable = commands.registerCommand(
             'xliffSync.findNextMissingTarget',
@@ -91,20 +88,19 @@ export class XliffTranslationChecker {
         context.subscriptions.push(checkForMissingTranslationsDisposable);
         context.subscriptions.push(checkForNeedWorkTranslationsDisposable);
 
-        if (decorationEnabled) {
-            window.onDidChangeActiveTextEditor((editor) => {
-                currentEditor = editor;
-                this.pushHighlightUpdate();
-            });
-    
-            workspace.onDidChangeTextDocument((event) => {
-                if (currentEditor && event.document === currentEditor.document) {
-                    this.pushHighlightUpdate();
-                }
-            });
-    
+        window.onDidChangeActiveTextEditor((editor) => {
+            currentEditor = editor;
+            this.refreshSettings();
             this.pushHighlightUpdate();
-        }
+        });
+
+        workspace.onDidChangeTextDocument((event) => {
+            if (currentEditor && event.document === currentEditor.document) {
+                this.pushHighlightUpdate();
+            }
+        });
+
+        this.pushHighlightUpdate();
     }
 
     private async checkForMissingTranslations() {
@@ -192,11 +188,45 @@ export class XliffTranslationChecker {
     }
 
     private pushHighlightUpdate() {
+        if (!this.isXliffFileOpen() || !decorationEnabled) {
+            return;
+        }
+
         if (timeout) {
             clearTimeout(timeout);
         }
 
-        timeout = setTimeout(this.highlightUpdate, 1);
+        timeout = setTimeout(this.highlightUpdate, 500);
+    }
+
+    private refreshSettings() {
+        decorationEnabled = workspace.getConfiguration('xliffSync')['decorationEnabled'];
+        decorationTargetTextOnly = workspace.getConfiguration('xliffSync')['decorationTargetTextOnly'];
+
+        missingTranslationKeywords = this.getMissingTranslationKeywords();
+        needsWorkTranslationKeywords = this.getNeedsWorkTranslationKeywords();
+
+        const decoration: DecorationRenderOptions = workspace.getConfiguration('xliffSync')['decoration'];
+        decorationType = window.createTextEditorDecorationType(
+            decoration
+        );
+    }
+
+    private isXliffFileOpen(): boolean {
+        if (!currentEditor) {
+            return false;
+        }
+
+        const fileName: string | undefined = currentEditor.document.fileName;
+        if (!fileName) {
+            return false;
+        }
+        const fileExt: string = fileName.slice((fileName.lastIndexOf(".") - 1 >>> 0) + 2);
+        if (FilesHelper.getSupportedFileExtensions().indexOf(fileExt) < 0) {
+            return false;
+        }
+
+        return true;
     }
 
     private getMissingTranslationKeywords(): string {
@@ -212,13 +242,24 @@ export class XliffTranslationChecker {
             'missingTranslation'
         ];
         if (missingTranslationKeyword === '%EMPTY%') {
-            missingTranslationKeyword = '<target/>|<target></target>|<target state="needs-translation"/>';
+            missingTranslationKeyword = '<target( state="needs-translation")?/>|<target( state="needs-translation")?></target>';
+        }
+        else if (decorationTargetTextOnly) {
+            missingTranslationKeyword = `(?<=<target( state="needs-translation")?>)${missingTranslationKeyword}(?=</target>)`;
+        }
+        else {
+            missingTranslationKeyword = `<target( state="needs-translation")?>${missingTranslationKeyword}</target>`;
         }
         return missingTranslationKeyword;
     }
 
     private getNeedsWorkTranslationKeywords() : string {
-        return '<target state="needs-adaptation">.*</target>';
+        if (decorationTargetTextOnly) {
+            return '(?<=<target state="needs-adaptation">).*(?=</target>)';
+        }
+        else {
+            return '<target state="needs-adaptation">.*</target>|<target state="needs-adaptation"/>';
+        }
     }
 }
 
