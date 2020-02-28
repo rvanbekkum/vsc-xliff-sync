@@ -108,4 +108,8 @@ export class FilesHelper {
   public static getFileNameFromUri(fileUri: Uri): string {
     return fileUri.toString().replace(/^.*[\\\/]/, '').replace(/%20/g, ' ');
   }
+
+  public static getSupportedFileExtensions(): string[] {
+    return ['xlf', 'xlf2'];
+  }
 }
