@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.6] 28-02-2019
+
+* Only apply decorations in XLIFF files (not in every editor) (GitHub issue [#39](https://github.com/rvanbekkum/vsc-xliff-sync/issues/39))
+* Reload settings (i.e., `"xliffSync.decoration"`, `"xliffSync.decorationEnabled"`, `"xliffSync.decorationTargetTextOnly"`, `"xliffSync.missingTranslation"`) when switching active editor
+* Add new setting `"xliffSync.decorationTargetTextOnly"` to have decorations only be applied to the target node's text, if enabled.
+* Change highlight-update interval from 1 to 500 (ms)
+
+### Thank You
+
+* **[GregoryAA](https://github.com/GregoryAA)** for reporting the issues with decorations. (GitHub issue [#39](https://github.com/rvanbekkum/vsc-xliff-sync/issues/39))
+
 ## [0.3.5] 25-02-2019
 
 * Added new setting `xliffSync.parseFromDeveloperNote` (default: false) to have translations parsed from the Developer note if no matching trans-units or translations can be found. Translations can be retrieved from a Developer note in the following format: `en-US=My translation|nl-NL=Mijn vertaling` (GitHub issue [#37](https://github.com/rvanbekkum/vsc-xliff-sync/issues/37)).

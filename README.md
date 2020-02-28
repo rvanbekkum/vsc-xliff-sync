@@ -78,6 +78,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.replaceTranslationsDuringImport | `false` | Specifies whether existing translations will be replaced when the XLIFF: Import Translations from File(s) command is run. |
 | xliffSync.decoration | `{"backgroundColor": "rgba(240, 210, 105, 0.35)", "overviewRulerColor": "rgba(240, 210, 105, 0.35)", "border": "1px solid white", "borderRadius": "4px"}` | Specifies how to highlight missing translations or translations that need work in an XLIFF file opened in the editor. |
 | xliffSync.decorationEnabled | `true` | Specifies whether decorations for missing translations and translations that need work should be applied. |
+| xliffSync.decorationTargetTextOnly | `false` | Specifies whether decorations for missing translations and translations that need work should only be applied to the target text. |
 
 ## Usage
 
