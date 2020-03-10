@@ -64,8 +64,8 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.findByXliffGeneratorNote | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note. |
 | xliffSync.findBySourceAndDeveloperNote | `false` | Specifies whether or not the extension will try to find translations by the combination of source and developer note. |
 | xliffSync.findBySource | `false` | Specifies whether or not the extension will try to find translations by source. If there are multiple trans-units with the same source, then the translation of the first translation unit is used for all units. |
-| xliffSync.parseFromDeveloperNote | `false` | "Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: `en-US=My translation|nl-NL=Mijn vertaling`. |
-| xliffSync.parseFromDeveloperNoteSeparator | `|` | Specifies the separator that is used when translations are parsed from the developer note. |
+| xliffSync.parseFromDeveloperNote | `false` | Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: <code>en-US=My translation&#124;nl-NL=Mijn vertaling</code>. |
+| xliffSync.parseFromDeveloperNoteSeparator | <code>&#124;</code> | Specifies the separator that is used when translations are parsed from the developer note. |
 | xliffSync.copyFromSourceForSameLanguage | `false` | Specifies whether translations should be copied from the source text if source-language = target-language. This will **not** overwrite existing translations of trans-units in target files. |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
