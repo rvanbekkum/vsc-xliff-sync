@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.3.6] 28-02-2019
+## [0.3.7] 18-05-2020
+
+* New setting `xliffSync.detectSourceTextChanges` (see README)
+* New setting `xliffSync.detectSourceTextChanges` (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
+
+## [0.3.6] 28-02-2020
 
 * Only apply decorations in XLIFF files (not in every editor) (GitHub issue [#39](https://github.com/rvanbekkum/vsc-xliff-sync/issues/39))
 * Reload settings (i.e., `"xliffSync.decoration"`, `"xliffSync.decorationEnabled"`, `"xliffSync.decorationTargetTextOnly"`, `"xliffSync.missingTranslation"`) when switching active editor
@@ -11,12 +16,12 @@
 
 * **[GregoryAA](https://github.com/GregoryAA)** for reporting the issues with decorations. (GitHub issue [#39](https://github.com/rvanbekkum/vsc-xliff-sync/issues/39))
 
-## [0.3.5] 25-02-2019
+## [0.3.5] 25-02-2020
 
 * Added new setting `xliffSync.parseFromDeveloperNote` (default: false) to have translations parsed from the Developer note if no matching trans-units or translations can be found. Translations can be retrieved from a Developer note in the following format: `en-US=My translation|nl-NL=Mijn vertaling` (GitHub issue [#37](https://github.com/rvanbekkum/vsc-xliff-sync/issues/37)).
 * Added new setting `xliffSync.parseFromDeveloperNoteSeparator` (default: `|`) accompanying setting `xliffSync.parseFromDeveloperNote` to change the separator for translations.
 
-## [0.3.4] 12-01-2019
+## [0.3.4] 12-01-2020
 
 * Changed default value for setting `xliffSync.baseFile` to `.g.xlf` (GitHub issue [#34](https://github.com/rvanbekkum/vsc-xliff-sync/issues/34)).
 

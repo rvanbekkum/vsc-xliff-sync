@@ -40,6 +40,8 @@ export class XlfTranslator {
     const findBySource: boolean = xliffWorkspaceConfiguration['findBySource'];
     const copyFromSourceForSameLanguage: boolean = xliffWorkspaceConfiguration['copyFromSourceForSameLanguage'];
     const parseFromDeveloperNote: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNote'];
+    const detectSourceTextChanges: boolean = xliffWorkspaceConfiguration['detectSourceTextChanges'];
+    const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
     let copyFromSource: boolean = false;
 
     const mergedDocument = await XlfDocument.load(workspaceFolder.uri, source);
@@ -125,13 +127,21 @@ export class XlfTranslator {
 
       mergedDocument.mergeUnit(unit, targetUnit, translation);
 
-      if (targetUnit) {
-        const mergedSourceText = mergedDocument.getUnitSourceText(unit);
+      if (detectSourceTextChanges && targetUnit) {
+        let mergedSourceText = mergedDocument.getUnitSourceText(unit);
         const mergedTranslText = mergedDocument.getUnitTranslation(unit);
-        const origSourceText = targetDocument.getUnitSourceText(targetUnit);
-        if (mergedSourceText && origSourceText && mergedTranslText && mergedSourceText !== origSourceText) {
-          mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
-          mergedDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+        let origSourceText = targetDocument.getUnitSourceText(targetUnit);
+
+        if (mergedSourceText && origSourceText && mergedTranslText) {
+          if (ignoreLineEndingTypeChanges) {
+            mergedSourceText = mergedSourceText.replace(/\r\n/g, "\n");
+            origSourceText = origSourceText.replace(/\r\n/g, "\n");
+          }
+
+          if (mergedSourceText !== origSourceText) {
+            mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
+            mergedDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+          }
         }
       }
     });

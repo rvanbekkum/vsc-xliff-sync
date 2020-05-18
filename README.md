@@ -67,6 +67,8 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.parseFromDeveloperNote | `false` | Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: <code>en-US=My translation&#124;nl-NL=Mijn vertaling</code>. |
 | xliffSync.parseFromDeveloperNoteSeparator | <code>&#124;</code> | Specifies the separator that is used when translations are parsed from the developer note. |
 | xliffSync.copyFromSourceForSameLanguage | `false` | Specifies whether translations should be copied from the source text if source-language = target-language. This will **not** overwrite existing translations of trans-units in target files. |
+| xliffSync.detectSourceTextChanges | `true` | Specifies whether changes in the source text of a trans-unit should be detected. If a change is detected, the target state is changed to needs-adaptation and a note is added to indicate the translation should be reviewed. |
+| xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
 | xliffSync.autoCheckMissingTranslations | `false` | Specifies whether or not the extension should automatically check for missing translations after syncing. |
