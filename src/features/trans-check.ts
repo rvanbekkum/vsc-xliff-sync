@@ -301,6 +301,11 @@ export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolde
             return needWorkRulesEnableAll || needWorkRules.indexOf(ruleName) >= 0;
         }
 
+        const copyFromSourceForLanguages: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
+            'copyFromSourceForLanguages'
+        ];
+        let sourceEqualsTargetExpected: boolean = false;
+
         let noMissingTranslations: boolean = true;
         let noNeedWorkTranslations: boolean = true;
         for (let index = 0; index < targetUris.length; index++) {
@@ -319,12 +324,17 @@ export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolde
             let needWorkCount: number = 0;
             let problemResolvedInFile: boolean = false;
             const targetDocument = await XlfDocument.load(checkWorkspaceFolder.uri, target);
+            sourceEqualsTargetExpected = targetDocument.sourceLanguage === targetDocument.targetLanguage;
+            if (targetDocument.targetLanguage) {
+                sourceEqualsTargetExpected = sourceEqualsTargetExpected || (copyFromSourceForLanguages.indexOf(targetDocument.targetLanguage) >= 0);
+            }
+
             targetDocument.translationUnitNodes.forEach((unit) => {
                 if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
                     missingCount += 1;
                 }
-                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, isRuleEnabledChecker)) {
+                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, isRuleEnabledChecker, sourceEqualsTargetExpected)) {
                     targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
                     needWorkCount += 1;
                 }
@@ -393,7 +403,7 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
     return false;
 }
 
-function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, isRuleEnabled: (ruleName: string) => boolean) : boolean {
+function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, isRuleEnabled: (ruleName: string) => boolean, sourceEqualsTargetExpected: boolean) : boolean {
     const sourceText = targetDocument.getUnitSourceText(unit);
     const translText = targetDocument.getUnitTranslation(unit);
     const devNoteText = targetDocument.getUnitDeveloperNote(unit) || '';
@@ -401,10 +411,12 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
         return false;
     }
 
-    if (targetDocument.sourceLanguage === targetDocument.targetLanguage) {
-        if (isRuleEnabled('SourceEqualsTarget') && sourceText !== translText) {
-            targetDocument.setXliffSyncNote(unit, 'Problem detected: The source text is not the same as the translation, but the source-language is the same as the target-language.');
-            return true;
+    if (isRuleEnabled('SourceEqualsTarget')) {
+        if (sourceEqualsTargetExpected) {
+            if (sourceText !== translText) {
+                targetDocument.setXliffSyncNote(unit, 'Problem detected: The source text is not the same as the translation, but the source-language is the same as the target-language.');
+                return true;
+            }
         }
     }
     

@@ -38,6 +38,7 @@ export class XlfTranslator {
     const findByXliffGeneratorNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNote'];
     const findBySourceAndDeveloperNote: boolean = xliffWorkspaceConfiguration['findBySourceAndDeveloperNote'];
     const findBySource: boolean = xliffWorkspaceConfiguration['findBySource'];
+    const copyFromSourceForLanguages: string[] = xliffWorkspaceConfiguration['copyFromSourceForLanguages'];
     const copyFromSourceForSameLanguage: boolean = xliffWorkspaceConfiguration['copyFromSourceForSameLanguage'];
     const parseFromDeveloperNote: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNote'];
     const detectSourceTextChanges: boolean = xliffWorkspaceConfiguration['detectSourceTextChanges'];
@@ -62,6 +63,7 @@ export class XlfTranslator {
     if (language) {
       mergedDocument.targetLanguage = language;
       copyFromSource = copyFromSourceForSameLanguage && (mergedDocument.sourceLanguage === language);
+      copyFromSource = copyFromSource || (copyFromSourceForLanguages.indexOf(language) >= 0);
     }
 
     let sourceTranslations: { [key: string]: string | undefined; } = {};

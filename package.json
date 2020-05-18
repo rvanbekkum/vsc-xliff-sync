@@ -99,6 +99,16 @@
                     "description": "Specifies the separator that is used when translations are parsed from the developer note.",
                     "scope": "resource"
                 },
+                "xliffSync.copyFromSourceForLanguages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "uniqueItems": true,
+                    "description": "Specifies the languages for which translations should be copied from the source text of trans-units.",
+                    "scope": "resource"
+                },
                 "xliffSync.copyFromSourceForSameLanguage": {
                     "type": "boolean",
                     "default": false,
@@ -167,7 +177,7 @@
                             "Checks that the leading spaces of members of the OptionCaption or PromotedActionCategories property match.",
                             "Checks that the number of placeholders match.",
                             "Checks that the meaning of placeholders are explained in the Developer note.",
-                            "Checks that the source and target are the same for files where source and target language are the same."
+                            "Checks that the source and target are the same for files with target language for which translations are copied from the source text."
                         ]
                     },
                     "default": [
