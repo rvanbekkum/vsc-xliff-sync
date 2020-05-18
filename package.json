@@ -173,10 +173,17 @@
                     "description": "Specifies whether or not all available technical validation rules should be used. Enabling this setting makes xliffSync.needWorkTranslationRules redundant.",
                     "scope": "resource"
                 },
+                "xliffSync.detectSourceTextChanges": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies whether changes in the source text of a trans-unit should be detected. If a change is detected, the target state is changed to needs-adaptation and a note is added to indicate the translation should be reviewed.",
+                    "scope": "resource"
+                },
                 "xliffSync.ignoreLineEndingTypeChanges": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit."
+                    "description": "Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit.",
+                    "scope": "resource"
                 },
                 "xliffSync.preserveTargetAttributes": {
                     "type": "boolean",

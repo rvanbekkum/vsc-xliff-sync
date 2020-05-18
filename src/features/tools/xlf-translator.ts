@@ -38,9 +38,10 @@ export class XlfTranslator {
     const findByXliffGeneratorNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNote'];
     const findBySourceAndDeveloperNote: boolean = xliffWorkspaceConfiguration['findBySourceAndDeveloperNote'];
     const findBySource: boolean = xliffWorkspaceConfiguration['findBySource'];
-    const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
     const copyFromSourceForSameLanguage: boolean = xliffWorkspaceConfiguration['copyFromSourceForSameLanguage'];
     const parseFromDeveloperNote: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNote'];
+    const detectSourceTextChanges: boolean = xliffWorkspaceConfiguration['detectSourceTextChanges'];
+    const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
     let copyFromSource: boolean = false;
 
     const mergedDocument = await XlfDocument.load(workspaceFolder.uri, source);
@@ -126,7 +127,7 @@ export class XlfTranslator {
 
       mergedDocument.mergeUnit(unit, targetUnit, translation);
 
-      if (targetUnit) {
+      if (detectSourceTextChanges && targetUnit) {
         let mergedSourceText = mergedDocument.getUnitSourceText(unit);
         const mergedTranslText = mergedDocument.getUnitTranslation(unit);
         let origSourceText = targetDocument.getUnitSourceText(targetUnit);
