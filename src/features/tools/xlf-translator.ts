@@ -38,6 +38,7 @@ export class XlfTranslator {
     const findByXliffGeneratorNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNote'];
     const findBySourceAndDeveloperNote: boolean = xliffWorkspaceConfiguration['findBySourceAndDeveloperNote'];
     const findBySource: boolean = xliffWorkspaceConfiguration['findBySource'];
+    const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
     const copyFromSourceForSameLanguage: boolean = xliffWorkspaceConfiguration['copyFromSourceForSameLanguage'];
     const parseFromDeveloperNote: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNote'];
     let copyFromSource: boolean = false;
@@ -126,12 +127,20 @@ export class XlfTranslator {
       mergedDocument.mergeUnit(unit, targetUnit, translation);
 
       if (targetUnit) {
-        const mergedSourceText = mergedDocument.getUnitSourceText(unit);
+        let mergedSourceText = mergedDocument.getUnitSourceText(unit);
         const mergedTranslText = mergedDocument.getUnitTranslation(unit);
-        const origSourceText = targetDocument.getUnitSourceText(targetUnit);
-        if (mergedSourceText && origSourceText && mergedTranslText && mergedSourceText !== origSourceText) {
-          mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
-          mergedDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+        let origSourceText = targetDocument.getUnitSourceText(targetUnit);
+
+        if (mergedSourceText && origSourceText && mergedTranslText) {
+          if (ignoreLineEndingTypeChanges) {
+            mergedSourceText = mergedSourceText.replace(/\r\n/g, "\n");
+            origSourceText = origSourceText.replace(/\r\n/g, "\n");
+          }
+
+          if (mergedSourceText !== origSourceText) {
+            mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
+            mergedDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+          }
         }
       }
     });

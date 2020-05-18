@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.6",
+    "version": "0.3.7",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -172,6 +172,11 @@
                     "default": false,
                     "description": "Specifies whether or not all available technical validation rules should be used. Enabling this setting makes xliffSync.needWorkTranslationRules redundant.",
                     "scope": "resource"
+                },
+                "xliffSync.ignoreLineEndingTypeChanges": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit."
                 },
                 "xliffSync.preserveTargetAttributes": {
                     "type": "boolean",
