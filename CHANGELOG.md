@@ -3,7 +3,7 @@
 ## [0.3.7] 18-05-2020
 
 * New setting `xliffSync.detectSourceTextChanges` (see README)
-* New setting `xliffSync.detectSourceTextChanges` (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
+* New setting `xliffSync.ignoreLineEndingTypeChanges` (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
 * New setting `xliffSync.copyFromSourceForLanguages` (GitHub issue [#44](https://github.com/rvanbekkum/vsc-xliff-sync/issues/44))
 
 ## [0.3.6] 28-02-2020
