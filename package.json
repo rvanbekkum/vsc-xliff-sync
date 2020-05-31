@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.7",
+    "version": "0.3.8",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -93,6 +93,12 @@
                     "description": "Specifies whether translations should be parsed from the developer note.",
                     "scope": "resource"
                 },
+                "xliffSync.parseFromDeveloperNoteOverwrite": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translations parsed from the developer note should always overwrite existing translations.",
+                    "scope": "resource"
+                },
                 "xliffSync.parseFromDeveloperNoteSeparator": {
                     "type": "string",
                     "default": "|",
@@ -113,6 +119,12 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Specifies whether translations should be copied from the source text if source-language = target-language.",
+                    "scope": "resource"
+                },
+                "xliffSync.copyFromSourceOverwrite": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translations copied from the source text should overwrite existing translations.",
                     "scope": "resource"
                 },
                 "xliffSync.detectSourceTextChanges": {

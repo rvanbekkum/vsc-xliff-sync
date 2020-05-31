@@ -40,9 +40,13 @@ export class XlfTranslator {
     const findBySource: boolean = xliffWorkspaceConfiguration['findBySource'];
     const copyFromSourceForLanguages: string[] = xliffWorkspaceConfiguration['copyFromSourceForLanguages'];
     const copyFromSourceForSameLanguage: boolean = xliffWorkspaceConfiguration['copyFromSourceForSameLanguage'];
+    const copyFromSourceOverwrite: boolean = xliffWorkspaceConfiguration['copyFromSourceOverwrite'];
     const parseFromDeveloperNote: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNote'];
+    const parseFromDeveloperNoteOverwrite: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNoteOverwrite'];
     const detectSourceTextChanges: boolean = xliffWorkspaceConfiguration['detectSourceTextChanges'];
     const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
+    const missingTranslationKeyword: string = xliffWorkspaceConfiguration['missingTranslation'];
+
     let copyFromSource: boolean = false;
 
     const mergedDocument = await XlfDocument.load(workspaceFolder.uri, source);
@@ -116,14 +120,28 @@ export class XlfTranslator {
       }
 
       if (!translation && (copyFromSource || parseFromDeveloperNote)) {
-        const hasNoTranslation: boolean = !targetUnit || (targetUnit && !targetDocument.getUnitTranslation(targetUnit));
-        if (hasNoTranslation) {
-          if (!translation && parseFromDeveloperNote) {
-            translation = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
+        let hasNoTranslation: boolean = false;
+        if (targetUnit) {
+          const translationText: string | undefined = targetDocument.getUnitTranslation(targetUnit);
+          if (missingTranslationKeyword === '%EMPTY%') {
+            hasNoTranslation = !translationText;
           }
-          if (!translation && copyFromSource) {
-            translation = mergedDocument.getUnitSourceText(unit);
+          else {
+            hasNoTranslation = translationText === missingTranslationKeyword;
           }
+        }
+        else {
+          hasNoTranslation = true;
+        }
+
+        const shouldParseFromDevNote: boolean = parseFromDeveloperNote && (hasNoTranslation || parseFromDeveloperNoteOverwrite);
+        const shouldCopyFromSource: boolean = copyFromSource && (hasNoTranslation || copyFromSourceOverwrite);
+
+        if (!translation && shouldParseFromDevNote) {
+          translation = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
+        }
+        if (!translation && shouldCopyFromSource) {
+          translation = mergedDocument.getUnitSourceText(unit);
         }
       }
 
