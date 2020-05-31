@@ -244,6 +244,29 @@
                         "borderRadius": "4px"
                     },
                     "description": "Decoration for missing translations and translations that need work."
+                },
+                "xliffSync.enableSnippetsForLanguages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "al"
+                        ],
+                        "enumDescriptions": [
+                            "AL"
+                        ]
+                    },
+                    "default": [
+                    ],
+                    "uniqueItems": true,
+                    "description": "Specifies the programming languages for which the XLIFF Sync snippets should be enabled.",
+                    "scope": "resource"
+                },
+                "xliffSync.snippetTargetLanguage": {
+                    "type": "string",
+                    "default": "TargetLanguageCode",
+                    "description": "Specifies which target language to use by default in the XLIFF Sync snippets.",
+                    "scope": "resource"
                 }
             }
         },

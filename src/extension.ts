@@ -3,6 +3,7 @@ import {
     ExtensionContext
 } from 'vscode';
 
+import { registerSnippets } from './features/snippets';
 import { synchronizeFiles, synchronizeWithSelectedFile, createNewTargetFiles } from './features/trans-sync';
 import { XliffTranslationChecker } from './features/trans-check';
 import { XliffTranslationImport } from './features/trans-import';
@@ -33,6 +34,8 @@ export function activate(context: ExtensionContext) {
             }
         })
     );
+
+    registerSnippets();
 }
 
 export function deactivate() {
