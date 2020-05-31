@@ -65,9 +65,11 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.findBySourceAndDeveloperNote | `false` | Specifies whether or not the extension will try to find translations by the combination of source and developer note. |
 | xliffSync.findBySource | `false` | Specifies whether or not the extension will try to find translations by source. If there are multiple trans-units with the same source, then the translation of the first translation unit is used for all units. |
 | xliffSync.parseFromDeveloperNote | `false` | Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: <code>en-US=My translation&#124;nl-NL=Mijn vertaling</code>. |
+| xliffSync.parseFromDeveloperNoteOverwrite | `false` | Specifies whether translations parsed from the developer note should always overwrite existing translations. |
 | xliffSync.parseFromDeveloperNoteSeparator | <code>&#124;</code> | Specifies the separator that is used when translations are parsed from the developer note. |
 | xliffSync.copyFromSourceForLanguages | `[]` | Specifies the languages for which translations should be copied from the source text of trans-units. |
 | xliffSync.copyFromSourceForSameLanguage | `false` | Specifies whether translations should be copied from the source text if source-language = target-language. This will **not** overwrite existing translations of trans-units in target files. |
+| xliffSync.copyFromSourceOverwrite | `false` | Specifies whether translations copied from the source text should overwrite existing translations. |
 | xliffSync.detectSourceTextChanges | `true` | Specifies whether changes in the source text of a trans-unit should be detected. If a change is detected, the target state is changed to needs-adaptation and a note is added to indicate the translation should be reviewed. |
 | xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
@@ -82,6 +84,8 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.decoration | `{"backgroundColor": "rgba(240, 210, 105, 0.35)", "overviewRulerColor": "rgba(240, 210, 105, 0.35)", "border": "1px solid white", "borderRadius": "4px"}` | Specifies how to highlight missing translations or translations that need work in an XLIFF file opened in the editor. |
 | xliffSync.decorationEnabled | `true` | Specifies whether decorations for missing translations and translations that need work should be applied. |
 | xliffSync.decorationTargetTextOnly | `false` | Specifies whether decorations for missing translations and translations that need work should only be applied to the target text. |
+| xliffSync.enableSnippetsForLanguages | `[]` | Specifies the programming languages for which the XLIFF Sync snippets should be enabled. Currently supported: `al`. |
+| xliffSync.snippetTargetLanguage | `TargetLanguageCode` | Specifies which target language to use by default in the XLIFF Sync snippets (e.g., `nl-NL`). |
 
 ## Usage
 
