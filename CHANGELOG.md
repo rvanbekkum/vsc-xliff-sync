@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.8] 31-05-2020
+
+* New setting `xliffSync.parseFromDeveloperNoteOverwrite` which when enabled will overwrite existing translations with the translations parsed from the Developer Note.
+* New setting `xliffSync.copyFromSourceOverwrite` which when enabled will overwrite existing translations with the source text.
+* The "Parse from Developer Note" feature will now also update translations if `xliffSync.missingTranslation` is configured to something other than the default value (which is missing translation = no translation).
+* XLIFF Sync snippets for the "Parse from Developer Note" feature.
+  * You can configure for which programming languages the snippets should be available with setting `xliffSync.enableSnippetsForLanguages`. Currently only the "AL Language" is supported with snippets: `tcaptionwithtranslation`, `tcommentwithtranslation`, `toptioncaptionwithtranslation`, `tpromotedactioncategorieswithtranslation`, `tlabelwithtranslation` and `ttooltipwithtranslation` snippets.
+  * You can configure a default target language that should be used by the snippets with setting `xliffSync.snippetTargetLanguage`.
+
 ## [0.3.7] 18-05-2020
 
 * New setting `xliffSync.detectSourceTextChanges` (see README)
