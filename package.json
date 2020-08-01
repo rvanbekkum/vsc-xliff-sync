@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.3.8",
+    "version": "0.4.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -25,7 +25,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.32.0"
+        "vscode": "^1.47.0"
     },
     "categories": [
         "Other"
@@ -56,6 +56,12 @@
                         "xlf2"
                     ],
                     "scope": "resource"
+                },
+                "xliffSync.syncCrossWorkspaceFolders": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether the extension will sync from a base file to the translation files in all workspace folders.",
+                    "scope": "window"
                 },
                 "xliffSync.findByXliffGeneratorNoteAndSource": {
                     "type": "boolean",
@@ -256,8 +262,7 @@
                             "AL"
                         ]
                     },
-                    "default": [
-                    ],
+                    "default": [],
                     "uniqueItems": true,
                     "description": "Specifies the programming languages for which the XLIFF Sync snippets should be enabled.",
                     "scope": "resource"
@@ -373,19 +378,18 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^7.0.43",
+        "@types/vscode": "^1.47.0",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^13.11.0",
         "@types/sax": "^1.0.0",
         "@types/xml2js": "^0.4.2",
         "@types/xml2json": "^0.10.0",
         "@types/xmlbuilder": "0.0.32",
         "tslint": "^5.8.0",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.33"
+        "typescript": "^3.8.3"
     },
     "prettier": {
         "printWidth": 100,

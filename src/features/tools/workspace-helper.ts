@@ -30,9 +30,10 @@ export class WorkspaceHelper {
             undefined;
         let syncWorkspaceFolders: WorkspaceFolder[] | undefined = currentWorkspaceFolder ?
             [currentWorkspaceFolder] :
-            workspace.workspaceFolders;
-    
-        if (!allFiles && !currentWorkspaceFolder && syncWorkspaceFolders && syncWorkspaceFolders.length > 1) {
+            workspace.workspaceFolders?.concat([]);
+        
+        const syncCrossWorkspaceFolders: boolean = workspace.getConfiguration('xliffSync')['syncCrossWorkspaceFolders'];
+        if (!allFiles && !currentWorkspaceFolder && syncWorkspaceFolders && syncWorkspaceFolders.length > 1 && !syncCrossWorkspaceFolders) {
             currentWorkspaceFolder = await window.showWorkspaceFolderPick({
               placeHolder: 'Select a workspace folder' 
             });

@@ -37,7 +37,6 @@ import {
     Uri,
     WorkspaceFolder
 } from 'vscode';
-import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
 
@@ -270,38 +269,38 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
     }
     
     for (let checkWorkspaceFolder of checkWorkspaceFolders) {
-        await runTranslationChecksForWorkspaceFolder(checkWorkspaceFolder, shouldCheckForMissingTranslations, shouldCheckForNeedWorkTranslations);
+        await runTranslationChecksForWorkspaceFolder(shouldCheckForMissingTranslations, shouldCheckForNeedWorkTranslations, undefined, checkWorkspaceFolder);
     }
 }
 
-export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolder: WorkspaceFolder, shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean, singleTargetUri?: Uri) {
+export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissingTranslations: boolean, shouldCheckForNeedWorkTranslations: boolean, singleTargetUri?: Uri, checkWorkspaceFolder?: WorkspaceFolder) {
     try {
-        let uris: Uri[] = await getXliffFileUrisInWorkSpace(checkWorkspaceFolder);
+        let uris: Uri[] = await FilesHelper.getXliffFileUris(checkWorkspaceFolder);
 
-        let sourceUri: Uri = await getXliffSourceFile(checkWorkspaceFolder, uris);
+        let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, checkWorkspaceFolder);
         let targetUris = uris.filter((uri) => uri !== sourceUri);
         if (singleTargetUri) {
             targetUris = [singleTargetUri];
         }
 
-        let missingTranslationText: string = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
+        let missingTranslationText: string = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
             'missingTranslation'
         ];
         if (missingTranslationText === '%EMPTY%') {
             missingTranslationText = '';
         }
 
-        let needWorkRules: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
+        let needWorkRules: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
             'needWorkTranslationRules'
         ];
-        let needWorkRulesEnableAll: boolean = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
+        let needWorkRulesEnableAll: boolean = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
             'needWorkTranslationRulesEnableAll'
         ];
         function isRuleEnabledChecker(ruleName: string): boolean {
             return needWorkRulesEnableAll || needWorkRules.indexOf(ruleName) >= 0;
         }
 
-        const copyFromSourceForLanguages: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder.uri)[
+        const copyFromSourceForLanguages: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
             'copyFromSourceForLanguages'
         ];
         let sourceEqualsTargetExpected: boolean = false;
@@ -323,7 +322,7 @@ export async function runTranslationChecksForWorkspaceFolder(checkWorkspaceFolde
             let missingCount: number = 0;
             let needWorkCount: number = 0;
             let problemResolvedInFile: boolean = false;
-            const targetDocument = await XlfDocument.load(checkWorkspaceFolder.uri, target);
+            const targetDocument = await XlfDocument.load(target, checkWorkspaceFolder?.uri);
             sourceEqualsTargetExpected = targetDocument.sourceLanguage === targetDocument.targetLanguage;
             if (targetDocument.targetLanguage) {
                 sourceEqualsTargetExpected = sourceEqualsTargetExpected || (copyFromSourceForLanguages.indexOf(targetDocument.targetLanguage) >= 0);
