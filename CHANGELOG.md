@@ -1,8 +1,11 @@
 # Changelog
 
-## [0.4.0]
+## [0.4.0] 02-08-2020
 
 * New setting `xliffSync.syncCrossWorkspaceFolders` which can be used to set that the extension should synchronize from one single base file (`xliffSync.baseFile`) to the translation files in all workspace folders (**Default**: `false`) (GitHub issue [#48](https://github.com/rvanbekkum/vsc-xliff-sync/issues/48)).
+* Now, if there are multiple matches for `xliffSync.baseFile`, then the user is prompted to select the base file to use.
+
+### Thank You
 
 * **[fvet](https://github.com/fvet)** for requesting support for syncing cross-workspacefolders. (GitHub issue [#48](https://github.com/rvanbekkum/vsc-xliff-sync/issues/48))
 
@@ -23,7 +26,7 @@
 
 ### Thank You
 
-* **[Lectem](https://github.com/Lectem) for requesting an option to ignore line ending changes (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
+* **[Lectem](https://github.com/Lectem)** for requesting an option to ignore line ending changes (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
 
 ## [0.3.6] 28-02-2020
 
