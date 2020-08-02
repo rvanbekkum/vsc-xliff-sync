@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0] 02-08-2020
+
+* New setting `xliffSync.syncCrossWorkspaceFolders` which can be used to set that the extension should synchronize from one single base file (`xliffSync.baseFile`) to the translation files in all workspace folders (**Default**: `false`) (GitHub issue [#48](https://github.com/rvanbekkum/vsc-xliff-sync/issues/48)).
+* Now, if there are multiple matches for `xliffSync.baseFile`, then the user is prompted to select the base file to use.
+
+### Thank You
+
+* **[fvet](https://github.com/fvet)** for requesting support for syncing cross-workspacefolders. (GitHub issue [#48](https://github.com/rvanbekkum/vsc-xliff-sync/issues/48))
+
 ## [0.3.8] 31-05-2020
 
 * New setting `xliffSync.parseFromDeveloperNoteOverwrite` which when enabled will overwrite existing translations with the translations parsed from the Developer Note.
@@ -14,6 +23,10 @@
 * New setting `xliffSync.detectSourceTextChanges` (see README)
 * New setting `xliffSync.ignoreLineEndingTypeChanges` (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
 * New setting `xliffSync.copyFromSourceForLanguages` (GitHub issue [#44](https://github.com/rvanbekkum/vsc-xliff-sync/issues/44))
+
+### Thank You
+
+* **[Lectem](https://github.com/Lectem)** for requesting an option to ignore line ending changes (GitHub issue [#41](https://github.com/rvanbekkum/vsc-xliff-sync/issues/41))
 
 ## [0.3.6] 28-02-2020
 
@@ -31,9 +44,17 @@
 * Added new setting `xliffSync.parseFromDeveloperNote` (default: false) to have translations parsed from the Developer note if no matching trans-units or translations can be found. Translations can be retrieved from a Developer note in the following format: `en-US=My translation|nl-NL=Mijn vertaling` (GitHub issue [#37](https://github.com/rvanbekkum/vsc-xliff-sync/issues/37)).
 * Added new setting `xliffSync.parseFromDeveloperNoteSeparator` (default: `|`) accompanying setting `xliffSync.parseFromDeveloperNote` to change the separator for translations.
 
+### Thank You
+
+* **[NilsGruettner](https://github.com/NilsGruettner)** for requesting the _Parse from Developer Note_ feature. (GitHub issue [#37](https://github.com/rvanbekkum/vsc-xliff-sync/issues/37))
+
 ## [0.3.4] 12-01-2020
 
 * Changed default value for setting `xliffSync.baseFile` to `.g.xlf` (GitHub issue [#34](https://github.com/rvanbekkum/vsc-xliff-sync/issues/34)).
+
+### Thank You
+
+* **[fvet](https://github.com/fvet)** for requesting the base file to be a pattern by default (GitHub issue [#34](https://github.com/rvanbekkum/vsc-xliff-sync/issues/34))
 
 ## [0.3.3] 16-11-2019
 

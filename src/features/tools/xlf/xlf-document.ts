@@ -158,7 +158,7 @@ export class XlfDocument {
   private parseFromDeveloperNoteSeparator: string;
   private missingTranslation: string;
 
-  private constructor(resourceUri: Uri) {
+  private constructor(resourceUri: Uri | undefined) {
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', resourceUri);
     this.developerNoteDesignation = xliffWorkspaceConfiguration['developerNoteDesignation'];
     this.xliffGeneratorNoteDesignation = xliffWorkspaceConfiguration['xliffGeneratorNoteDesignation'];
@@ -172,13 +172,13 @@ export class XlfDocument {
     }
   }
 
-  public static async load(resourceUri: Uri, source: string): Promise<XlfDocument> {
+  public static async load(source: string, resourceUri: Uri | undefined): Promise<XlfDocument> {
     const doc = new XlfDocument(resourceUri);
     doc.root = await new XmlParser().parseDocument(source);
     return doc;
   }
 
-  public static create(resourceUri: Uri, version: '1.2' | '2.0', language: string): XlfDocument {
+  public static create(version: '1.2' | '2.0', language: string, resourceUri: Uri | undefined): XlfDocument {
     const doc = new XlfDocument(resourceUri);
 
     doc.root = {
@@ -541,7 +541,7 @@ export class XlfDocument {
     let targetNode = this.getNode('target', unit);
     if (targetNode && targetNode.attributes) {
       let attributeValue = targetNode.attributes[attribute];
-      if (attributeValue != null && typeof attributeValue !== "undefined") {
+      if (attributeValue !== null && typeof attributeValue !== "undefined") {
         return attributeValue;
       }
     }
@@ -613,7 +613,7 @@ export class XlfDocument {
     };
 
     let noteIdx = notesParent.children.findIndex(
-      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] == fromAttribute,
+      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] === fromAttribute,
     );
     let targetIdx = unit.children.findIndex(
       (child) => typeof child !== 'string' && child && child.name === 'target',
@@ -621,7 +621,7 @@ export class XlfDocument {
     if (noteIdx >= 0) {
       notesParent.children[noteIdx] = noteNode;
     }
-    else if (this.version == '1.2' && targetIdx) {
+    else if (this.version === '1.2' && targetIdx) {
       unit.children.splice(targetIdx + 1, 0, unit.children[targetIdx - 1], noteNode);
     }
     else {
@@ -636,7 +636,7 @@ export class XlfDocument {
       if (noteIdx >= 0) {
         let deleteCount: number = 1;
 
-        let newLineChild = notesParent.children[noteIdx + 1]
+        let newLineChild = notesParent.children[noteIdx + 1];
         if (newLineChild && typeof newLineChild === 'string' && /^\s+$/g.test(newLineChild)) {
           deleteCount += 1;
         }
@@ -656,7 +656,7 @@ export class XlfDocument {
 
     const fromAttribute = 'XLIFF Sync';
     return notesParent.children.findIndex(
-      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] == fromAttribute,
+      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] === fromAttribute,
     );
   }
 

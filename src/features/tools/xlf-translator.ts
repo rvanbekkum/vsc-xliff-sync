@@ -27,12 +27,12 @@ import { XlfDocument } from './xlf/xlf-document';
 
 export class XlfTranslator {
   public static async synchronize(
-    workspaceFolder: WorkspaceFolder,
     source: string,
     target: string | undefined,
     targetLanguage: string | undefined,
+    workspaceFolder?: WorkspaceFolder
   ): Promise<string | undefined> {
-    const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder.uri);
+    const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
     const findByXliffGeneratorNoteAndSource: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNoteAndSource'];
     const findByXliffGeneratorAndDeveloperNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorAndDeveloperNote'];
     const findByXliffGeneratorNote: boolean = xliffWorkspaceConfiguration['findByXliffGeneratorNote'];
@@ -49,7 +49,7 @@ export class XlfTranslator {
 
     let copyFromSource: boolean = false;
 
-    const mergedDocument = await XlfDocument.load(workspaceFolder.uri, source);
+    const mergedDocument = await XlfDocument.load(source, workspaceFolder?.uri);
 
     if (!mergedDocument || !mergedDocument.valid) {
       return undefined;
@@ -60,8 +60,8 @@ export class XlfTranslator {
     }
 
     const targetDocument = target
-      ? await XlfDocument.load(workspaceFolder.uri, target)
-      : XlfDocument.create(workspaceFolder.uri, <'1.2' | '2.0'>mergedDocument.version, targetLanguage!);
+      ? await XlfDocument.load(target, workspaceFolder?.uri)
+      : XlfDocument.create(<'1.2' | '2.0'>mergedDocument.version, targetLanguage!, workspaceFolder?.uri);
     const language = targetDocument.targetLanguage;
 
     if (language) {

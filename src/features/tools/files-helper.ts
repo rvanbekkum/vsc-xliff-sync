@@ -34,9 +34,120 @@ import {
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { WorkspaceHelper } from './workspace-helper';
 
 export class FilesHelper {
-  public static async findTranslationFiles(workspaceFolder: WorkspaceFolder, fileExt: string): Promise<Uri[]> {
+
+  /**
+  * Get the list of XLIFF files in the opened workspace
+  * 
+  * @param {WorkspaceFolder} workspaceFolder The folder to restrict the search to.
+  *
+  * @returns An array of all file URIs to the XLIFF files in the current workspace.
+  */
+  public static async getXliffFileUris(workspaceFolder?: WorkspaceFolder): Promise<Uri[]> {
+    let fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['fileType'];
+    let uris: Uri[] = [];
+
+    if (fileType) {
+        uris = (await FilesHelper.findTranslationFiles(fileType, workspaceFolder)) || [];
+    }
+
+    if (!uris.length) {
+        fileType = await window.showQuickPick(['xlf', 'xlf2'], {
+            placeHolder: 'Translation file type',
+        });
+
+        if (fileType) {
+            uris = (await FilesHelper.findTranslationFiles(fileType, workspaceFolder)) || [];
+
+            if (uris.length) {
+                workspace.getConfiguration('xliffSync', workspaceFolder?.uri).update('fileType', fileType);
+            }
+        }
+    }
+
+    if (!uris.length) {
+        throw new Error('No translation file found');
+    }
+
+    return uris;
+  }
+
+  /**
+   * Retrieves the base/source/generated XLIFF file from a collection of XLIFF file URIs.
+   * Also prompts the user to specify a base file, if this wasn't done already.
+   * 
+   * @param {Uri[]} xliffUris Array of XLIFF file URIs.
+   * @param {WorkspaceFolder} workspaceFolder The workspace folder to restrict the search to.
+   * @returns The Uri of the base/source XLIFF file.
+   */
+  public static async getXliffSourceFile(xliffUris: Uri[], workspaceFolder?: WorkspaceFolder): Promise<Uri> {
+    const resourceUri: Uri | undefined = workspaceFolder?.uri;
+    const baseFile: string = workspace.getConfiguration('xliffSync', resourceUri)['baseFile'];
+    let sourceUri: Uri | undefined;
+
+    const sourceUris: Uri[] | undefined = baseFile ? xliffUris.filter((uri) => uri.fsPath.indexOf(baseFile) >= 0) : undefined;
+    if (sourceUris) {
+      sourceUri = await this.selectBaseFile(sourceUris, resourceUri);
+    }
+
+    if (!sourceUri) {
+      // File not found, request the user to identify the file himself
+      sourceUri = await this.selectBaseFile(xliffUris, resourceUri);
+      if (!sourceUri) {
+        throw new Error('No base XLIFF file specified');
+      }
+    }
+
+    return sourceUri;
+  }
+
+  private static async selectBaseFile(xliffUris: Uri[], resourceUri?: Uri): Promise<Uri | undefined> {
+    let sourceUri: Uri | undefined;
+    if (xliffUris.length > 1) {
+      const fsPaths = xliffUris.map((uri) => uri.fsPath);
+      const sourcePath = await window.showQuickPick(fsPaths, {
+          placeHolder: 'Select the base XLIFF file',
+      });
+  
+      if (!sourcePath) {
+          return undefined;
+      }
+
+      sourceUri = xliffUris.find((uri) => uri.fsPath === sourcePath)!;
+    }
+    else if (xliffUris.length === 1) {
+      sourceUri = xliffUris[0];
+    }
+    else {
+      return undefined;
+    }
+
+    const filename = path.basename(sourceUri.fsPath);
+    workspace.getConfiguration('xliffSync', resourceUri).update('baseFile', filename);
+
+    return sourceUri;
+  }
+
+  public static async findTranslationFiles(fileExt: string, workspaceFolder?: WorkspaceFolder): Promise<Uri[]> {
+    if (workspaceFolder) {
+      return await FilesHelper.findTranslationFilesInWorkspaceFolder(fileExt, workspaceFolder);
+    }
+    else {
+      let allFileUris: Uri[] = [];
+      const workspaceFolders: WorkspaceFolder[] | undefined = await WorkspaceHelper.getWorkspaceFolders(true);
+      if (workspaceFolders) {
+        for (let wsFolder of workspaceFolders) {
+          let folderFileUris: Uri[] = await FilesHelper.findTranslationFilesInWorkspaceFolder(fileExt, wsFolder);
+          allFileUris = allFileUris.concat(folderFileUris);
+        }
+      }
+      return allFileUris;
+    }
+  }
+
+  public static async findTranslationFilesInWorkspaceFolder(fileExt: string, workspaceFolder: WorkspaceFolder): Promise<Uri[]> {
     let relativePattern: RelativePattern = new RelativePattern(workspaceFolder, `**/*.${fileExt}`);
     return workspace.findFiles(relativePattern).then((files) =>
       files.sort((a, b) => {
@@ -77,11 +188,11 @@ export class FilesHelper {
     let document: TextDocument;
 
     if (targetUri) {
-        document = await workspace.openTextDocument(targetUri);
+      document = await workspace.openTextDocument(targetUri);
     } 
     else if (sourceUri) {
-        targetUri = await FilesHelper.createTranslationFile(targetLanguage!, sourceUri, newFileContents);
-        document = await workspace.openTextDocument(targetUri);
+      targetUri = await FilesHelper.createTranslationFile(targetLanguage!, sourceUri, newFileContents);
+      document = await workspace.openTextDocument(targetUri);
     }
     else {
       throw new Error('Could not generate new target file');
@@ -90,16 +201,16 @@ export class FilesHelper {
     const editor: TextEditor = await window.showTextDocument(document);
 
     if (!editor) {
-        throw new Error('Failed to open target file');
+      throw new Error('Failed to open target file');
     }
 
     const range = new Range(
-        document.positionAt(0),
-        document.positionAt(document.getText().length),
+      document.positionAt(0),
+      document.positionAt(document.getText().length),
     );
 
     await editor.edit((editBuilder) => {
-        editBuilder.replace(range, newFileContents);
+      editBuilder.replace(range, newFileContents);
     });
 
     await document.save();

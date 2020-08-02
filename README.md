@@ -58,6 +58,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | ------- | ------- | ----------- |
 | xliffSync.baseFile | `.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the first time you use the Synchronize command. |
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
+| xliffSync.syncCrossWorkspaceFolders | `false` | Specifies whether the extension will sync from a base file to the translation files in all workspace folders. By default, the extension will always sync. per workspace folder. If you enable this setting, then you can have the base file in one workspace folder and target translation files in other workspace folders. |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.findByXliffGeneratorNoteAndSource | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and source. |
 | xliffSync.findByXliffGeneratorAndDeveloperNote | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and developer note. |

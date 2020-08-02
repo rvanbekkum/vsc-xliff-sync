@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { getXliffFileUrisInWorkSpace, getXliffSourceFile } from './trans-sync';
 import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env, WorkspaceFolder } from "vscode";
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
@@ -75,8 +74,8 @@ async function importTranslationsFromFilesForWorkspaceFolder(importWorkspaceFold
         return;
     }
 
-    let uris: Uri[] = await getXliffFileUrisInWorkSpace(importWorkspaceFolder);
-    let sourceUri: Uri = await getXliffSourceFile(importWorkspaceFolder, uris);
+    let uris: Uri[] = await FilesHelper.getXliffFileUris(importWorkspaceFolder);
+    let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, importWorkspaceFolder);
     let targetUris = uris.filter((uri) => uri !== sourceUri);
     for (let index = 0; index < fileUris.length; index++) {
         let fileUri: Uri = fileUris[index];
@@ -92,7 +91,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
     const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['replaceTranslationsDuringImport'];
 
     const selFileContents = (await workspace.openTextDocument(fileUri)).getText();
-    const selFileDocument = await XlfDocument.load(workspaceFolder.uri, selFileContents);
+    const selFileDocument = await XlfDocument.load(selFileContents, workspaceFolder.uri);
     let sourceDevNoteTranslations: { [key: string]: string | undefined; } = {};
     selFileDocument.translationUnitNodes.forEach((unit) => {
         const sourceDevNoteText = getSourceDevNoteText(selFileDocument, unit);
@@ -116,7 +115,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
             continue;
         }
 
-        const targetDocument = await XlfDocument.load(workspaceFolder.uri, target);
+        const targetDocument = await XlfDocument.load(target, workspaceFolder.uri);
         if (targetDocument.targetLanguage !== selFileDocument.targetLanguage) {
             continue;
         }
