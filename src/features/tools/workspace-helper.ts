@@ -25,15 +25,21 @@ import { workspace, WorkspaceFolder, window } from "vscode";
 
 export class WorkspaceHelper {
     public static async getWorkspaceFolders(allFiles: boolean): Promise<WorkspaceFolder[] | undefined> {
+        let syncWorkspaceFolders: WorkspaceFolder[] | undefined = workspace.workspaceFolders?.concat([]);
+        
+        const syncCrossWorkspaceFolders: boolean = workspace.getConfiguration('xliffSync')['syncCrossWorkspaceFolders'];
+        if (syncCrossWorkspaceFolders) {
+            return syncWorkspaceFolders;
+        }
+
         let currentWorkspaceFolder: WorkspaceFolder | undefined = window.activeTextEditor ?
             workspace.getWorkspaceFolder(window.activeTextEditor.document.uri) :
             undefined;
-        let syncWorkspaceFolders: WorkspaceFolder[] | undefined = currentWorkspaceFolder ?
-            [currentWorkspaceFolder] :
-            workspace.workspaceFolders?.concat([]);
+        if (currentWorkspaceFolder) {
+            return [currentWorkspaceFolder];
+        }
         
-        const syncCrossWorkspaceFolders: boolean = workspace.getConfiguration('xliffSync')['syncCrossWorkspaceFolders'];
-        if (!allFiles && !currentWorkspaceFolder && syncWorkspaceFolders && syncWorkspaceFolders.length > 1 && !syncCrossWorkspaceFolders) {
+        if (!allFiles && syncWorkspaceFolders && syncWorkspaceFolders.length > 1) {
             currentWorkspaceFolder = await window.showWorkspaceFolderPick({
               placeHolder: 'Select a workspace folder' 
             });

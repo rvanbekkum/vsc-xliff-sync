@@ -85,23 +85,47 @@ export class FilesHelper {
   public static async getXliffSourceFile(xliffUris: Uri[], workspaceFolder?: WorkspaceFolder): Promise<Uri> {
     const resourceUri: Uri | undefined = workspaceFolder?.uri;
     const baseFile: string = workspace.getConfiguration('xliffSync', resourceUri)['baseFile'];
-    let sourceUri = baseFile ? xliffUris.find((uri) => uri.fsPath.indexOf(baseFile) >= 0) : undefined;
+    let sourceUri: Uri | undefined;
+
+    const sourceUris: Uri[] | undefined = baseFile ? xliffUris.filter((uri) => uri.fsPath.indexOf(baseFile) >= 0) : undefined;
+    if (sourceUris) {
+      sourceUri = await this.selectBaseFile(sourceUris, resourceUri);
+    }
 
     if (!sourceUri) {
-        // File not found, request the user to identify the file himself
-        const fsPaths = xliffUris.map((uri) => uri.fsPath);
-        const sourcePath = await window.showQuickPick(fsPaths, {
-            placeHolder: 'Select the base XLIFF file',
-        });
-
-        if (!sourcePath) {
-            throw new Error('No base XLIFF file specified');
-        }
-
-        sourceUri = xliffUris.find((uri) => uri.fsPath === sourcePath)!;
-        const filename = path.basename(sourceUri.fsPath);
-        workspace.getConfiguration('xliffSync', resourceUri).update('baseFile', filename);
+      // File not found, request the user to identify the file himself
+      sourceUri = await this.selectBaseFile(xliffUris, resourceUri);
+      if (!sourceUri) {
+        throw new Error('No base XLIFF file specified');
+      }
     }
+
+    return sourceUri;
+  }
+
+  private static async selectBaseFile(xliffUris: Uri[], resourceUri?: Uri): Promise<Uri | undefined> {
+    let sourceUri: Uri | undefined;
+    if (xliffUris.length > 1) {
+      const fsPaths = xliffUris.map((uri) => uri.fsPath);
+      const sourcePath = await window.showQuickPick(fsPaths, {
+          placeHolder: 'Select the base XLIFF file',
+      });
+  
+      if (!sourcePath) {
+          return undefined;
+      }
+
+      sourceUri = xliffUris.find((uri) => uri.fsPath === sourcePath)!;
+    }
+    else if (xliffUris.length === 1) {
+      sourceUri = xliffUris[0];
+    }
+    else {
+      return undefined;
+    }
+
+    const filename = path.basename(sourceUri.fsPath);
+    workspace.getConfiguration('xliffSync', resourceUri).update('baseFile', filename);
 
     return sourceUri;
   }
