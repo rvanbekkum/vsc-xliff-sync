@@ -24,6 +24,7 @@
 
 import { XmlNode, XmlParser, XmlBuilder } from '..';
 import { workspace, Uri, WorkspaceConfiguration } from 'vscode';
+import { translationState } from './xlf-translationState';
 
 export class XlfDocument {
   public get valid(): boolean {
@@ -157,6 +158,7 @@ export class XlfDocument {
   private preserveTargetOrder: boolean;
   private parseFromDeveloperNoteSeparator: string;
   private missingTranslation: string;
+  private needsWorkTranslationSubstate: string;
 
   private constructor(resourceUri: Uri | undefined) {
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', resourceUri);
@@ -170,6 +172,7 @@ export class XlfDocument {
     if (this.missingTranslation === '%EMPTY%') {
       this.missingTranslation = '';
     }
+    this.needsWorkTranslationSubstate = xliffWorkspaceConfiguration['needsWorkTranslationSubstate'];
   }
 
   public static async load(source: string, resourceUri: Uri | undefined): Promise<XlfDocument> {
@@ -449,10 +452,10 @@ export class XlfDocument {
       let attributes: { [key: string]: string; } = {};
       if (!translation) {
         translation = this.missingTranslation;
-        attributes['state'] = 'needs-translation';
+        this.updateStateAttributes(attributes, translationState.missingTranslation);
       }
       else {
-        attributes['state'] = 'translated';
+        this.updateStateAttributes(attributes, translationState.translated);
       }
 
       targetNode = this.createTargetNode(sourceUnit, attributes, translation);
@@ -467,9 +470,43 @@ export class XlfDocument {
         if (!targetNode.attributes) {
           targetNode.attributes = {};
         }
-        targetNode.attributes['state'] = 'translated';
+        this.updateStateAttributes(targetNode.attributes, translationState.translated);
       }
       this.appendTargetNode(sourceUnit, targetNode);
+    }
+  }
+
+  public updateStateAttributes(attributes: { [key: string]: string; }, newState: translationState) {
+    switch (this.version) {
+      case '1.2':
+        switch (newState) {
+          case translationState.missingTranslation:
+            attributes['state'] = 'needs-translation';
+            break;
+          case translationState.needsWorkTranslation:
+            attributes['state'] = 'needs-adaptation';
+            break;
+          case translationState.translated:
+            attributes['state'] = 'translated';
+            break;
+        }
+        break;
+      case '2.0':
+        switch (newState) {
+          case translationState.missingTranslation:
+            attributes['state'] = 'initial';
+            delete attributes["subState"];
+            break;
+          case translationState.needsWorkTranslation:
+            attributes['state'] = 'translated';
+            attributes['subState'] = this.needsWorkTranslationSubstate;
+            break;
+          case translationState.translated:
+            attributes['state'] = 'translated';
+            delete attributes["subState"];
+            break;
+        }
+        break;
     }
   }
 
@@ -548,8 +585,23 @@ export class XlfDocument {
     return undefined;
   }
 
+  private tryGetStateNode(unit: XmlNode): XmlNode | undefined {
+    let stateNodeTag: string = 'target';
+    switch (this.version) {
+      case '1.2':
+        stateNodeTag = 'target';
+        break;
+      case '2.0':
+        stateNodeTag = 'segment';
+        break;
+    }
+
+    return this.getNode(stateNodeTag, unit);
+  }
+
+
   public setTargetAttribute(unit: XmlNode, attribute: string, attributeValue: string) {
-    let targetNode = this.getNode('target', unit);
+    let targetNode: XmlNode | undefined = this.getNode('target', unit);
     if (!targetNode) {
       let attributes: { [key: string]: string; } = {};
       attributes[attribute] = attributeValue;
@@ -558,6 +610,19 @@ export class XlfDocument {
     }
     else {
       targetNode.attributes[attribute] = attributeValue;
+    }
+  }
+
+  public setState(unit: XmlNode, newState: translationState) {
+    let stateNode = this.tryGetStateNode(unit);
+    if (!stateNode && this.version === '1.2') {
+      let attributes: { [key: string]: string; } = {};
+      this.updateStateAttributes(attributes, newState);
+      let targetNode: XmlNode = this.createTargetNode(unit, attributes, "");
+      this.appendTargetNode(unit, targetNode);
+    }
+    else if (stateNode) {
+      this.updateStateAttributes(stateNode.attributes, newState);
     }
   }
 
@@ -583,8 +648,8 @@ export class XlfDocument {
         notesParent = this.getNode('notes', unit);
         if (!notesParent) {
           notesParent = {
-            name: 'note',
-            local: 'note',
+            name: 'notes',
+            local: 'notes',
             parent: unit,
             attributes: {},
             children: [],

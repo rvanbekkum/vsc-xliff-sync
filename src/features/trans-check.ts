@@ -39,6 +39,7 @@ import {
 } from 'vscode';
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
+import { translationState } from './tools/xlf/xlf-translationState';
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
@@ -330,11 +331,11 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
 
             targetDocument.translationUnitNodes.forEach((unit) => {
                 if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
-                    targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
+                    targetDocument.setState(unit, translationState.missingTranslation);
                     missingCount += 1;
                 }
                 if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, isRuleEnabledChecker, sourceEqualsTargetExpected)) {
-                    targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+                    targetDocument.setState(unit, translationState.needsWorkTranslation);
                     needWorkCount += 1;
                 }
                 if (shouldCheckForNeedWorkTranslations && checkForResolvedProblem(targetDocument, unit)) {

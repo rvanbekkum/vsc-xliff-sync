@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.0]
+
+* Better XLIFF 2.0 support:
+  * `state` attribute on `segment` nodes instead of target nodes.
+  * `state` and `subState` used:
+    * `needs-translation` -> `initial` with no sub-state
+    * `needs-adapatation` -> `translated` with sub-state configurable with setting `xliffSync.needsWorkTranslationSubstate`.
+    * `translated` -> `translated` with no sub-state.
+  * Let `xliffSync.fileType` = `xlf2` work with file-extension `xlf`.
+
 ## [0.4.0] 02-08-2020
 
 * New setting `xliffSync.syncCrossWorkspaceFolders` which can be used to set that the extension should synchronize from one single base file (`xliffSync.baseFile`) to the translation files in all workspace folders (**Default**: `false`) (GitHub issue [#48](https://github.com/rvanbekkum/vsc-xliff-sync/issues/48)).
