@@ -6,7 +6,7 @@
   * `state` attribute on `segment` nodes instead of target nodes.
   * `state` and `subState` used:
     * `needs-translation` -> `initial` with no sub-state
-    * `needs-adapatation` -> `translated` with sub-state configurable with setting `xliffSync.needsWorkTranslationSubstate`.
+    * `needs-adaptation` -> `translated` with sub-state configurable with setting `xliffSync.needsWorkTranslationSubstate`.
     * `translated` -> `translated` with no sub-state.
   * Let `xliffSync.fileType` = `xlf2` work with file-extension `xlf`.
 
