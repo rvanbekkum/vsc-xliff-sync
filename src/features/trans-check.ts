@@ -456,7 +456,7 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
         return true;
     }
 
-    if (targetDocument.getTargetAttribute(unit, 'state') === 'needs-adaptation') {
+    if (targetDocument.getState(unit) === translationState.needsWorkTranslation) {
         return true;
     }
 
@@ -464,7 +464,7 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
 }
 
 function checkForResolvedProblem(targetDocument: XlfDocument, unit: XmlNode) : boolean {
-    return targetDocument.getTargetAttribute(unit, 'state') !== 'needs-adaptation' && targetDocument.tryDeleteXliffSyncNote(unit);
+    return targetDocument.getState(unit) !== translationState.needsWorkTranslation && targetDocument.tryDeleteXliffSyncNote(unit);
 }
 
 function checkForPlaceHolderMismatch(sourceText: string, translationText: string) {

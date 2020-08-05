@@ -585,6 +585,43 @@ export class XlfDocument {
     return undefined;
   }
 
+  public getState(unit: XmlNode): translationState | undefined {
+    let stateNode: XmlNode | undefined = this.tryGetStateNode(unit);
+    if (stateNode && stateNode.attributes) {
+      switch (this.version) {
+        case '1.2':
+          {
+            const state: string | undefined = stateNode.attributes['state'];
+            switch (state) {
+              case 'needs-translation':
+                return translationState.missingTranslation;
+              case 'needs-adaptation':
+                return translationState.needsWorkTranslation;
+              case 'translated':
+                return translationState.translated;
+            }
+            break;
+          }
+        case '2.0':
+          {
+            const state: string | undefined = stateNode.attributes['state'];
+            switch (state) {
+              case 'initial':
+                return translationState.missingTranslation;
+              case 'translated':
+                if (stateNode.attributes['subState'] === this.needsWorkTranslationSubstate) {
+                  return translationState.needsWorkTranslation;
+                }
+                else {
+                  return translationState.translated;
+                }
+            }
+          }
+      }
+    }
+    return undefined;
+  }
+
   private tryGetStateNode(unit: XmlNode): XmlNode | undefined {
     let stateNodeTag: string = 'target';
     switch (this.version) {
@@ -657,8 +694,8 @@ export class XlfDocument {
             prefix: '',
             uri: '',
           };
+          unit.children.push(notesParent);
         }
-        unit.children.push(notesParent);
         break;
       default:
         return;
@@ -677,9 +714,7 @@ export class XlfDocument {
       uri: '',
     };
 
-    let noteIdx = notesParent.children.findIndex(
-      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] === fromAttribute,
-    );
+    const noteIdx: number = this.findXliffSyncNoteIndex(notesParent);
     let targetIdx = unit.children.findIndex(
       (child) => typeof child !== 'string' && child && child.name === 'target',
     );
@@ -697,7 +732,7 @@ export class XlfDocument {
   public tryDeleteXliffSyncNote(unit: XmlNode): boolean {
     let notesParent: XmlNode | undefined = this.getNotesParent(unit);
     if (notesParent) {
-      const noteIdx: number = this.findXliffSyncNoteIndex(unit);
+      const noteIdx: number = this.findXliffSyncNoteIndex(notesParent);
       if (noteIdx >= 0) {
         let deleteCount: number = 1;
 
@@ -719,9 +754,22 @@ export class XlfDocument {
       return -1;
     }
 
-    const fromAttribute = 'XLIFF Sync';
+    let categoryAttributeName: string;
+    switch (this.version) {
+      case '1.2':
+        categoryAttributeName = 'from';
+        break;
+      case '2.0':
+        categoryAttributeName = 'category';
+        break;
+      default:
+        categoryAttributeName = 'from';
+        break;
+    }
+    const categoryAttributeValue: string = 'XLIFF Sync';
+
     return notesParent.children.findIndex(
-      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && child.attributes['from'] === fromAttribute,
+      (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && (child.attributes[categoryAttributeName] === categoryAttributeValue),
     );
   }
 

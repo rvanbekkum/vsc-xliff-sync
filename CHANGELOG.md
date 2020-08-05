@@ -9,6 +9,11 @@
     * `needs-adaptation` -> `translated` with sub-state configurable with setting `xliffSync.needsWorkTranslationSubstate`.
     * `translated` -> `translated` with no sub-state.
   * Let `xliffSync.fileType` = `xlf2` work with file-extension `xlf`.
+  * Fix: function `findXliffSyncNoteIndex` should check for the "category" attribute instead of the "from" attribute.
+  * Fix: function `tryDeleteXliffSyncNote` should call `findXliffSyncNoteIndex` with `notesParent` as argument instead of `unit`.
+  * Fix: function `setXliffSyncNote` should only add a new `notes` node in XLIFF 2.0 files if it does not exist for a unit.
+  * Fix: function `setXliffSyncNote` should call `findXliffSyncNoteIndex` to check if an XLIFF Sync note already exists.
+  * "Check for Need Work Translations" now considers the `xliffSync.needsWorkTranslationSubstate` substate.
 
 ### Thank You
 
