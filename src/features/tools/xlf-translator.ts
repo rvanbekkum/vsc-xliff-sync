@@ -24,6 +24,7 @@
 
 import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 import { XlfDocument } from './xlf/xlf-document';
+import { translationState } from './xlf/xlf-translationState';
 
 export class XlfTranslator {
   public static async synchronize(
@@ -160,7 +161,7 @@ export class XlfTranslator {
 
           if (mergedSourceText !== origSourceText) {
             mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
-            mergedDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+            mergedDocument.setState(unit, translationState.needsWorkTranslation);
           }
         }
       }

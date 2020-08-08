@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.0] 08-08-2020
+
+* Better XLIFF 2.0 support:
+  * `state` attribute on `segment` nodes instead of target nodes.
+  * `state` and `subState` used:
+    * `needs-translation` -> `initial` with no sub-state
+    * `needs-adaptation` -> `translated` with sub-state configurable with setting `xliffSync.needsWorkTranslationSubstate`.
+    * `translated` -> `translated` with no sub-state.
+  * Let `xliffSync.fileType` = `xlf2` work with file-extension `xlf`.
+  * Fix: function `findXliffSyncNoteIndex` should check for the "category" attribute instead of the "from" attribute.
+  * Fix: function `tryDeleteXliffSyncNote` should call `findXliffSyncNoteIndex` with `notesParent` as argument instead of `unit`.
+  * Fix: function `setXliffSyncNote` should only add a new `notes` node in XLIFF 2.0 files if it does not exist for a unit.
+  * Fix: function `setXliffSyncNote` should call `findXliffSyncNoteIndex` to check if an XLIFF Sync note already exists.
+  * "Check for Need Work Translations" now considers the `xliffSync.needsWorkTranslationSubstate` sub-state.
+  * Decoration is now also applied on `segment` nodes with the `xliffSync.needsWorkTranslationSubstate` sub-state.
+
+### Thank You
+
+* **[antpyykk](https://github.com/antpyykk)** for filing the issue with states for XLIFF 2.0 files (GitHub issue [#50](https://github.com/rvanbekkum/vsc-xliff-sync/issues/50))
+
 ## [0.4.0] 02-08-2020
 
 * New setting `xliffSync.syncCrossWorkspaceFolders` which can be used to set that the extension should synchronize from one single base file (`xliffSync.baseFile`) to the translation files in all workspace folders (**Default**: `false`) (GitHub issue [#48](https://github.com/rvanbekkum/vsc-xliff-sync/issues/48)).
@@ -17,6 +37,10 @@
 * XLIFF Sync snippets for the "Parse from Developer Note" feature.
   * You can configure for which programming languages the snippets should be available with setting `xliffSync.enableSnippetsForLanguages`. Currently only the "AL Language" is supported with snippets: `tcaptionwithtranslation`, `tcommentwithtranslation`, `toptioncaptionwithtranslation`, `tpromotedactioncategorieswithtranslation`, `tlabelwithtranslation` and `ttooltipwithtranslation` snippets.
   * You can configure a default target language that should be used by the snippets with setting `xliffSync.snippetTargetLanguage`.
+
+### Thank You
+
+* **[GregoryAA](https://github.com/GregoryAA)** for requesting the _Parse from Developer Note_ feature enhancements. (GitHub issue [#43](https://github.com/rvanbekkum/vsc-xliff-sync/issues/43))
 
 ## [0.3.7] 18-05-2020
 

@@ -130,16 +130,16 @@ export class FilesHelper {
     return sourceUri;
   }
 
-  public static async findTranslationFiles(fileExt: string, workspaceFolder?: WorkspaceFolder): Promise<Uri[]> {
+  public static async findTranslationFiles(fileType: string, workspaceFolder?: WorkspaceFolder): Promise<Uri[]> {
     if (workspaceFolder) {
-      return await FilesHelper.findTranslationFilesInWorkspaceFolder(fileExt, workspaceFolder);
+      return await FilesHelper.findTranslationFilesInWorkspaceFolder(fileType, workspaceFolder);
     }
     else {
       let allFileUris: Uri[] = [];
       const workspaceFolders: WorkspaceFolder[] | undefined = await WorkspaceHelper.getWorkspaceFolders(true);
       if (workspaceFolders) {
         for (let wsFolder of workspaceFolders) {
-          let folderFileUris: Uri[] = await FilesHelper.findTranslationFilesInWorkspaceFolder(fileExt, wsFolder);
+          let folderFileUris: Uri[] = await FilesHelper.findTranslationFilesInWorkspaceFolder(fileType, wsFolder);
           allFileUris = allFileUris.concat(folderFileUris);
         }
       }
@@ -147,7 +147,9 @@ export class FilesHelper {
     }
   }
 
-  public static async findTranslationFilesInWorkspaceFolder(fileExt: string, workspaceFolder: WorkspaceFolder): Promise<Uri[]> {
+  public static async findTranslationFilesInWorkspaceFolder(fileType: string, workspaceFolder: WorkspaceFolder): Promise<Uri[]> {
+    const fileExt: string = FilesHelper.getTranslationFileExtensions(fileType);
+
     let relativePattern: RelativePattern = new RelativePattern(workspaceFolder, `**/*.${fileExt}`);
     return workspace.findFiles(relativePattern).then((files) =>
       files.sort((a, b) => {
@@ -157,6 +159,16 @@ export class FilesHelper {
         return a.fsPath.localeCompare(b.fsPath);
       }),
     );
+  }
+
+  public static getTranslationFileExtensions(fileType: string): string {
+    switch(fileType) {
+      case 'xlf':
+        return 'xlf';
+      case 'xlf2':
+        return 'xlf*';
+    }
+    return 'xlf';
   }
 
   public static async createTranslationFile(

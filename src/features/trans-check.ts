@@ -39,6 +39,7 @@ import {
 } from 'vscode';
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
+import { translationState } from './tools/xlf/xlf-translationState';
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
@@ -253,11 +254,23 @@ export class XliffTranslationChecker {
     }
 
     private getNeedsWorkTranslationKeywords() : string {
+        const currentWorkspaceFolder: WorkspaceFolder | undefined = window.activeTextEditor ?
+            workspace.getWorkspaceFolder(window.activeTextEditor.document.uri) :
+            undefined;
+        let currentWorkspaceFolderUri: Uri | undefined = undefined;
+        if (currentWorkspaceFolder) {
+            currentWorkspaceFolderUri = currentWorkspaceFolder.uri;
+        }
+        let needsWorkTranslationSubstate = workspace.getConfiguration('xliffSync', currentWorkspaceFolderUri)[
+            'needsWorkTranslationSubstate'
+        ];
+
+        const segmentNeedsWorkRegExp: string = `(<segment.* subState="${needsWorkTranslationSubstate}".*>)`;
         if (decorationTargetTextOnly) {
-            return '(?<=<target state="needs-adaptation">).*(?=</target>)';
+            return `((?<=<target.* state="needs-adaptation".*>).*(?=</target>))|${segmentNeedsWorkRegExp}`;
         }
         else {
-            return '<target state="needs-adaptation">.*</target>|<target state="needs-adaptation"/>';
+            return `(<target.* state="needs-adaptation".*>.*</target>)|(<target.* state="needs-adaptation".*/>)|${segmentNeedsWorkRegExp}`;
         }
     }
 }
@@ -330,11 +343,11 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
 
             targetDocument.translationUnitNodes.forEach((unit) => {
                 if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
-                    targetDocument.setTargetAttribute(unit, 'state', 'needs-translation');
+                    targetDocument.setState(unit, translationState.missingTranslation);
                     missingCount += 1;
                 }
                 if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, isRuleEnabledChecker, sourceEqualsTargetExpected)) {
-                    targetDocument.setTargetAttribute(unit, 'state', 'needs-adaptation');
+                    targetDocument.setState(unit, translationState.needsWorkTranslation);
                     needWorkCount += 1;
                 }
                 if (shouldCheckForNeedWorkTranslations && checkForResolvedProblem(targetDocument, unit)) {
@@ -455,7 +468,7 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
         return true;
     }
 
-    if (targetDocument.getTargetAttribute(unit, 'state') === 'needs-adaptation') {
+    if (targetDocument.getState(unit) === translationState.needsWorkTranslation) {
         return true;
     }
 
@@ -463,7 +476,7 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
 }
 
 function checkForResolvedProblem(targetDocument: XlfDocument, unit: XmlNode) : boolean {
-    return targetDocument.getTargetAttribute(unit, 'state') !== 'needs-adaptation' && targetDocument.tryDeleteXliffSyncNote(unit);
+    return targetDocument.getState(unit) !== translationState.needsWorkTranslation && targetDocument.tryDeleteXliffSyncNote(unit);
 }
 
 function checkForPlaceHolderMismatch(sourceText: string, translationText: string) {

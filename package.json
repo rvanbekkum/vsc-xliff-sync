@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -149,6 +149,12 @@
                     "type": "string",
                     "default": "%EMPTY%",
                     "description": "Target tag content for missing translation (use %EMPTY% to leave new targets empty).",
+                    "scope": "resource"
+                },
+                "xliffSync.needsWorkTranslationSubstate": {
+                    "type": "string",
+                    "default": "xliffSync:needsWork",
+                    "description": "Specifies the substate to use for translations that need work in xlf2 files.",
                     "scope": "resource"
                 },
                 "xliffSync.developerNoteDesignation": {
