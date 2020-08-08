@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.5.0]
+## [0.5.0] 08-08-2020
 
 * Better XLIFF 2.0 support:
   * `state` attribute on `segment` nodes instead of target nodes.
@@ -13,7 +13,8 @@
   * Fix: function `tryDeleteXliffSyncNote` should call `findXliffSyncNoteIndex` with `notesParent` as argument instead of `unit`.
   * Fix: function `setXliffSyncNote` should only add a new `notes` node in XLIFF 2.0 files if it does not exist for a unit.
   * Fix: function `setXliffSyncNote` should call `findXliffSyncNoteIndex` to check if an XLIFF Sync note already exists.
-  * "Check for Need Work Translations" now considers the `xliffSync.needsWorkTranslationSubstate` substate.
+  * "Check for Need Work Translations" now considers the `xliffSync.needsWorkTranslationSubstate` sub-state.
+  * Decoration is now also applied on `segment` nodes with the `xliffSync.needsWorkTranslationSubstate` sub-state.
 
 ### Thank You
 

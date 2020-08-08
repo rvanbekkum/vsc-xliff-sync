@@ -254,11 +254,23 @@ export class XliffTranslationChecker {
     }
 
     private getNeedsWorkTranslationKeywords() : string {
+        const currentWorkspaceFolder: WorkspaceFolder | undefined = window.activeTextEditor ?
+            workspace.getWorkspaceFolder(window.activeTextEditor.document.uri) :
+            undefined;
+        let currentWorkspaceFolderUri: Uri | undefined = undefined;
+        if (currentWorkspaceFolder) {
+            currentWorkspaceFolderUri = currentWorkspaceFolder.uri;
+        }
+        let needsWorkTranslationSubstate = workspace.getConfiguration('xliffSync', currentWorkspaceFolderUri)[
+            'needsWorkTranslationSubstate'
+        ];
+
+        const segmentNeedsWorkRegExp: string = `(<segment.* subState="${needsWorkTranslationSubstate}".*>)`;
         if (decorationTargetTextOnly) {
-            return '(?<=<target state="needs-adaptation">).*(?=</target>)';
+            return `((?<=<target.* state="needs-adaptation".*>).*(?=</target>))|${segmentNeedsWorkRegExp}`;
         }
         else {
-            return '<target state="needs-adaptation">.*</target>|<target state="needs-adaptation"/>';
+            return `(<target.* state="needs-adaptation".*>.*</target>)|(<target.* state="needs-adaptation".*/>)|${segmentNeedsWorkRegExp}`;
         }
     }
 }
