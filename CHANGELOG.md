@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] 03-09-2020
+
+* Fix: Do not add `xliffSync.baseFile` setting if there is only a single matching file.
+* Account for whitespace in missing translation decoration
+
 ## [0.5.0] 08-08-2020
 
 * Better XLIFF 2.0 support:

@@ -89,7 +89,12 @@ export class FilesHelper {
 
     const sourceUris: Uri[] | undefined = baseFile ? xliffUris.filter((uri) => uri.fsPath.indexOf(baseFile) >= 0) : undefined;
     if (sourceUris) {
-      sourceUri = await this.selectBaseFile(sourceUris, resourceUri);
+      if (sourceUris.length === 1) {
+        sourceUri = sourceUris[0];
+      }
+      else {
+        sourceUri = await this.selectBaseFile(sourceUris, resourceUri);
+      }
     }
 
     if (!sourceUri) {

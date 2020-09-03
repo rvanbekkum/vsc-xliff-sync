@@ -242,13 +242,13 @@ export class XliffTranslationChecker {
             'missingTranslation'
         ];
         if (missingTranslationKeyword === '%EMPTY%') {
-            missingTranslationKeyword = '<target( state="needs-translation")?/>|<target( state="needs-translation")?></target>';
+            missingTranslationKeyword = '<target.*( state="needs-translation")?.*/>|<target.*( state="needs-translation")?.*></target>';
         }
         else if (decorationTargetTextOnly) {
-            missingTranslationKeyword = `(?<=<target( state="needs-translation")?>)${missingTranslationKeyword}(?=</target>)`;
+            missingTranslationKeyword = `(?<=<target.*( state="needs-translation")?.*>)${missingTranslationKeyword}(?=</target>)`;
         }
         else {
-            missingTranslationKeyword = `<target( state="needs-translation")?>${missingTranslationKeyword}</target>`;
+            missingTranslationKeyword = `<target.*( state="needs-translation")?.*>${missingTranslationKeyword}</target>`;
         }
         return missingTranslationKeyword;
     }
