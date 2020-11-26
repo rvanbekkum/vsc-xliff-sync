@@ -159,6 +159,7 @@ export class XlfDocument {
   private parseFromDeveloperNoteSeparator: string;
   private missingTranslation: string;
   private needsWorkTranslationSubstate: string;
+  private addNeedsWorkTranslationNote: boolean;
 
   private constructor(resourceUri: Uri | undefined) {
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', resourceUri);
@@ -173,6 +174,7 @@ export class XlfDocument {
       this.missingTranslation = '';
     }
     this.needsWorkTranslationSubstate = xliffWorkspaceConfiguration['needsWorkTranslationSubstate'];
+    this.addNeedsWorkTranslationNote = xliffWorkspaceConfiguration['addNeedsWorkTranslationNote'];
   }
 
   public static async load(source: string, resourceUri: Uri | undefined): Promise<XlfDocument> {
@@ -673,6 +675,10 @@ export class XlfDocument {
   }
 
   public setXliffSyncNote(unit: XmlNode, noteText: string) {
+    if (!this.addNeedsWorkTranslationNote) {
+      return;
+    }
+
     let noteAttributes: { [key: string]: string; } = {};
     const fromAttribute = 'XLIFF Sync';
     let notesParent: XmlNode | undefined = unit;
