@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.0] 26-11-2020
+
+* New setting `xliffSync.addNeedsWorkTranslationNote` that can be used to change whether an "XLIFF Sync" note should be added to trans-units that are being marked as needs-work by the extension (which are added to explain what was detected) (**Default**: `true`).
+* New setting `xliffSync.openExternallyAfterEvent` that can be used to specify whether translation files should be opened automatically with the default XLIFF editor after an event takes place. By default, files will not be opened externally automatically (**Default**: `[]`).
+You can set files to be opened externally automatically after:
+  * Checking translations
+  * Detecting problems
+  * Synchronizing translation files
+
 ## [0.5.1] 03-09-2020
 
 * Fix: Do not add `xliffSync.baseFile` setting if there is only a single matching file.

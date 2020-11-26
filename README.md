@@ -76,6 +76,8 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.copyFromSourceOverwrite | `false` | Specifies whether translations copied from the source text should overwrite existing translations. |
 | xliffSync.detectSourceTextChanges | `true` | Specifies whether changes in the source text of a trans-unit should be detected. If a change is detected, the target state is changed to needs-adaptation and a note is added to indicate the translation should be reviewed. |
 | xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
+| xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
+| xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
 | xliffSync.autoCheckMissingTranslations | `false` | Specifies whether or not the extension should automatically check for missing translations after syncing. |

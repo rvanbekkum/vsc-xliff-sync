@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.5.1",
+    "version": "0.6.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
