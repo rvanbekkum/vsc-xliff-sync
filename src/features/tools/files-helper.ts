@@ -201,7 +201,7 @@ export class FilesHelper {
     });
   }
 
-  public static async createNewTargetFile(targetUri: Uri | undefined, newFileContents: string, sourceUri?: Uri | undefined, targetLanguage?: string | undefined) {
+  public static async createNewTargetFile(targetUri: Uri | undefined, newFileContents: string, sourceUri?: Uri | undefined, targetLanguage?: string | undefined): Promise<Uri> {
     let document: TextDocument;
 
     if (targetUri) {
@@ -231,6 +231,8 @@ export class FilesHelper {
     });
 
     await document.save();
+
+    return targetUri;
   }
 
   public static getFileNameFromUri(fileUri: Uri): string {

@@ -35,6 +35,7 @@ import {
     window,
     workspace,
     Uri,
+    WorkspaceConfiguration,
     WorkspaceFolder
 } from 'vscode';
 import { XlfDocument } from './tools/xlf/xlf-document';
@@ -296,27 +297,22 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
             targetUris = [singleTargetUri];
         }
 
-        let missingTranslationText: string = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
-            'missingTranslation'
-        ];
+        const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri);
+        let missingTranslationText: string = xliffWorkspaceConfiguration['missingTranslation'];
         if (missingTranslationText === '%EMPTY%') {
             missingTranslationText = '';
         }
 
-        let needWorkRules: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
-            'needWorkTranslationRules'
-        ];
-        let needWorkRulesEnableAll: boolean = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
-            'needWorkTranslationRulesEnableAll'
-        ];
+        let needWorkRules: string[] = xliffWorkspaceConfiguration['needWorkTranslationRules'];
+        let needWorkRulesEnableAll: boolean = xliffWorkspaceConfiguration['needWorkTranslationRulesEnableAll'];
         function isRuleEnabledChecker(ruleName: string): boolean {
             return needWorkRulesEnableAll || needWorkRules.indexOf(ruleName) >= 0;
         }
 
-        const copyFromSourceForLanguages: string[] = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri)[
-            'copyFromSourceForLanguages'
-        ];
+        const copyFromSourceForLanguages: string[] = xliffWorkspaceConfiguration['copyFromSourceForLanguages'];
         let sourceEqualsTargetExpected: boolean = false;
+
+        const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
 
         let noMissingTranslations: boolean = true;
         let noNeedWorkTranslations: boolean = true;
@@ -369,7 +365,11 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
                 messagesText += ` ${needWorkCount} translation(s) that need work.`;
             }
 
-            if (problemDetectedInFile) {
+            let openExternallyAutomatically: boolean = openExternallyAfterEvent.indexOf("Check") > -1;
+            if (!openExternallyAutomatically && problemDetectedInFile) {
+                openExternallyAutomatically = openExternallyAfterEvent.indexOf('ProblemDetected') > -1;
+            }
+            if (problemDetectedInFile && !openExternallyAutomatically) {
                 const fileName = FilesHelper.getFileNameFromUri(targetUri);
                 window.showInformationMessage(`"${fileName}":${messagesText}`, 'Open Externally').then(selection => {
                     if (selection === 'Open Externally') {
@@ -387,6 +387,9 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
                 }
     
                 await FilesHelper.createNewTargetFile(targetUri, newFileContents);
+            }
+            if (openExternallyAutomatically) {
+                env.openExternal(targetUri);
             }
         }
 
