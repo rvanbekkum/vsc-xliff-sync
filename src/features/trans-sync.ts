@@ -23,11 +23,13 @@
  */
 
 import {
+    env,
     ProgressLocation,
     QuickPickItem,
     Uri,
     window,
     workspace,
+    WorkspaceConfiguration,
     WorkspaceFolder
 } from 'vscode';
 
@@ -257,7 +259,12 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             throw new Error('No ouput generated');
         }
     
-        await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
+        targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
+        const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
+        const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
+        if (openExternallyAfterEvent.indexOf("Sync") > -1) {
+            env.openExternal(targetUri);
+        }
     });
 }
 

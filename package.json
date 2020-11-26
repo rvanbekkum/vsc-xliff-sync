@@ -151,6 +151,27 @@
                     "description": "Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work.",
                     "scope": "resource"
                 },
+                "xliffSync.openExternallyAfterEvent": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Check",
+                            "ProblemDetected",
+                            "Sync"
+                        ],
+                        "enumDescriptions": [
+                            "Open automatically after checking for missing translations or translation that needs work.",
+                            "Open automatically after a problem (missing translation or translation that needs work) was detected.",
+                            "Open automatically after syncing with the base translation file."
+                        ]
+                    },
+                    "default": [
+                    ],
+                    "uniqueItems": true,
+                    "description": "Specifies after which event translation files should be opened automatically with the default XLIFF editor",
+                    "scope": "resource"
+                },
                 "xliffSync.missingTranslation": {
                     "type": "string",
                     "default": "%EMPTY%",
