@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.0] (Next Release)
+
+* Activate extension when any of the extension's commands are invoked.
+
 ## [0.6.0] 26-11-2020
 
 * New setting `xliffSync.addNeedsWorkTranslationNote` that can be used to change whether an "XLIFF Sync" note should be added to trans-units that are being marked as needs-work by the extension (which are added to explain what was detected) (**Default**: `true`).
