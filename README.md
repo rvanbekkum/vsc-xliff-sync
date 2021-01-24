@@ -61,6 +61,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.baseFile | `.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the first time you use the Synchronize command. |
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
 | xliffSync.syncCrossWorkspaceFolders | `false` | Specifies whether the extension will sync from a base file to the translation files in all workspace folders. By default, the extension will always sync. per workspace folder. If you enable this setting, then you can have the base file in one workspace folder and target translation files in other workspace folders. |
+| xliffSync.matchingOriginalOnly | `true` | Specifies whether the extension will sync only to files where the original-attribute is matching. |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.needsWorkTranslationSubstate | `xliffSync:needsWork` | Specifies the substate to use for translations that need work in xlf2 files. **Tip**: If you use [Poedit](https://poedit.net/), then you could also set this to `poedit:fuzzy`. |
 | xliffSync.findByXliffGeneratorNoteAndSource | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and source. |
@@ -76,6 +77,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.copyFromSourceOverwrite | `false` | Specifies whether translations copied from the source text should overwrite existing translations. |
 | xliffSync.detectSourceTextChanges | `true` | Specifies whether changes in the source text of a trans-unit should be detected. If a change is detected, the target state is changed to needs-adaptation and a note is added to indicate the translation should be reviewed. |
 | xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
+| xliffSync.clearTranslationAfterSourceTextChange | `false` | Specifies whether translations should be cleared when the source text of a trans-unit changed. |
 | xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
 | xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |

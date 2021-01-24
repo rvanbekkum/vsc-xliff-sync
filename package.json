@@ -157,6 +157,12 @@
                     "description": "Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit.",
                     "scope": "resource"
                 },
+                "xliffSync.clearTranslationAfterSourceTextChange": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translations should be cleared when the source text of a trans-unit changed.",
+                    "scope": "resource"
+                },
                 "xliffSync.addNeedsWorkTranslationNote": {
                     "type": "boolean",
                     "default": true,

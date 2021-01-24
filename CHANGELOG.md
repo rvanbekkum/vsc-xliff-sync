@@ -4,6 +4,7 @@
 
 * Activate extension when any of the extension's commands are invoked.
 * New setting `xliffSync.matchingOriginalOnly` that can be used to specify whether to sync. only to files where the `original` attribute of the `file`-node of an XLIFF file matches that of the base file (**Default**: `true`).
+* New setting `xliffSync.clearTranslationAfterSourceTextChange` that can be used to specify whether the translation for trans-units should be cleared during syncing if a change in the source text is detected (instead of marking it as needs-work) (**Default**: `false`).
 
 ## [0.6.0] 26-11-2020
 
