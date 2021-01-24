@@ -69,6 +69,12 @@
                     "description": "Specifies whether the extension will sync from a base file to the translation files in all workspace folders.",
                     "scope": "window"
                 },
+                "xliffSync.matchingOriginalOnly": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies whether the extension will sync only to files where the original-attribute is matching.",
+                    "scope": "resource"
+                },
                 "xliffSync.findByXliffGeneratorNoteAndSource": {
                     "type": "boolean",
                     "default": true,

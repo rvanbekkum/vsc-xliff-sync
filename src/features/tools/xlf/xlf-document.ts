@@ -101,6 +101,16 @@ export class XlfDocument {
     }
   }
 
+  public get original(): string | undefined {
+    switch (this.version) {
+      case '1.2': case '2.0':
+        const fileNode = this.root && this.getNode('file', this.root);
+        return fileNode && fileNode.attributes && fileNode.attributes['original'];
+      default:
+        return undefined;
+    }
+  }
+
   public get translationUnitNodes(): XmlNode[] {
     if (!this.root) {
       return [];
