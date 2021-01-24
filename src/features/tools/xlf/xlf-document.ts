@@ -648,6 +648,12 @@ export class XlfDocument {
     return this.getNode(stateNodeTag, unit);
   }
 
+  public clearUnitTranslation(unit: XmlNode) {
+    const targetNode = this.getNode('target', unit);
+    if (targetNode) {
+      targetNode.children = [];
+    }
+  }
 
   public setTargetAttribute(unit: XmlNode, attribute: string, attributeValue: string) {
     let targetNode: XmlNode | undefined = this.getNode('target', unit);

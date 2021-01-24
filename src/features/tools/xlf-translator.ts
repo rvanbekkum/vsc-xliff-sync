@@ -45,6 +45,7 @@ export class XlfTranslator {
     const parseFromDeveloperNote: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNote'];
     const parseFromDeveloperNoteOverwrite: boolean = xliffWorkspaceConfiguration['parseFromDeveloperNoteOverwrite'];
     const detectSourceTextChanges: boolean = xliffWorkspaceConfiguration['detectSourceTextChanges'];
+    const clearTranslationAfterSourceTextChange: boolean = xliffWorkspaceConfiguration['clearTranslationAfterSourceTextChange'];
     const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
     const missingTranslationKeyword: string = xliffWorkspaceConfiguration['missingTranslation'];
 
@@ -160,8 +161,14 @@ export class XlfTranslator {
           }
 
           if (mergedSourceText !== origSourceText) {
-            mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
-            mergedDocument.setState(unit, translationState.needsWorkTranslation);
+            if (clearTranslationAfterSourceTextChange) {
+              mergedDocument.clearUnitTranslation(unit);
+              mergedDocument.setState(unit, translationState.missingTranslation);
+            }
+            else {
+              mergedDocument.setXliffSyncNote(unit, 'Source text has changed. Please review the translation.');
+              mergedDocument.setState(unit, translationState.needsWorkTranslation);
+            }
           }
         }
       }
