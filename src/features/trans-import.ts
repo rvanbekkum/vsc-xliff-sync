@@ -90,8 +90,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
     }
     const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['replaceTranslationsDuringImport'];
 
-    const selFileContents = (await workspace.openTextDocument(fileUri)).getText();
-    const selFileDocument = await XlfDocument.load(selFileContents, workspaceFolder.uri);
+    const selFileDocument = await XlfDocument.loadFromUri(fileUri, workspaceFolder.uri);
     let sourceDevNoteTranslations: { [key: string]: string | undefined; } = {};
     selFileDocument.translationUnitNodes.forEach((unit) => {
         const sourceDevNoteText = getSourceDevNoteText(selFileDocument, unit);
@@ -108,14 +107,8 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
         if (!targetUri) {
             continue;
         }
-        const target = targetUri
-            ? (await workspace.openTextDocument(targetUri)).getText()
-            : undefined;
-        if (!target) {
-            continue;
-        }
 
-        const targetDocument = await XlfDocument.load(target, workspaceFolder.uri);
+        const targetDocument = await XlfDocument.loadFromUri(targetUri, workspaceFolder.uri);
         if (targetDocument.targetLanguage !== selFileDocument.targetLanguage) {
             continue;
         }
@@ -155,7 +148,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
             const newFileContents = targetDocument.extract();
 
             if (!newFileContents) {
-                throw new Error('No ouput generated');
+                throw new Error(`No ouput generated. File: ${targetUri}`);
             }
 
             await FilesHelper.createNewTargetFile(targetUri, newFileContents);
