@@ -101,6 +101,16 @@ export class XlfDocument {
     }
   }
 
+  public get original(): string | undefined {
+    switch (this.version) {
+      case '1.2': case '2.0':
+        const fileNode = this.root && this.getNode('file', this.root);
+        return fileNode && fileNode.attributes && fileNode.attributes['original'];
+      default:
+        return undefined;
+    }
+  }
+
   public get translationUnitNodes(): XmlNode[] {
     if (!this.root) {
       return [];
@@ -177,10 +187,25 @@ export class XlfDocument {
     this.addNeedsWorkTranslationNote = xliffWorkspaceConfiguration['addNeedsWorkTranslationNote'];
   }
 
+  public static async loadFromUri(sourceUri: Uri, resourceUri: Uri | undefined): Promise<XlfDocument> {
+    try {
+    const source: string = (await workspace.openTextDocument(sourceUri)).getText();
+    return await this.load(source, resourceUri);
+    }
+    catch (ex) {
+      throw new Error(`${ex.message}; File: ${sourceUri}`);
+    }
+  }
+
   public static async load(source: string, resourceUri: Uri | undefined): Promise<XlfDocument> {
-    const doc = new XlfDocument(resourceUri);
-    doc.root = await new XmlParser().parseDocument(source);
-    return doc;
+    try {
+      const doc = new XlfDocument(resourceUri);
+      doc.root = await new XmlParser().parseDocument(source);
+      return doc;
+    }
+    catch (ex) {
+      throw new Error(`Failed to load XLIFF document, error: ${ex.message}`);
+    }
   }
 
   public static create(version: '1.2' | '2.0', language: string, resourceUri: Uri | undefined): XlfDocument {
@@ -452,12 +477,14 @@ export class XlfDocument {
     const needsTranslation: boolean = this.getUnitNeedsTranslation(sourceUnit);
     if (needsTranslation && !targetNode) {
       let attributes: { [key: string]: string; } = {};
+      let newTranslationState: translationState = translationState.translated;
       if (!translation) {
         translation = this.missingTranslation;
-        this.updateStateAttributes(attributes, translationState.missingTranslation);
+        newTranslationState = translationState.missingTranslation;
       }
-      else {
-        this.updateStateAttributes(attributes, translationState.translated);
+
+      if (this.version == '1.2') {
+        this.updateStateAttributes(attributes, newTranslationState);
       }
 
       targetNode = this.createTargetNode(sourceUnit, attributes, translation);
@@ -472,7 +499,10 @@ export class XlfDocument {
         if (!targetNode.attributes) {
           targetNode.attributes = {};
         }
-        this.updateStateAttributes(targetNode.attributes, translationState.translated);
+
+        if (this.version == '1.2') {
+          this.updateStateAttributes(targetNode.attributes, translationState.translated);
+        }
       }
       this.appendTargetNode(sourceUnit, targetNode);
     }
@@ -638,6 +668,12 @@ export class XlfDocument {
     return this.getNode(stateNodeTag, unit);
   }
 
+  public clearUnitTranslation(unit: XmlNode) {
+    const targetNode = this.getNode('target', unit);
+    if (targetNode) {
+      targetNode.children = [];
+    }
+  }
 
   public setTargetAttribute(unit: XmlNode, attribute: string, attributeValue: string) {
     let targetNode: XmlNode | undefined = this.getNode('target', unit);

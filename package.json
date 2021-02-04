@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -32,10 +32,16 @@
     ],
     "main": "./out/extension",
     "activationEvents": [
+        "onCommand:xliffSync.checkForMissingTranslations",
+        "onCommand:xliffSync.checkForNeedWorkTranslations",
+        "onCommand:xliffSync.createNewTargetFiles",
+        "onCommand:xliffSync.findNextMissingTarget",
+        "onCommand:xliffSync.findNextNeedsWorkTarget",
+        "onCommand:xliffSync.importTranslationsFromFiles",
         "onCommand:xliffSync.synchronizeFile",
+        "onCommand:xliffSync.synchronizeSources",
         "workspaceContains:**/*.xlf",
-        "workspaceContains:**/*.xlf2",
-        "onCommand:xliffSync.findNextMissingTarget"
+        "workspaceContains:**/*.xlf2"
     ],
     "contributes": {
         "configuration": {
@@ -62,6 +68,12 @@
                     "default": false,
                     "description": "Specifies whether the extension will sync from a base file to the translation files in all workspace folders.",
                     "scope": "window"
+                },
+                "xliffSync.matchingOriginalOnly": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies whether the extension will sync only to files where the original-attribute is matching.",
+                    "scope": "resource"
                 },
                 "xliffSync.findByXliffGeneratorNoteAndSource": {
                     "type": "boolean",
@@ -143,6 +155,12 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit.",
+                    "scope": "resource"
+                },
+                "xliffSync.clearTranslationAfterSourceTextChange": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translations should be cleared when the source text of a trans-unit changed.",
                     "scope": "resource"
                 },
                 "xliffSync.addNeedsWorkTranslationNote": {

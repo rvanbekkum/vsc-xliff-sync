@@ -68,7 +68,7 @@ export class FilesHelper {
     }
 
     if (!uris.length) {
-        throw new Error('No translation file found');
+        throw new Error(`No translation file found (Workspace: "${workspaceFolder?.name}").`);
     }
 
     return uris;

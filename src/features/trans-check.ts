@@ -321,17 +321,11 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
             if (!targetUri) {
                 continue;
             }
-            const target = targetUri
-                ? (await workspace.openTextDocument(targetUri)).getText()
-                : undefined;
-            if (!target) {
-                continue;
-            }
 
             let missingCount: number = 0;
             let needWorkCount: number = 0;
             let problemResolvedInFile: boolean = false;
-            const targetDocument = await XlfDocument.load(target, checkWorkspaceFolder?.uri);
+            const targetDocument = await XlfDocument.loadFromUri(targetUri, checkWorkspaceFolder?.uri);
             sourceEqualsTargetExpected = targetDocument.sourceLanguage === targetDocument.targetLanguage;
             if (targetDocument.targetLanguage) {
                 sourceEqualsTargetExpected = sourceEqualsTargetExpected || (copyFromSourceForLanguages.indexOf(targetDocument.targetLanguage) >= 0);
@@ -383,7 +377,7 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
                 const newFileContents = targetDocument.extract();
 
                 if (!newFileContents) {
-                    throw new Error('No ouput generated');
+                    throw new Error(`No ouput generated. File ${targetUri}`);
                 }
     
                 await FilesHelper.createNewTargetFile(targetUri, newFileContents);

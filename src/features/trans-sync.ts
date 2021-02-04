@@ -35,6 +35,7 @@ import {
 
 import { FilesHelper, LanguageHelper, WorkspaceHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
+import { XlfDocument } from './tools/xlf/xlf-document';
 import { runTranslationChecksForWorkspaceFolder } from './trans-check';
 
 export async function synchronizeFiles(allFiles: boolean) {
@@ -98,10 +99,10 @@ async function synchronizeFilesInWorkspace(allFiles: boolean, workspaceFolder?: 
         let targetUris = uris.filter((uri) => uri !== sourceUri);
 
         if (!allFiles) {
-            synchronizeSingleFile(sourceUri, targetUris, workspaceFolder);
+            await synchronizeSingleFile(sourceUri, targetUris, workspaceFolder);
         }
         else {
-            synchronizeAllFiles(sourceUri, targetUris, workspaceFolder);
+            await synchronizeAllFiles(sourceUri, targetUris, workspaceFolder);
         }
     } 
     catch (ex) {
@@ -126,11 +127,11 @@ export async function synchronizeWithSelectedFile(fileUri: Uri) {
         let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, workspaceFolder);
         
         if (sourceUri.fsPath !== fileUri.fsPath) {
-            synchronizeAndCheckTargetFile(sourceUri, fileUri, undefined, workspaceFolder);
+            await synchronizeAndCheckTargetFile(sourceUri, fileUri, undefined, workspaceFolder);
         }
         else {
             let targetUris = uris.filter((uri) => uri !== sourceUri);
-            synchronizeAllFiles(sourceUri, targetUris, workspaceFolder);
+            await synchronizeAllFiles(sourceUri, targetUris, workspaceFolder);
         }
     } 
     catch (ex) {
@@ -170,7 +171,7 @@ async function synchronizeSingleFile(sourceUri: Uri, targetUris: Uri[], workspac
         }
     }
 
-    synchronizeAndCheckTargetFile(sourceUri, targetUri, targetLanguage, workspaceFolder);
+    await synchronizeAndCheckTargetFile(sourceUri, targetUri, targetLanguage, workspaceFolder);
 }
 
 async function selectNewTargetLanguage(fileType: string): Promise<string | undefined> {
@@ -248,30 +249,58 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             throw new Error('No target file specified');
         }
 
-        const source = (await workspace.openTextDocument(sourceUri)).getText();
-        const target = targetUri
-            ? (await workspace.openTextDocument(targetUri)).getText()
-            : undefined;
+        try {
+            const source = (await workspace.openTextDocument(sourceUri)).getText();
+            const target = targetUri
+                ? (await workspace.openTextDocument(targetUri)).getText()
+                : undefined;
 
-        const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
+            const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
 
-        if (!newFileContents) {
-            throw new Error('No ouput generated');
+            if (!newFileContents) {
+                throw new Error(`No ouput generated.`);
+            }
+        
+            targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
+            const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
+            const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
+            if (openExternallyAfterEvent.indexOf("Sync") > -1) {
+                env.openExternal(targetUri);
+            }
         }
-    
-        targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
-        const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
-        const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
-        if (openExternallyAfterEvent.indexOf("Sync") > -1) {
-            env.openExternal(targetUri);
+        catch (ex) {
+            window.showErrorMessage(`Failed to sync: ${ex.message}; File: ${targetUri} / Target Language: ${targetLanguage}`)
         }
     });
 }
 
 async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceFolder?: WorkspaceFolder) {
+    const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
+    const matchingOriginalOnly: string[] = xliffWorkspaceConfiguration['matchingOriginalOnly'];
+
+    let sourceDocOriginal: string | undefined = undefined;
+    if (matchingOriginalOnly) {
+        const sourceDoc = await XlfDocument.loadFromUri(sourceUri, workspaceFolder?.uri);
+        sourceDocOriginal = sourceDoc.original;
+    }
+
     for (let index = 0; index < targetUris.length; index++) {
         let targetUri: Uri = targetUris[index];
-        await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder);
+
+        try {
+            let targetDocOriginal: string | undefined = undefined;
+            if (matchingOriginalOnly) {
+                const targetDoc = await XlfDocument.loadFromUri(targetUri, workspaceFolder?.uri);
+                targetDocOriginal = targetDoc.original;
+            }
+
+            if (sourceDocOriginal == targetDocOriginal) {
+                await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder);
+            }
+        }
+        catch (ex) {
+            window.showErrorMessage(ex.message);
+        }
     }
 
     window.showInformationMessage('Translation files successfully synchronized!');
@@ -287,5 +316,5 @@ async function autoRunTranslationChecks(workspaceFolder?: WorkspaceFolder, targe
         'autoCheckNeedWorkTranslations'
     ];
 
-    runTranslationChecksForWorkspaceFolder(autoCheckMissingTranslations, autoCheckNeedWorkTranslations, targetUri, workspaceFolder);
+    await runTranslationChecksForWorkspaceFolder(autoCheckMissingTranslations, autoCheckNeedWorkTranslations, targetUri, workspaceFolder);
 }
