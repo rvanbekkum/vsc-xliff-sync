@@ -462,12 +462,14 @@ export class XlfDocument {
     const needsTranslation: boolean = this.getUnitNeedsTranslation(sourceUnit);
     if (needsTranslation && !targetNode) {
       let attributes: { [key: string]: string; } = {};
+      let newTranslationState: translationState = translationState.translated;
       if (!translation) {
         translation = this.missingTranslation;
-        this.updateStateAttributes(attributes, translationState.missingTranslation);
+        newTranslationState = translationState.missingTranslation;
       }
-      else {
-        this.updateStateAttributes(attributes, translationState.translated);
+
+      if (this.version == '1.2') {
+        this.updateStateAttributes(attributes, newTranslationState);
       }
 
       targetNode = this.createTargetNode(sourceUnit, attributes, translation);
@@ -482,7 +484,10 @@ export class XlfDocument {
         if (!targetNode.attributes) {
           targetNode.attributes = {};
         }
-        this.updateStateAttributes(targetNode.attributes, translationState.translated);
+
+        if (this.version == '1.2') {
+          this.updateStateAttributes(targetNode.attributes, translationState.translated);
+        }
       }
       this.appendTargetNode(sourceUnit, targetNode);
     }

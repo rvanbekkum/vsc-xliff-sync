@@ -1,10 +1,11 @@
 # Changelog
 
-## [0.7.0] (Next Release)
+## [0.7.0] 04-02-2021
 
 * Activate extension when any of the extension's commands are invoked.
-* New setting `xliffSync.matchingOriginalOnly` that can be used to specify whether to sync. only to files where the `original` attribute of the `file`-node of an XLIFF file matches that of the base file (**Default**: `true`).
-* New setting `xliffSync.clearTranslationAfterSourceTextChange` that can be used to specify whether the translation for trans-units should be cleared during syncing if a change in the source text is detected (instead of marking it as needs-work) (**Default**: `false`).
+* New setting `xliffSync.matchingOriginalOnly` that can be used to specify whether to sync. only to files where the `original` attribute of the `file`-node of an XLIFF file matches that of the base file (**Default**: `true`). (GitHub issue [#51](https://github.com/rvanbekkum/vsc-xliff-sync/issues/51) + (GitHub issue [#66](https://github.com/rvanbekkum/vsc-xliff-sync/issues/66)))
+* New setting `xliffSync.clearTranslationAfterSourceTextChange` that can be used to specify whether the translation for trans-units should be cleared during syncing if a change in the source text is detected (instead of marking it as needs-work) (**Default**: `false`). (GitHub issue [#64](https://github.com/rvanbekkum/vsc-xliff-sync/issues/64))
+* Fix: Do not add state to (new) target nodes in XLIFF 2.0 files. (GitHub issue [#57](https://github.com/rvanbekkum/vsc-xliff-sync/issues/57))
 
 ## [0.6.0] 26-11-2020
 
