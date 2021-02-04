@@ -187,10 +187,25 @@ export class XlfDocument {
     this.addNeedsWorkTranslationNote = xliffWorkspaceConfiguration['addNeedsWorkTranslationNote'];
   }
 
+  public static async loadFromUri(sourceUri: Uri, resourceUri: Uri | undefined): Promise<XlfDocument> {
+    try {
+    const source: string = (await workspace.openTextDocument(sourceUri)).getText();
+    return await this.load(source, resourceUri);
+    }
+    catch (ex) {
+      throw new Error(`${ex.message}; File: ${sourceUri}`);
+    }
+  }
+
   public static async load(source: string, resourceUri: Uri | undefined): Promise<XlfDocument> {
-    const doc = new XlfDocument(resourceUri);
-    doc.root = await new XmlParser().parseDocument(source);
-    return doc;
+    try {
+      const doc = new XlfDocument(resourceUri);
+      doc.root = await new XmlParser().parseDocument(source);
+      return doc;
+    }
+    catch (ex) {
+      throw new Error(`Failed to load XLIFF document, error: ${ex.message}`);
+    }
   }
 
   public static create(version: '1.2' | '2.0', language: string, resourceUri: Uri | undefined): XlfDocument {

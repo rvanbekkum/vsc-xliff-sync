@@ -249,22 +249,27 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             throw new Error('No target file specified');
         }
 
-        const source = (await workspace.openTextDocument(sourceUri)).getText();
-        const target = targetUri
-            ? (await workspace.openTextDocument(targetUri)).getText()
-            : undefined;
+        try {
+            const source = (await workspace.openTextDocument(sourceUri)).getText();
+            const target = targetUri
+                ? (await workspace.openTextDocument(targetUri)).getText()
+                : undefined;
 
-        const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
+            const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
 
-        if (!newFileContents) {
-            throw new Error('No ouput generated');
+            if (!newFileContents) {
+                throw new Error(`No ouput generated.`);
+            }
+        
+            targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
+            const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
+            const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
+            if (openExternallyAfterEvent.indexOf("Sync") > -1) {
+                env.openExternal(targetUri);
+            }
         }
-    
-        targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
-        const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
-        const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
-        if (openExternallyAfterEvent.indexOf("Sync") > -1) {
-            env.openExternal(targetUri);
+        catch (ex) {
+            window.showErrorMessage(`Failed to sync: ${ex.message}; File: ${targetUri} / Target Language: ${targetLanguage}`)
         }
     });
 }
@@ -275,23 +280,26 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
 
     let sourceDocOriginal: string | undefined = undefined;
     if (matchingOriginalOnly) {
-        const source: string = (await workspace.openTextDocument(sourceUri)).getText();
-        const sourceDoc = await XlfDocument.load(source, workspaceFolder?.uri);
+        const sourceDoc = await XlfDocument.loadFromUri(sourceUri, workspaceFolder?.uri);
         sourceDocOriginal = sourceDoc.original;
     }
 
     for (let index = 0; index < targetUris.length; index++) {
         let targetUri: Uri = targetUris[index];
 
-        let targetDocOriginal: string | undefined = undefined;
-        if (matchingOriginalOnly) {
-            const target: string =(await workspace.openTextDocument(targetUri)).getText();
-            const targetDoc = await XlfDocument.load(target, workspaceFolder?.uri);
-            targetDocOriginal = targetDoc.original;
-        }
+        try {
+            let targetDocOriginal: string | undefined = undefined;
+            if (matchingOriginalOnly) {
+                const targetDoc = await XlfDocument.loadFromUri(targetUri, workspaceFolder?.uri);
+                targetDocOriginal = targetDoc.original;
+            }
 
-        if (sourceDocOriginal == targetDocOriginal) {
-            await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder);
+            if (sourceDocOriginal == targetDocOriginal) {
+                await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder);
+            }
+        }
+        catch (ex) {
+            window.showErrorMessage(ex.message);
         }
     }
 
