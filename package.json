@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -73,6 +73,22 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Specifies whether the extension will sync only to files where the original-attribute is matching.",
+                    "scope": "resource"
+                },
+                "xliffSync.unitMaps": {
+                    "type": "string",
+                    "default": "All",
+                    "description": "Specifies for which search purposes this command should create in-memory maps in preparation of syncing.",
+                    "enum": [
+                        "None",
+                        "Id",
+                        "All"
+                    ],
+                    "enumDescriptions": [
+                        "Do not use in-memory maps.",
+                        "Only use an in-memory map for finding units by ID.",
+                        "Use in-memory maps for all search purposes."
+                    ],
                     "scope": "resource"
                 },
                 "xliffSync.findByXliffGeneratorNoteAndSource": {

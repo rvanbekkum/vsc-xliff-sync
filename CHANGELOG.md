@@ -1,5 +1,13 @@
 # Changelog
 
+## Next Release
+
+* Optimized syncing through a preprocessing step that builds up unit maps. The existing implementation approaches O(n^2) while this optimization implemented brings it down to O(n) (with n being the number of translation units). This optimization was already applied earlier in the PowerShell version (see [ps-xliff-sync](https://github.com/rvanbekkum/ps-xliff-sync)). The new setting `xliffSync.unitMaps` can be used to change whether and to which extent these maps should be used (**Default**: `"All"`).
+
+### Thank You
+
+* **[fvet](https://github.com/fvet)** for requesting support for handling large files. (GitHub issue [#31](https://github.com/rvanbekkum/vsc-xliff-sync/issues/31))
+
 ## [0.7.0] 04-02-2021
 
 * Activate extension when any of the extension's commands are invoked.

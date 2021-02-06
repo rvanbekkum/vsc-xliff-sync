@@ -62,6 +62,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
 | xliffSync.syncCrossWorkspaceFolders | `false` | Specifies whether the extension will sync from a base file to the translation files in all workspace folders. By default, the extension will always sync. per workspace folder. If you enable this setting, then you can have the base file in one workspace folder and target translation files in other workspace folders. |
 | xliffSync.matchingOriginalOnly | `true` | Specifies whether the extension will sync only to files where the original-attribute is matching. |
+| xliffSync.unitMaps | `All` | Specifies for which search purposes this command should create in-memory maps in preparation of syncing. |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.needsWorkTranslationSubstate | `xliffSync:needsWork` | Specifies the substate to use for translations that need work in xlf2 files. **Tip**: If you use [Poedit](https://poedit.net/), then you could also set this to `poedit:fuzzy`. |
 | xliffSync.findByXliffGeneratorNoteAndSource | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and source. |
