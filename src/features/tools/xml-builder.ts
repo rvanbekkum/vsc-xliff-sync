@@ -26,7 +26,7 @@ import { create, XMLElementOrXMLNode } from 'xmlbuilder';
 import { XmlNode } from './xml-node';
 
 export class XmlBuilder {
-  public static create(root: XmlNode | undefined): string | undefined {
+  public static create(root: XmlNode | undefined, headless: boolean = false): string | undefined {
     if (!root) {
       return undefined;
     }
@@ -34,6 +34,7 @@ export class XmlBuilder {
     const outputNode: XMLElementOrXMLNode = create(root.name, {
       version: '1.0',
       encoding: 'UTF-8',
+      headless: headless,
       stringify: {
         attValue: (str: string) =>
           str
