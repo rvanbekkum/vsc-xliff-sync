@@ -292,6 +292,12 @@
                     "description": "Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing.",
                     "scope": "resource"
                 },
+                "xliffSync.preserveTargetChildNodes": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translation-specific child nodes of trans-units in the target files should be preserved.",
+                    "scope": "resource"
+                },
                 "xliffSync.replaceTranslationsDuringImport": {
                     "type": "boolean",
                     "default": false,
