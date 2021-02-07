@@ -272,11 +272,25 @@ export class XlfDocument {
     const findByIsEnabled: boolean = findByXliffGenNotesIsEnabled || findBySourceAndDeveloperNote || findBySource;
 
     this.idUnitMap = {}
-    this.xliffGeneratorNoteSourceUnitMap = {};
-    this.xliffGeneratorNoteDeveloperNoteUnitMap = {};
-    this.xliffGeneratorNoteUnitMap = {};
-    this.sourceDeveloperNoteUnitMap = {};
-    this.sourceUnitMap = {};
+    if (findByIsEnabled) {
+      if (findByXliffGenNotesIsEnabled) {
+        if (findByXliffGeneratorNoteAndSource) {
+          this.xliffGeneratorNoteSourceUnitMap = {};
+        }
+        if (findByXliffGeneratorAndDeveloperNote) {
+          this.xliffGeneratorNoteDeveloperNoteUnitMap = {};
+        }
+        if (findByXliffGeneratorNote) {
+          this.xliffGeneratorNoteUnitMap = {};
+        }
+      }
+      if (findBySourceAndDeveloperNote) {
+        this.sourceDeveloperNoteUnitMap = {};
+      }
+      if (findBySource) {
+        this.sourceUnitMap = {};
+      }
+    }
 
     this.translationUnitNodes.forEach((unit) => {
         if (!(unit.attributes.id in this.idUnitMap!)) {
