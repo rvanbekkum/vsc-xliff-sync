@@ -166,6 +166,7 @@ export class XlfDocument {
   private xliffGeneratorNoteDesignation: string;
   private preserveTargetAttributes: boolean;
   private preserveTargetOrder: boolean;
+  private preserveTargetChildNodes: boolean;
   private parseFromDeveloperNoteSeparator: string;
   private missingTranslation: string;
   private needsWorkTranslationSubstate: string;
@@ -184,6 +185,7 @@ export class XlfDocument {
     this.xliffGeneratorNoteDesignation = xliffWorkspaceConfiguration['xliffGeneratorNoteDesignation'];
     this.preserveTargetAttributes = xliffWorkspaceConfiguration['preserveTargetAttributes'];
     this.preserveTargetOrder = xliffWorkspaceConfiguration['preserveTargetAttributesOrder'];
+    this.preserveTargetChildNodes = xliffWorkspaceConfiguration['preserveTargetChildNodes'];
     this.parseFromDeveloperNoteSeparator = xliffWorkspaceConfiguration['parseFromDeveloperNoteSeparator'];
 
     this.missingTranslation = xliffWorkspaceConfiguration['missingTranslation'];
@@ -601,6 +603,37 @@ export class XlfDocument {
       }
 
       targetNode = this.getNode('target', targetUnit);
+
+      if (this.preserveTargetChildNodes) {
+        const lastNodeIdxReversed: number = sourceUnit.children.slice().reverse().findIndex(
+          (child) => typeof child !== 'string'
+        );
+        let lastNodeIdx: number = lastNodeIdxReversed >= 0 ? sourceUnit.children.length - 1 - lastNodeIdxReversed : lastNodeIdxReversed;
+
+        const targetUnitChildren: (string | XmlNode)[] = targetUnit?.children;
+        targetUnitChildren.forEach((targetUnitChild: (string | XmlNode)) => {
+          const targetUnitChildNode: XmlNode = targetUnitChild as XmlNode;
+          if (targetUnitChildNode.name) {
+            let appendChildNode: boolean = false;
+
+            switch (this.version) {
+              case '1.2':
+                appendChildNode = (["alt-trans"].indexOf(targetUnitChildNode.name) >= 0);
+                if (!appendChildNode) {
+                  // Check if the child is a non-XLIFF node (see http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#trans-unit)
+                  appendChildNode = ["source", "seg-source", "target", "context-group", "count-group", "prop-group", "note"].indexOf(targetUnitChildNode.name) < 0;
+                }
+                break;
+            }
+            //TODO: Support preservering target-only notes? (for both XLIFF 1.2 and 2.0)
+
+            if (appendChildNode) {
+              sourceUnit.children.splice(lastNodeIdx + 1, 0, sourceUnit.children[lastNodeIdx - 1], targetUnitChildNode);
+              lastNodeIdx += 2;
+            }
+          }
+        });
+      }
     }
 
     const needsTranslation: boolean = this.getUnitNeedsTranslation(sourceUnit);
@@ -921,6 +954,11 @@ export class XlfDocument {
   }
 
   private findXliffSyncNoteIndex(notesParent: XmlNode | undefined): number {
+    const categoryAttributeValue: string = 'XLIFF Sync';
+    return this.findNoteIndex(notesParent, categoryAttributeValue);
+  }
+
+  private findNoteIndex(notesParent: XmlNode | undefined, categoryAttributeValue: string): number {
     if (!notesParent) {
       return -1;
     }
@@ -937,7 +975,6 @@ export class XlfDocument {
         categoryAttributeName = 'from';
         break;
     }
-    const categoryAttributeValue: string = 'XLIFF Sync';
 
     return notesParent.children.findIndex(
       (child) => typeof child !== 'string' && child.name === 'note' && child.attributes && (child.attributes[categoryAttributeName] === categoryAttributeValue),

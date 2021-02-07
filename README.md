@@ -89,6 +89,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.needWorkTranslationRulesEnableAll | `false` | Specifies whether or not all available technical validation rules should be used. Enabling this setting makes `xliffSync.needWorkTranslationRules` redundant. |
 | xliffSync.preserveTargetAttributes | `false` | Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing. |
 | xliffSync.preserveTargetAttributesOrder | `false` | Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. |
+| xliffSync.preserveTargetChildNodes | `false` | Specifies whether child nodes of trans-unit nodes specific to the target files should be preserved. This will preserve `alt-trans` nodes and custom nodes in XLIFF 1.2 target files. |
 | xliffSync.replaceTranslationsDuringImport | `false` | Specifies whether existing translations will be replaced when the XLIFF: Import Translations from File(s) command is run. |
 | xliffSync.decoration | `{"backgroundColor": "rgba(240, 210, 105, 0.35)", "overviewRulerColor": "rgba(240, 210, 105, 0.35)", "border": "1px solid white", "borderRadius": "4px"}` | Specifies how to highlight missing translations or translations that need work in an XLIFF file opened in the editor. |
 | xliffSync.decorationEnabled | `true` | Specifies whether decorations for missing translations and translations that need work should be applied. |
