@@ -171,6 +171,13 @@ export class XlfDocument {
   private needsWorkTranslationSubstate: string;
   private addNeedsWorkTranslationNote: boolean;
 
+  private idUnitMap: { [id: string]: XmlNode } | undefined;
+  private xliffGeneratorNoteSourceUnitMap: { [key: string]: XmlNode } | undefined;
+  private xliffGeneratorNoteDeveloperNoteUnitMap: { [key: string]: XmlNode } | undefined;
+  private xliffGeneratorNoteUnitMap: { [key: string]: XmlNode } | undefined;
+  private sourceDeveloperNoteUnitMap: { [key: string]: XmlNode } | undefined;
+  private sourceUnitMap: { [key: string]: XmlNode } | undefined;
+
   private constructor(resourceUri: Uri | undefined) {
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', resourceUri);
     this.developerNoteDesignation = xliffWorkspaceConfiguration['developerNoteDesignation'];
@@ -260,7 +267,91 @@ export class XlfDocument {
     return retVal;
   }
 
+  public CreateUnitMaps(findByXliffGeneratorNoteAndSource: boolean, findByXliffGeneratorAndDeveloperNote: boolean, findByXliffGeneratorNote: boolean, findBySourceAndDeveloperNote: boolean, findBySource: boolean): void {
+    const findByXliffGenNotesIsEnabled: boolean = findByXliffGeneratorNoteAndSource || findByXliffGeneratorAndDeveloperNote || findByXliffGeneratorNote;
+    const findByIsEnabled: boolean = findByXliffGenNotesIsEnabled || findBySourceAndDeveloperNote || findBySource;
+
+    this.idUnitMap = {}
+    if (findByIsEnabled) {
+      if (findByXliffGenNotesIsEnabled) {
+        if (findByXliffGeneratorNoteAndSource) {
+          this.xliffGeneratorNoteSourceUnitMap = {};
+        }
+        if (findByXliffGeneratorAndDeveloperNote) {
+          this.xliffGeneratorNoteDeveloperNoteUnitMap = {};
+        }
+        if (findByXliffGeneratorNote) {
+          this.xliffGeneratorNoteUnitMap = {};
+        }
+      }
+      if (findBySourceAndDeveloperNote) {
+        this.sourceDeveloperNoteUnitMap = {};
+      }
+      if (findBySource) {
+        this.sourceUnitMap = {};
+      }
+    }
+
+    this.translationUnitNodes.forEach((unit) => {
+        if (!(unit.attributes.id in this.idUnitMap!)) {
+            this.idUnitMap![unit.attributes.id] = unit;
+        }
+
+        if (findByIsEnabled) {
+            const developerNote: string | undefined = this.getUnitDeveloperNote(unit);
+            const sourceText: string | undefined = this.getUnitSource(unit);
+
+            if (findByXliffGenNotesIsEnabled) {
+                const xliffGeneratorNote: string | undefined = this.getUnitXliffGeneratorNote(unit);
+
+                if (findByXliffGeneratorNoteAndSource && (xliffGeneratorNote || sourceText)) {
+                    const key: string | undefined = [xliffGeneratorNote, sourceText].toString();
+                    if (key && !(key in this.xliffGeneratorNoteSourceUnitMap!)) {
+                      this.xliffGeneratorNoteSourceUnitMap![key] = unit;
+                    }
+                }
+                if (findByXliffGeneratorAndDeveloperNote && (xliffGeneratorNote || developerNote)) {
+                    const key: string | undefined = [xliffGeneratorNote, developerNote].toString();
+                    if (key && !(key in this.xliffGeneratorNoteDeveloperNoteUnitMap!)) {
+                        this.xliffGeneratorNoteDeveloperNoteUnitMap![key] = unit;
+                    }
+                }
+                if (findByXliffGeneratorNote) {
+                    const key: string | undefined = xliffGeneratorNote;
+                    if (key && !(key in this.xliffGeneratorNoteUnitMap!)) {
+                        this.xliffGeneratorNoteUnitMap![key] = unit;
+                    }
+                }
+            }
+
+            if (findBySourceAndDeveloperNote && (sourceText || developerNote)) {
+                const key: string | undefined = [sourceText, developerNote].toString();
+                if (key && !(key in this.sourceDeveloperNoteUnitMap!)) {
+                    const translationText: string | undefined = this.getUnitTranslation(unit);
+                    if (translationText) {
+                      this.sourceDeveloperNoteUnitMap![key] = unit;
+                    }
+                }
+            }
+
+            if (findBySource && (sourceText && !(sourceText in this.sourceUnitMap!))) {
+              const translationText: string | undefined = this.getUnitTranslation(unit);
+              if (translationText) {
+                this.sourceUnitMap![sourceText] = unit;
+              }
+            }
+        }
+    });
+  }
+
   public findTranslationUnit(id: string): XmlNode | undefined {
+    if (this.idUnitMap) {
+      if (id in this.idUnitMap) {
+        return this.idUnitMap[id];
+      }
+      return undefined;
+    }
+
     return this.translationUnitNodes.find((node) => node.attributes.id === id);
   }
 
@@ -268,12 +359,27 @@ export class XlfDocument {
     xliffGenNote: string,
     source: string,
   ): XmlNode | undefined {
+    if (this.xliffGeneratorNoteSourceUnitMap) {
+      const key: string | undefined = [xliffGenNote, source].toString();
+      if (key in this.xliffGeneratorNoteSourceUnitMap) {
+        return this.xliffGeneratorNoteSourceUnitMap[key];
+      }
+      return undefined;
+    }
+
     return this.translationUnitNodes.find(
       (node) => this.getUnitXliffGeneratorNote(node) === xliffGenNote && this.getUnitSource(node) === source,
     );
   }
 
   public findTranslationUnitByXliffGeneratorNote(xliffGenNote: string): XmlNode | undefined {
+    if (this.xliffGeneratorNoteUnitMap) {
+      if (xliffGenNote in this.xliffGeneratorNoteUnitMap) {
+        return this.xliffGeneratorNoteUnitMap[xliffGenNote];
+      }
+      return undefined;
+    }
+
     return this.translationUnitNodes.find((node) => this.getUnitXliffGeneratorNote(node) === xliffGenNote);
   }
 
@@ -281,6 +387,14 @@ export class XlfDocument {
     xliffGenNote: string,
     devNote: string,
   ): XmlNode | undefined {
+    if (this.xliffGeneratorNoteDeveloperNoteUnitMap) {
+      const key: string | undefined = [xliffGenNote, devNote].toString();
+      if (key in this.xliffGeneratorNoteDeveloperNoteUnitMap) {
+        return this.xliffGeneratorNoteDeveloperNoteUnitMap[key];
+      }
+      return undefined;
+    }
+
     return this.translationUnitNodes.find(
       (node) =>
         this.getUnitXliffGeneratorNote(node) === xliffGenNote && this.getUnitDeveloperNote(node) === devNote,
@@ -291,12 +405,27 @@ export class XlfDocument {
     source: string,
     devNote: string | undefined,
   ): XmlNode | undefined {
+    if (this.sourceDeveloperNoteUnitMap) {
+      const key: string | undefined = [source, devNote].toString();
+      if (key in this.sourceDeveloperNoteUnitMap) {
+        return this.sourceDeveloperNoteUnitMap[key];
+      }
+      return undefined;
+    }
+
     return this.translationUnitNodes.find(
       (node) => 
         (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslation(node) !== undefined);
   }
 
   public findFirstTranslationUnitBySource(source: string): XmlNode | undefined {
+    if (this.sourceUnitMap) {
+      if (source in this.sourceUnitMap) {
+        return this.sourceUnitMap[source];
+      }
+      return undefined;
+    }
+
     return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) !== undefined);
   }
 
