@@ -329,7 +329,7 @@ export class XlfDocument {
             if (findBySourceAndDeveloperNote && (sourceText || developerNote)) {
                 const key: string | undefined = [sourceText, developerNote].toString();
                 if (key && !(key in this.sourceDeveloperNoteUnitMap!)) {
-                    const translationText: string | undefined = this.getUnitTranslation(unit);
+                    const translationText: string | undefined = this.getUnitTranslationText(unit);
                     if (translationText) {
                       this.sourceDeveloperNoteUnitMap![key] = unit;
                     }
@@ -337,7 +337,7 @@ export class XlfDocument {
             }
 
             if (findBySource && (sourceText && !(sourceText in this.sourceUnitMap!))) {
-              const translationText: string | undefined = this.getUnitTranslation(unit);
+              const translationText: string | undefined = this.getUnitTranslationText(unit);
               if (translationText) {
                 this.sourceUnitMap![sourceText] = unit;
               }
@@ -417,7 +417,7 @@ export class XlfDocument {
 
     return this.translationUnitNodes.find(
       (node) => 
-        (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslation(node) !== undefined);
+        (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslationText(node) !== undefined);
   }
 
   public findFirstTranslationUnitBySource(source: string): XmlNode | undefined {
@@ -428,7 +428,7 @@ export class XlfDocument {
       return undefined;
     }
 
-    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslation(node) !== undefined);
+    return this.translationUnitNodes.find((node) => this.getUnitSource(node) === source && this.getUnitTranslationText(node) !== undefined);
   }
 
   public getUnitNeedsTranslation(unitNode: XmlNode): boolean {
@@ -448,22 +448,53 @@ export class XlfDocument {
     }
   }
 
-  public getUnitSourceText(unitNode: XmlNode): string | undefined {
+  public getUnitSourceChildren(unitNode: XmlNode): (XmlNode | string)[] | undefined {
     const sourceNode = this.getNode('source', unitNode);
-    if (sourceNode && typeof sourceNode.children[0] === 'string') {
-      return sourceNode.children[0] as string;
-    } else {
+    if (sourceNode) {
+      return sourceNode.children;
+    }
+    else {
       return undefined;
     }
   }
 
-  public getUnitTranslation(unitNode: XmlNode): string | undefined {
-    const translationNode = this.getNode('target', unitNode);
-    if (translationNode && typeof translationNode.children[0] === 'string') {
-      return translationNode.children[0] as string;
-    } else {
+  public getUnitSourceText(unitNode: XmlNode): string | undefined {
+    const children = this.getUnitSourceChildren(unitNode);
+    if (!children) {
       return undefined;
     }
+    return this.getChildrenText(children);
+  }
+
+  public getUnitTranslationChildren(unitNode: XmlNode): (XmlNode | string)[] | undefined {
+    const translationNode = this.getNode('target', unitNode);
+    if (translationNode) {
+      return translationNode.children;
+    }
+    else {
+      return undefined;
+    }
+  }
+
+  public getUnitTranslationText(unitNode: XmlNode): string | undefined {
+      const children = this.getUnitTranslationChildren(unitNode);
+      if (!children) {
+        return undefined;
+      }
+      return this.getChildrenText(children);
+  }
+
+  private getChildrenText(children: (XmlNode | string)[]): string {
+    let resultText: string = "";
+    children.forEach((child: XmlNode | string) => {
+      if (typeof child === 'string') {
+        resultText += child as string;
+      }
+      else {
+        resultText += XmlBuilder.create(child, true) ?? "";
+      }
+    });
+    return resultText;
   }
 
   public getUnitXliffGeneratorNote(unitNode: XmlNode): string | undefined {
@@ -569,7 +600,7 @@ export class XlfDocument {
     return translation;
   }
 
-  public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translation?: string): void {
+  public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translChildNodes: (XmlNode | string)[] | undefined): void {
     let targetNode: XmlNode | undefined;
 
     if (targetUnit) {
@@ -640,8 +671,8 @@ export class XlfDocument {
     if (needsTranslation && !targetNode) {
       let attributes: { [key: string]: string; } = {};
       let newTranslationState: translationState = translationState.translated;
-      if (!translation) {
-        translation = this.missingTranslation;
+      if (!translChildNodes) {
+        translChildNodes = [this.missingTranslation];
         newTranslationState = translationState.missingTranslation;
       }
 
@@ -649,15 +680,15 @@ export class XlfDocument {
         this.updateStateAttributes(attributes, newTranslationState);
       }
 
-      targetNode = this.createTargetNode(sourceUnit, attributes, translation);
+      targetNode = this.createTargetNode(sourceUnit, attributes, translChildNodes);
     }
     else if (!needsTranslation && targetNode) {
       this.deleteTargetNode(sourceUnit);
     }
 
     if (needsTranslation && targetNode) {
-      if (translation) {
-        targetNode.children = [translation];
+      if (translChildNodes) {
+        targetNode.children = translChildNodes;
         if (!targetNode.attributes) {
           targetNode.attributes = {};
         }
@@ -704,13 +735,13 @@ export class XlfDocument {
     }
   }
 
-  public createTargetNode(parentUnit: XmlNode, attributes: { [key: string]: string; }, translation: string): XmlNode {
+  public createTargetNode(parentUnit: XmlNode, attributes: { [key: string]: string; }, translChildNodes: (XmlNode | string)[]): XmlNode {
     return {
       name: 'target',
       local: 'target',
       parent: parentUnit,
       attributes: attributes,
-      children: [translation],
+      children: translChildNodes,
       isSelfClosing: false,
       prefix: '',
       uri: '',
@@ -842,7 +873,7 @@ export class XlfDocument {
     if (!targetNode) {
       let attributes: { [key: string]: string; } = {};
       attributes[attribute] = attributeValue;
-      targetNode = this.createTargetNode(unit, attributes, "");
+      targetNode = this.createTargetNode(unit, attributes, []);
       this.appendTargetNode(unit, targetNode);
     }
     else {
@@ -855,7 +886,7 @@ export class XlfDocument {
     if (!stateNode && this.version === '1.2') {
       let attributes: { [key: string]: string; } = {};
       this.updateStateAttributes(attributes, newState);
-      let targetNode: XmlNode = this.createTargetNode(unit, attributes, "");
+      let targetNode: XmlNode = this.createTargetNode(unit, attributes, []);
       this.appendTargetNode(unit, targetNode);
     }
     else if (stateNode) {

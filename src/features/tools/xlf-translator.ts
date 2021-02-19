@@ -25,6 +25,7 @@
 import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 import { XlfDocument } from './xlf/xlf-document';
 import { translationState } from './xlf/xlf-translationState';
+import { XmlNode } from './xml-node';
 
 export class XlfTranslator {
   public static async synchronize(
@@ -73,7 +74,7 @@ export class XlfTranslator {
       copyFromSource = copyFromSource || (copyFromSourceForLanguages.indexOf(language) >= 0);
     }
 
-    let sourceTranslations: { [key: string]: string | undefined; } = {};
+    let sourceTranslations: { [key: string]: (XmlNode | string)[]; } = {};
     const findByXliffGenNotesIsEnabled: boolean = findByXliffGeneratorNoteAndSource || findByXliffGeneratorAndDeveloperNote || findByXliffGeneratorNote;
     const findByIsEnabled: boolean = findByXliffGenNotesIsEnabled || findBySourceAndDeveloperNote || findBySource || copyFromSource || parseFromDeveloperNote;
     if (unitMaps !== "None") {
@@ -87,7 +88,7 @@ export class XlfTranslator {
 
     mergedDocument.translationUnitNodes.forEach((unit) => {
       let targetUnit = targetDocument.findTranslationUnit(unit.attributes.id);
-      let translation = undefined;
+      let translChildNodes: (XmlNode | string)[] | undefined;
 
       if (!targetUnit && findByIsEnabled) {
         const developerNote = mergedDocument.getUnitDeveloperNote(unit);
@@ -118,29 +119,31 @@ export class XlfTranslator {
           if (findBySourceAndDeveloperNote) { // Also match on empty/undefined developerNote
             let transUnitTrl = targetDocument.findTranslationUnitBySourceAndDeveloperNote(source, developerNote);
             if (transUnitTrl) {
-              translation = targetDocument.getUnitTranslation(transUnitTrl);
+              translChildNodes = targetDocument.getUnitTranslationChildren(transUnitTrl);
             }
           }
 
-          if (!translation && findBySource) {
+          if (!translChildNodes && findBySource) {
             if (!(source in sourceTranslations)) {
               let transUnitTrl = targetDocument.findFirstTranslationUnitBySource(source);
               if (transUnitTrl) {
-                translation = targetDocument.getUnitTranslation(transUnitTrl);
-                sourceTranslations[source] = translation;
+                translChildNodes = targetDocument.getUnitTranslationChildren(transUnitTrl);
+                if (translChildNodes) {
+                  sourceTranslations[source] = translChildNodes;
+                }
               }
             }
             else {
-              translation = sourceTranslations[source];
+              translChildNodes = sourceTranslations[source];
             }
           }
         }
       }
 
-      if (!translation && (copyFromSource || parseFromDeveloperNote)) {
+      if (!translChildNodes && (copyFromSource || parseFromDeveloperNote)) {
         let hasNoTranslation: boolean = false;
         if (targetUnit) {
-          const translationText: string | undefined = targetDocument.getUnitTranslation(targetUnit);
+          const translationText: string | undefined = targetDocument.getUnitTranslationText(targetUnit);
           if (missingTranslationKeyword === '%EMPTY%') {
             hasNoTranslation = !translationText;
           }
@@ -155,19 +158,22 @@ export class XlfTranslator {
         const shouldParseFromDevNote: boolean = parseFromDeveloperNote && (hasNoTranslation || parseFromDeveloperNoteOverwrite);
         const shouldCopyFromSource: boolean = copyFromSource && (hasNoTranslation || copyFromSourceOverwrite);
 
-        if (!translation && shouldParseFromDevNote) {
-          translation = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
+        if (!translChildNodes && shouldParseFromDevNote) {
+          const translationFromDeveloperNote: string | undefined = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
+          if (translationFromDeveloperNote) {
+            translChildNodes = [translationFromDeveloperNote];
+          }
         }
-        if (!translation && shouldCopyFromSource) {
-          translation = mergedDocument.getUnitSourceText(unit);
+        if (!translChildNodes && shouldCopyFromSource) {
+          translChildNodes = targetDocument.getUnitSourceChildren(unit);
         }
       }
 
-      mergedDocument.mergeUnit(unit, targetUnit, translation);
+      mergedDocument.mergeUnit(unit, targetUnit, translChildNodes);
 
       if (detectSourceTextChanges && targetUnit) {
         let mergedSourceText = mergedDocument.getUnitSourceText(unit);
-        const mergedTranslText = mergedDocument.getUnitTranslation(unit);
+        const mergedTranslText = mergedDocument.getUnitTranslationText(unit);
         let origSourceText = targetDocument.getUnitSourceText(targetUnit);
 
         if (mergedSourceText && origSourceText && mergedTranslText) {
