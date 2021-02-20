@@ -5,6 +5,34 @@
 * Optimized syncing through a preprocessing step that builds up unit maps. The existing implementation approaches O(n^2) while this optimization implemented brings it down to O(n) (with n being the number of translation units). This optimization was already applied earlier in the PowerShell version (see [ps-xliff-sync](https://github.com/rvanbekkum/ps-xliff-sync)). The new setting `xliffSync.unitMaps` can be used to change whether and to which extent these maps should be used (**Default**: `"All"`). (GitHub issue [#31](https://github.com/rvanbekkum/vsc-xliff-sync/issues/31))
 * New setting `xliffSync.preserveTargetChildNodes` that can be used to specify whether child nodes specific to the translation target file should be preserved while syncing. Currently this setting will preserve `alt-trans` nodes and custom nodes for XLIFF 1.2 files. (**Default**: `false`) (GitHub issue [#60](https://github.com/rvanbekkum/vsc-xliff-sync/issues/60))
 * The extension can now handle units with child nodes (e.g., placeholder tags like `<x/>`) in the target node. (GitHub issue [#67](https://github.com/rvanbekkum/vsc-xliff-sync/issues/67))
+* New settings `xliffSync.equivalentLanguages` and `xliffSync.equivalentLanguagesEnabled` that can be used to specify equivalent languages. You can specify pairs of master language and slave language-pattern (RegEx) in the `xliffSync.equivalentLanguages` setting to have the extension copy to contents of the master language's translation file to the translation files of its slave languages. This way you only need to enter the translations for the master language, so that after you sync. again the slave languages will get the same translations, and you don't need to go through all languages files that would get the same translations. For example, _often_ `nl-NL` and `nl-BE` would simply get the same translations, so this way you could specify that `nl-BE` should take over all the translations of `nl-NL`.
+  * The default value for `xliffSync.equivalentLanguagesEnabled` is `false`.
+  * The default value for `xliffSync.equivalentLanguages` is
+
+    ```json
+    {
+      "de-DE": "de-.*",
+      "en-US": "en-.*",
+      "es-ES": "es-.*",
+      "fr-FR": "fr-.*",
+      "nl-NL": "nl-.*"
+    }
+    ```
+
+    You can freely customize this, e.g., adding `"en-GB"` as a master language for `"(en-AU)|(en-NZ)"` and changing `"en-US"` to be a master language for `"en-CA"` if you do have differences between `en-US` and `en-GB` in your translations:
+
+    ```json
+    {
+      "de-DE": "de-.*",
+      "en-GB": "(en-AU)|(en-NZ)",
+      "en-US": "en-CA",
+      "es-ES": "es-.*",
+      "fr-FR": "fr-.*",
+      "nl-NL": "nl-.*"
+    }
+    ```
+
+* New setting `xliffSync.keepEditorOpenAfterSync` that can be used to specify whether XLIFF files should be open in the editor after syncing.
 
 ### Thank You
 
