@@ -482,7 +482,7 @@ function checkForPlaceHolderMismatch(sourceText: string, translationText: string
 }
 
 function checkForMissingPlaceHolders(textWithPlaceHolders: string, textToCheck: string) {
-    const placeHolderRegex = /%[0-9]+|\{[0-9]+\}/g; // Match placeholders of the form %1 OR {0}
+    const placeHolderRegex = /(%|#)[0-9]+|\{[0-9]+\}/g; // Match placeholders of the form %1 OR #1 OR {0}
     let placeHolderProblemDetected: boolean = false;
 
     let placeHolders = textWithPlaceHolders.match(placeHolderRegex);
