@@ -151,7 +151,7 @@
                         "fr-FR": "fr-.*",
                         "nl-NL": "nl-.*"
                     },
-                    "description": "Specifies a master and slave languages that should be treated as equivalent, i.e., translations are copied from the master language.",
+                    "description": "Specifies master and slave languages that should be treated as equivalent, i.e., translations are copied from the master language.",
                     "scope": "resource"
                 },
                 "xliffSync.equivalentLanguagesEnabled": {
