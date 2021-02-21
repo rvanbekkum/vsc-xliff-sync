@@ -1,6 +1,6 @@
 # Changelog
 
-## Next Release
+## [1.0.0] 21-02-2021
 
 * Optimized syncing through a preprocessing step that builds up unit maps. The existing implementation approaches O(n^2) while this optimization implemented brings it down to O(n) (with n being the number of translation units). This optimization was already applied earlier in the PowerShell version (see [ps-xliff-sync](https://github.com/rvanbekkum/ps-xliff-sync)). The new setting `xliffSync.unitMaps` can be used to change whether and to which extent these maps should be used (**Default**: `"All"`). (GitHub issue [#31](https://github.com/rvanbekkum/vsc-xliff-sync/issues/31))
 * New setting `xliffSync.preserveTargetChildNodes` that can be used to specify whether child nodes specific to the translation target file should be preserved while syncing. Currently this setting will preserve `alt-trans` nodes and custom nodes for XLIFF 1.2 files. (**Default**: `false`) (GitHub issue [#60](https://github.com/rvanbekkum/vsc-xliff-sync/issues/60))
