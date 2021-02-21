@@ -25,6 +25,7 @@
 import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 import { XlfDocument } from './xlf/xlf-document';
 import { translationState } from './xlf/xlf-translationState';
+import { XmlNode } from './xml-node';
 
 export class XlfTranslator {
   public static async synchronize(
@@ -48,6 +49,7 @@ export class XlfTranslator {
     const clearTranslationAfterSourceTextChange: boolean = xliffWorkspaceConfiguration['clearTranslationAfterSourceTextChange'];
     const ignoreLineEndingTypeChanges: boolean = xliffWorkspaceConfiguration['ignoreLineEndingTypeChanges'];
     const missingTranslationKeyword: string = xliffWorkspaceConfiguration['missingTranslation'];
+    const unitMaps: string = xliffWorkspaceConfiguration['unitMaps'];
 
     let copyFromSource: boolean = false;
 
@@ -72,59 +74,76 @@ export class XlfTranslator {
       copyFromSource = copyFromSource || (copyFromSourceForLanguages.indexOf(language) >= 0);
     }
 
-    let sourceTranslations: { [key: string]: string | undefined; } = {};
+    let sourceTranslations: { [key: string]: (XmlNode | string)[]; } = {};
+    const findByXliffGenNotesIsEnabled: boolean = findByXliffGeneratorNoteAndSource || findByXliffGeneratorAndDeveloperNote || findByXliffGeneratorNote;
+    const findByIsEnabled: boolean = findByXliffGenNotesIsEnabled || findBySourceAndDeveloperNote || findBySource || copyFromSource || parseFromDeveloperNote;
+    if (unitMaps !== "None") {
+        if (unitMaps === "Id") {
+            targetDocument.CreateUnitMaps(false, false, false, false, false);
+        }
+        else {
+            targetDocument.CreateUnitMaps(findByXliffGeneratorNoteAndSource, findByXliffGeneratorAndDeveloperNote, findByXliffGeneratorNote, findBySourceAndDeveloperNote, findBySource);
+        }
+    }
 
     mergedDocument.translationUnitNodes.forEach((unit) => {
       let targetUnit = targetDocument.findTranslationUnit(unit.attributes.id);
-      let translation = undefined;
+      let translChildNodes: (XmlNode | string)[] | undefined;
 
-      if (!targetUnit) {
-        const xliffGeneratorNote = mergedDocument.getUnitXliffGeneratorNote(unit);
+      if (!targetUnit && findByIsEnabled) {
         const developerNote = mergedDocument.getUnitDeveloperNote(unit);
         const source = mergedDocument.getUnitSource(unit);
 
-        if (findByXliffGeneratorNoteAndSource && xliffGeneratorNote && source) {
-          targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNoteAndSource(xliffGeneratorNote, source);
-        }
-
-        if (!targetUnit && findByXliffGeneratorAndDeveloperNote && xliffGeneratorNote && developerNote) {
-          targetUnit = targetDocument.findTranslationUnitByXliffGeneratorAndDeveloperNote(
-            xliffGeneratorNote,
-            developerNote,
-          );
-        }
-
-        if (!targetUnit && findByXliffGeneratorNote && xliffGeneratorNote) {
-          targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNote(xliffGeneratorNote);
+        if (findByXliffGenNotesIsEnabled) {
+          const xliffGeneratorNote = mergedDocument.getUnitXliffGeneratorNote(unit);
+          
+          if (xliffGeneratorNote) {
+            if (findByXliffGeneratorNoteAndSource && xliffGeneratorNote && source) {
+              targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNoteAndSource(xliffGeneratorNote, source);
+            }
+    
+            if (!targetUnit && findByXliffGeneratorAndDeveloperNote && xliffGeneratorNote && developerNote) {
+              targetUnit = targetDocument.findTranslationUnitByXliffGeneratorAndDeveloperNote(
+                xliffGeneratorNote,
+                developerNote,
+              );
+            }
+    
+            if (!targetUnit && findByXliffGeneratorNote && xliffGeneratorNote) {
+              targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNote(xliffGeneratorNote);
+            }
+          }
         }
 
         if (!targetUnit && source) {
           if (findBySourceAndDeveloperNote) { // Also match on empty/undefined developerNote
             let transUnitTrl = targetDocument.findTranslationUnitBySourceAndDeveloperNote(source, developerNote);
             if (transUnitTrl) {
-              translation = targetDocument.getUnitTranslation(transUnitTrl);
+              translChildNodes = targetDocument.getUnitTranslationChildren(transUnitTrl);
             }
           }
 
-          if (!translation && findBySource) {
+          if (!translChildNodes && findBySource) {
             if (!(source in sourceTranslations)) {
               let transUnitTrl = targetDocument.findFirstTranslationUnitBySource(source);
               if (transUnitTrl) {
-                translation = targetDocument.getUnitTranslation(transUnitTrl);
-                sourceTranslations[source] = translation;
+                translChildNodes = targetDocument.getUnitTranslationChildren(transUnitTrl);
+                if (translChildNodes) {
+                  sourceTranslations[source] = translChildNodes;
+                }
               }
             }
             else {
-              translation = sourceTranslations[source];
+              translChildNodes = sourceTranslations[source];
             }
           }
         }
       }
 
-      if (!translation && (copyFromSource || parseFromDeveloperNote)) {
+      if (!translChildNodes && (copyFromSource || parseFromDeveloperNote)) {
         let hasNoTranslation: boolean = false;
         if (targetUnit) {
-          const translationText: string | undefined = targetDocument.getUnitTranslation(targetUnit);
+          const translationText: string | undefined = targetDocument.getUnitTranslationText(targetUnit);
           if (missingTranslationKeyword === '%EMPTY%') {
             hasNoTranslation = !translationText;
           }
@@ -139,19 +158,22 @@ export class XlfTranslator {
         const shouldParseFromDevNote: boolean = parseFromDeveloperNote && (hasNoTranslation || parseFromDeveloperNoteOverwrite);
         const shouldCopyFromSource: boolean = copyFromSource && (hasNoTranslation || copyFromSourceOverwrite);
 
-        if (!translation && shouldParseFromDevNote) {
-          translation = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
+        if (!translChildNodes && shouldParseFromDevNote) {
+          const translationFromDeveloperNote: string | undefined = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
+          if (translationFromDeveloperNote) {
+            translChildNodes = [translationFromDeveloperNote];
+          }
         }
-        if (!translation && shouldCopyFromSource) {
-          translation = mergedDocument.getUnitSourceText(unit);
+        if (!translChildNodes && shouldCopyFromSource) {
+          translChildNodes = targetDocument.getUnitSourceChildren(unit);
         }
       }
 
-      mergedDocument.mergeUnit(unit, targetUnit, translation);
+      mergedDocument.mergeUnit(unit, targetUnit, translChildNodes);
 
       if (detectSourceTextChanges && targetUnit) {
         let mergedSourceText = mergedDocument.getUnitSourceText(unit);
-        const mergedTranslText = mergedDocument.getUnitTranslation(unit);
+        const mergedTranslText = mergedDocument.getUnitTranslationText(unit);
         let origSourceText = targetDocument.getUnitSourceText(targetUnit);
 
         if (mergedSourceText && origSourceText && mergedTranslText) {

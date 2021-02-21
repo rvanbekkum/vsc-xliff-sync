@@ -278,6 +278,19 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
     const matchingOriginalOnly: string[] = xliffWorkspaceConfiguration['matchingOriginalOnly'];
 
+    const equivalentLanguages = xliffWorkspaceConfiguration['equivalentLanguages'];
+    const equivalentLanguagesEnabled: boolean = xliffWorkspaceConfiguration['equivalentLanguagesEnabled'];
+    let slavesToMaster: {[id: string]: string} = {};
+    if (equivalentLanguagesEnabled) {
+        for (let master in equivalentLanguages) {
+            const slavePattern = equivalentLanguages[master];
+            slavesToMaster[slavePattern] = master;
+        }
+    }
+    let masterLanguageToUri: { [masterLangCode: string]: Uri } = {};
+    let masterLanguageToSlaveLanguages: { [masterLangCode: string]: string[] } = {};
+    let slaveLanguageToUri: { [slaveLangCode: string]: Uri } = {};
+
     let sourceDocOriginal: string | undefined = undefined;
     if (matchingOriginalOnly) {
         const sourceDoc = await XlfDocument.loadFromUri(sourceUri, workspaceFolder?.uri);
@@ -289,12 +302,34 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
 
         try {
             let targetDocOriginal: string | undefined = undefined;
-            if (matchingOriginalOnly) {
+            let isSlaveLanguage: boolean = false;
+            if (matchingOriginalOnly || equivalentLanguagesEnabled) {
                 const targetDoc = await XlfDocument.loadFromUri(targetUri, workspaceFolder?.uri);
-                targetDocOriginal = targetDoc.original;
+                if (matchingOriginalOnly) {
+                    targetDocOriginal = targetDoc.original;
+                }
+                
+                if (equivalentLanguagesEnabled && targetDoc.targetLanguage) {
+                    // Check if master language
+                    if (targetDoc.targetLanguage in equivalentLanguages) {
+                        masterLanguageToUri[targetDoc.targetLanguage] = targetUri;
+                    }
+                    // Check if slave language
+                    else {
+                        const masterLanguage: string | undefined = getMasterLanguage(slavesToMaster, targetDoc.targetLanguage);
+                        if (masterLanguage) {
+                            if (!(masterLanguage in masterLanguageToSlaveLanguages)) {
+                                masterLanguageToSlaveLanguages[masterLanguage] = [];
+                            }
+                            masterLanguageToSlaveLanguages[masterLanguage].push(targetDoc.targetLanguage);
+                            slaveLanguageToUri[targetDoc.targetLanguage] = targetUri;
+                            isSlaveLanguage = true;
+                        }
+                    }
+                }
             }
 
-            if (sourceDocOriginal == targetDocOriginal) {
+            if ((sourceDocOriginal == targetDocOriginal) && !isSlaveLanguage) {
                 await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder);
             }
         }
@@ -303,9 +338,34 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
         }
     }
 
+    for (let masterLanguage in masterLanguageToUri) {
+        const masterUri: Uri = masterLanguageToUri[masterLanguage];
+        const newSlaveDoc = await XlfDocument.loadFromUri(masterUri, workspaceFolder?.uri);
+
+        const slaveLanguages: string[] = masterLanguageToSlaveLanguages[masterLanguage];
+        if (slaveLanguages) {
+            for (let slaveLanguage of slaveLanguages) {
+                newSlaveDoc.targetLanguage = slaveLanguage;
+                const newSlaveContent: string | undefined = newSlaveDoc.extract();
+                if (newSlaveContent) {
+                    await FilesHelper.createNewTargetFile(slaveLanguageToUri[slaveLanguage], newSlaveContent, sourceUri, slaveLanguage);
+                }
+            }
+        }
+    }
+
     window.showInformationMessage('Translation files successfully synchronized!');
 
     await autoRunTranslationChecks(workspaceFolder);
+}
+
+function getMasterLanguage(slavePatternsToMaster: {[id: string]: string}, targetLanguage: string): string | undefined {
+    for (let slavePattern in slavePatternsToMaster) {
+        if (new RegExp(slavePattern).test(targetLanguage)) {
+            return slavePatternsToMaster[slavePattern];
+        }
+    }
+    return undefined;
 }
 
 async function autoRunTranslationChecks(workspaceFolder?: WorkspaceFolder, targetUri?: Uri) {

@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "0.7.0",
+    "version": "1.0.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -75,6 +75,22 @@
                     "description": "Specifies whether the extension will sync only to files where the original-attribute is matching.",
                     "scope": "resource"
                 },
+                "xliffSync.unitMaps": {
+                    "type": "string",
+                    "default": "All",
+                    "description": "Specifies for which search purposes this command should create in-memory maps in preparation of syncing.",
+                    "enum": [
+                        "None",
+                        "Id",
+                        "All"
+                    ],
+                    "enumDescriptions": [
+                        "Do not use in-memory maps.",
+                        "Only use an in-memory map for finding units by ID.",
+                        "Use in-memory maps for all search purposes."
+                    ],
+                    "scope": "resource"
+                },
                 "xliffSync.findByXliffGeneratorNoteAndSource": {
                     "type": "boolean",
                     "default": true,
@@ -123,6 +139,27 @@
                     "description": "Specifies the separator that is used when translations are parsed from the developer note.",
                     "scope": "resource"
                 },
+                "xliffSync.equivalentLanguages": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "default": {
+                        "de-DE": "de-.*",
+                        "en-US": "en-.*",
+                        "es-ES": "es-.*",
+                        "fr-FR": "fr-.*",
+                        "nl-NL": "nl-.*"
+                    },
+                    "description": "Specifies master and slave languages that should be treated as equivalent, i.e., translations are copied from the master language.",
+                    "scope": "resource"
+                },
+                "xliffSync.equivalentLanguagesEnabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether languages should be treated as equivalent as specified in the xliffSync.equivalentLanguages setting.",
+                    "scope": "resource"
+                },
                 "xliffSync.copyFromSourceForLanguages": {
                     "type": "array",
                     "items": {
@@ -167,6 +204,12 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work.",
+                    "scope": "resource"
+                },
+                "xliffSync.keepEditorOpenAfterSync": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies whether XLIFF files should be opened in the editor after syncing.",
                     "scope": "resource"
                 },
                 "xliffSync.openExternallyAfterEvent": {
@@ -274,6 +317,12 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing.",
+                    "scope": "resource"
+                },
+                "xliffSync.preserveTargetChildNodes": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies whether translation-specific child nodes of trans-units in the target files should be preserved.",
                     "scope": "resource"
                 },
                 "xliffSync.replaceTranslationsDuringImport": {

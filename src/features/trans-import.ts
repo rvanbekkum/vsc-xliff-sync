@@ -91,13 +91,13 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
     const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['replaceTranslationsDuringImport'];
 
     const selFileDocument = await XlfDocument.loadFromUri(fileUri, workspaceFolder.uri);
-    let sourceDevNoteTranslations: { [key: string]: string | undefined; } = {};
+    let sourceDevNoteTranslations: { [key: string]: (XmlNode | string)[]; } = {};
     selFileDocument.translationUnitNodes.forEach((unit) => {
         const sourceDevNoteText = getSourceDevNoteText(selFileDocument, unit);
         if (sourceDevNoteText && !(sourceDevNoteText in sourceDevNoteTranslations)) {
-            const translText = selFileDocument.getUnitTranslation(unit);
-            if (translText) {
-                sourceDevNoteTranslations[sourceDevNoteText] = translText;
+            const translChildNodes = selFileDocument.getUnitTranslationChildren(unit);
+            if (translChildNodes) {
+                sourceDevNoteTranslations[sourceDevNoteText] = translChildNodes;
             }
         }
     });
@@ -115,7 +115,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
 
         let translationsImported: number = 0;
         targetDocument.translationUnitNodes.forEach((unit) => {
-            if (!replaceTranslationsDuringImport && targetDocument.getUnitTranslation(unit)) {
+            if (!replaceTranslationsDuringImport && targetDocument.getUnitTranslationText(unit)) {
                 return;
             }
 

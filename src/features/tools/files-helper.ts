@@ -30,7 +30,8 @@ import {
   window,
   workspace,
   WorkspaceFolder,
-  RelativePattern
+  RelativePattern,
+  commands
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -231,6 +232,11 @@ export class FilesHelper {
     });
 
     await document.save();
+
+    let keepEditorOpenAfterSync: boolean = workspace.getConfiguration('xliffSync', targetUri)['keepEditorOpenAfterSync'];
+    if (!keepEditorOpenAfterSync) {
+      await commands.executeCommand('workbench.action.closeActiveEditor');
+    }
 
     return targetUri;
   }

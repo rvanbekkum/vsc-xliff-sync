@@ -62,6 +62,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
 | xliffSync.syncCrossWorkspaceFolders | `false` | Specifies whether the extension will sync from a base file to the translation files in all workspace folders. By default, the extension will always sync. per workspace folder. If you enable this setting, then you can have the base file in one workspace folder and target translation files in other workspace folders. |
 | xliffSync.matchingOriginalOnly | `true` | Specifies whether the extension will sync only to files where the original-attribute is matching. |
+| xliffSync.unitMaps | `All` | Specifies for which search purposes this command should create in-memory maps in preparation of syncing. |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.needsWorkTranslationSubstate | `xliffSync:needsWork` | Specifies the substate to use for translations that need work in xlf2 files. **Tip**: If you use [Poedit](https://poedit.net/), then you could also set this to `poedit:fuzzy`. |
 | xliffSync.findByXliffGeneratorNoteAndSource | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and source. |
@@ -72,6 +73,8 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.parseFromDeveloperNote | `false` | Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: <code>en-US=My translation&#124;nl-NL=Mijn vertaling</code>. |
 | xliffSync.parseFromDeveloperNoteOverwrite | `false` | Specifies whether translations parsed from the developer note should always overwrite existing translations. |
 | xliffSync.parseFromDeveloperNoteSeparator | <code>&#124;</code> | Specifies the separator that is used when translations are parsed from the developer note. |
+| xliffSync.equivalentLanguages | `{ "de-DE": "de-.*", "en-US": "en-.*", "es-ES": "es-.*", "fr-FR": "fr-.*", "nl-NL": "nl-.*" }` | Specifies master and slave languages that should be treated as equivalent, i.e., translations are copied from the master language. |
+| xliffSync.equivalentLanguagesEnabled | `false` | Specifies whether languages should be treated as equivalent as specified in the xliffSync.equivalentLanguages setting. |
 | xliffSync.copyFromSourceForLanguages | `[]` | Specifies the languages for which translations should be copied from the source text of trans-units. |
 | xliffSync.copyFromSourceForSameLanguage | `false` | Specifies whether translations should be copied from the source text if source-language = target-language. This will **not** overwrite existing translations of trans-units in target files. |
 | xliffSync.copyFromSourceOverwrite | `false` | Specifies whether translations copied from the source text should overwrite existing translations. |
@@ -79,6 +82,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
 | xliffSync.clearTranslationAfterSourceTextChange | `false` | Specifies whether translations should be cleared when the source text of a trans-unit changed. |
 | xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
+| xliffSync.keepEditorOpenAfterSync | `true` | Specifies whether XLIFF files should be opened in the editor after syncing. |
 | xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
@@ -88,6 +92,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.needWorkTranslationRulesEnableAll | `false` | Specifies whether or not all available technical validation rules should be used. Enabling this setting makes `xliffSync.needWorkTranslationRules` redundant. |
 | xliffSync.preserveTargetAttributes | `false` | Specifies whether or not syncing should use the attributes from the target files for the trans-unit nodes while syncing. |
 | xliffSync.preserveTargetAttributesOrder | `false` | Specifies whether the attributes of trans-unit nodes should use the order found in the target files while syncing. |
+| xliffSync.preserveTargetChildNodes | `false` | Specifies whether child nodes of trans-unit nodes specific to the target files should be preserved. This will preserve `alt-trans` nodes and custom nodes in XLIFF 1.2 target files. |
 | xliffSync.replaceTranslationsDuringImport | `false` | Specifies whether existing translations will be replaced when the XLIFF: Import Translations from File(s) command is run. |
 | xliffSync.decoration | `{"backgroundColor": "rgba(240, 210, 105, 0.35)", "overviewRulerColor": "rgba(240, 210, 105, 0.35)", "border": "1px solid white", "borderRadius": "4px"}` | Specifies how to highlight missing translations or translations that need work in an XLIFF file opened in the editor. |
 | xliffSync.decorationEnabled | `true` | Specifies whether decorations for missing translations and translations that need work should be applied. |
@@ -111,7 +116,7 @@ The extension will try to find corresponding trans-units and translations within
 
 3. Initial translation:
 > 7. Parse from Developer Note (disabled by default, configurable with `xliffSync.parseFromDeveloperNote`)
-> 8. Copy from Source if source-language = target-language (disabled by default, configurable with `xliffSync.copyFromSourceForSameLanguage`)
+> 8. Copy from Source, if applicable/configured for target language (disabled by default, configurable with `xliffSync.copyFromSourceFor...`)
 
 If no trans-unit or translation is found, the unit is added and its target node is tagged with `state="needs-translation"`.
 
@@ -208,8 +213,8 @@ The currently implemented checks are the following:
 | `ConsecutiveSpacesExist` | Source or translation text contain consecutive spaces. | N.A. | The source text includes 2 consecutive spaces, e.g., <pre>Hello  World</pre> |
 | `OptionMemberCount`   | Number of options in caption are not matching.                                                            | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes 3 options, `A,B,C` , but the translation text includes 4 options, `A,B,C,D`.              |
 | `OptionLeadingSpaces` | Number of leading spaces in options are not matching.                                                     | Xliff Generator note with `Property OptionCaption` or `Property PromotedActionCategories`. | The source text includes a space, `A, B` , but the translation text does not, `A,B`.                               |
-| `Placeholders`        | Placeholders of source and translation are not matching.                                                  | Source/Translation text includes placeholders of the form `{0}` or `%1`.                   | The source text includes placeholders `%1 %2` , but the translation text only includes `%1`.                       |
-| `PlaceholdersDevNote`        | Placeholders are not explained in the Developer note.                                                  | Source text includes placeholders of the form `{0}` or `%1`.                   | The source text includes placeholders `%1 %2` , but the Developer note is empty and so does not contain the placeholders.                       |
+| `Placeholders`        | Placeholders of source and translation are not matching.                                                  | Source/Translation text includes placeholders of the form `{0}` or `%1` or `#1`.                   | The source text includes placeholders `%1 %2` , but the translation text only includes `%1`.                       |
+| `PlaceholdersDevNote`        | Placeholders are not explained in the Developer note.                                                  | Source text includes placeholders of the form `{0}` or `%1` or `#1`.                   | The source text includes placeholders `%1 %2` , but the Developer note is empty and so does not contain the placeholders.                       |
 | `SourceEqualsTarget`  | Source and translation are not the same, even though source-language = target-language for the .xlf file. | The source-language is the same as the target-language for the .xlf file.                  | The source text is 'A', but the translation text is 'B'. The source-language and target-language are both 'en-US'. |
 
 **Note**: You may want to use rule `SourceEqualsTarget` in combination with setting `xliffSync.copyFromSourceForSameLanguage` set to `true`.
@@ -260,3 +265,4 @@ That way you could utilize the Developer note to have the import perform a more 
 
 * Automatically inserting _new_ groups into target files is not implemented.
 * The NAV2018 XLIFF generator creates Xliff Generator Notes without any identifiers, therefore it is recommended to change the `xliffSync.findBy...` settings to not synchronize trans-units based on Xliff Generator notes.
+* Files larger than 50 MB cannot be processed at the moment. For now, please use the ["XLIFF Sync" PowerShell module](https://github.com/rvanbekkum/ps-xliff-sync) instead.

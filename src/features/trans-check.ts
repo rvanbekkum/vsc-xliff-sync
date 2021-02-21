@@ -243,7 +243,7 @@ export class XliffTranslationChecker {
             'missingTranslation'
         ];
         if (missingTranslationKeyword === '%EMPTY%') {
-            missingTranslationKeyword = '<target.*( state="needs-translation")?.*/>|<target.*( state="needs-translation")?.*></target>';
+            missingTranslationKeyword = '<target[^>]*( state="needs-translation")?[^>]*/>|<target.*( state="needs-translation")?.*></target>';
         }
         else if (decorationTargetTextOnly) {
             missingTranslationKeyword = `(?<=<target.*( state="needs-translation")?.*>)${missingTranslationKeyword}(?=</target>)`;
@@ -271,7 +271,7 @@ export class XliffTranslationChecker {
             return `((?<=<target.* state="needs-adaptation".*>).*(?=</target>))|${segmentNeedsWorkRegExp}`;
         }
         else {
-            return `(<target.* state="needs-adaptation".*>.*</target>)|(<target.* state="needs-adaptation".*/>)|${segmentNeedsWorkRegExp}`;
+            return `(<target.* state="needs-adaptation".*>.*</target>)|(<target[^>]* state="needs-adaptation"[^>]*/>)|${segmentNeedsWorkRegExp}`;
         }
     }
 }
@@ -404,7 +404,7 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
 function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, missingTranslationText: string) : boolean {
     const needsTranslation: boolean = targetDocument.getUnitNeedsTranslation(unit);
     if (needsTranslation) {
-        const translation = targetDocument.getUnitTranslation(unit);
+        const translation = targetDocument.getUnitTranslationText(unit);
         if (!translation || translation === missingTranslationText) {
             return true;
         }
@@ -414,7 +414,7 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
 
 function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, isRuleEnabled: (ruleName: string) => boolean, sourceEqualsTargetExpected: boolean) : boolean {
     const sourceText = targetDocument.getUnitSourceText(unit);
-    const translText = targetDocument.getUnitTranslation(unit);
+    const translText = targetDocument.getUnitTranslationText(unit);
     const devNoteText = targetDocument.getUnitDeveloperNote(unit) || '';
     if (!sourceText || !translText) {
         return false;
@@ -482,7 +482,7 @@ function checkForPlaceHolderMismatch(sourceText: string, translationText: string
 }
 
 function checkForMissingPlaceHolders(textWithPlaceHolders: string, textToCheck: string) {
-    const placeHolderRegex = /%[0-9]+|\{[0-9]+\}/g; // Match placeholders of the form %1 OR {0}
+    const placeHolderRegex = /(%|#)[0-9]+|\{[0-9]+\}/g; // Match placeholders of the form %1 OR #1 OR {0}
     let placeHolderProblemDetected: boolean = false;
 
     let placeHolders = textWithPlaceHolders.match(placeHolderRegex);
