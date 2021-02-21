@@ -82,7 +82,7 @@ Apart from synchronizing trans-units from a base-XLIFF file, this extension cont
 | xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
 | xliffSync.clearTranslationAfterSourceTextChange | `false` | Specifies whether translations should be cleared when the source text of a trans-unit changed. |
 | xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
-| xliffSync.keepEditorOpenAfterSync | `false` | Specifies whether XLIFF files should be opened in the editor after syncing. |
+| xliffSync.keepEditorOpenAfterSync | `true` | Specifies whether XLIFF files should be opened in the editor after syncing. |
 | xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
@@ -116,7 +116,7 @@ The extension will try to find corresponding trans-units and translations within
 
 3. Initial translation:
 > 7. Parse from Developer Note (disabled by default, configurable with `xliffSync.parseFromDeveloperNote`)
-> 8. Copy from Source if source-language = target-language (disabled by default, configurable with `xliffSync.copyFromSourceForSameLanguage`)
+> 8. Copy from Source, if applicable/configured for target language (disabled by default, configurable with `xliffSync.copyFromSourceFor...`)
 
 If no trans-unit or translation is found, the unit is added and its target node is tagged with `state="needs-translation"`.
 
@@ -265,3 +265,4 @@ That way you could utilize the Developer note to have the import perform a more 
 
 * Automatically inserting _new_ groups into target files is not implemented.
 * The NAV2018 XLIFF generator creates Xliff Generator Notes without any identifiers, therefore it is recommended to change the `xliffSync.findBy...` settings to not synchronize trans-units based on Xliff Generator notes.
+* Files larger than 50 MB cannot be processed at the moment. For now, please use the ["XLIFF Sync" PowerShell module](https://github.com/rvanbekkum/ps-xliff-sync) instead.

@@ -32,7 +32,7 @@
     }
     ```
 
-* New setting `xliffSync.keepEditorOpenAfterSync` that can be used to specify whether XLIFF files should be open in the editor after syncing. (**Default**: `false`)
+* New setting `xliffSync.keepEditorOpenAfterSync` that can be used to specify whether XLIFF files should be open in the editor after syncing. (**Default**: `true`)
 * The technical validation rules now also check that placeholders of the form `#1` match. (GitHub issue [#73](https://github.com/rvanbekkum/vsc-xliff-sync/issues/73))
 
 ### Thank You
