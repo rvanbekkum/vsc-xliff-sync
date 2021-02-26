@@ -2,7 +2,7 @@
 
 ## [1.1.0] 26-02-2021
 
-* Fixed new unit nodes getting `state="translated"` with no translation. Bug due to changes for GitHub issue [#67](https://github.com/rvanbekkum/vsc-xliff-sync/issues/67)). GitHub issue [#81](https://github.com/rvanbekkum/vsc-xliff-sync/issues/81))
+* Fixed new unit nodes getting `state="translated"` with no translation. Bug due to changes for GitHub issue [#67](https://github.com/rvanbekkum/vsc-xliff-sync/issues/67). (GitHub issue [#81](https://github.com/rvanbekkum/vsc-xliff-sync/issues/81))
 
 ## [1.0.0] 21-02-2021
 
