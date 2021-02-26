@@ -123,7 +123,7 @@ export class XlfTranslator {
             }
           }
 
-          if (!translChildNodes && findBySource) {
+          if ((!translChildNodes || (translChildNodes.length === 1 && translChildNodes[0] === missingTranslationKeyword)) && findBySource) {
             if (!(source in sourceTranslations)) {
               let transUnitTrl = targetDocument.findFirstTranslationUnitBySource(source);
               if (transUnitTrl) {
@@ -140,7 +140,7 @@ export class XlfTranslator {
         }
       }
 
-      if (!translChildNodes && (copyFromSource || parseFromDeveloperNote)) {
+      if ((!translChildNodes || (translChildNodes.length === 1 && translChildNodes[0] === missingTranslationKeyword)) && (copyFromSource || parseFromDeveloperNote)) {
         let hasNoTranslation: boolean = false;
         if (targetUnit) {
           const translationText: string | undefined = targetDocument.getUnitTranslationText(targetUnit);
@@ -158,13 +158,13 @@ export class XlfTranslator {
         const shouldParseFromDevNote: boolean = parseFromDeveloperNote && (hasNoTranslation || parseFromDeveloperNoteOverwrite);
         const shouldCopyFromSource: boolean = copyFromSource && (hasNoTranslation || copyFromSourceOverwrite);
 
-        if (!translChildNodes && shouldParseFromDevNote) {
+        if ((!translChildNodes || (translChildNodes.length === 1 && translChildNodes[0] === missingTranslationKeyword)) && shouldParseFromDevNote) {
           const translationFromDeveloperNote: string | undefined = mergedDocument.getUnitTranslationFromDeveloperNote(unit);
           if (translationFromDeveloperNote) {
             translChildNodes = [translationFromDeveloperNote];
           }
         }
-        if (!translChildNodes && shouldCopyFromSource) {
+        if ((!translChildNodes || (translChildNodes.length === 1 && translChildNodes[0] === missingTranslationKeyword)) && shouldCopyFromSource) {
           translChildNodes = targetDocument.getUnitSourceChildren(unit);
         }
       }

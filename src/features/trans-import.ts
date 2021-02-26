@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env, WorkspaceFolder } from "vscode";
+import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env, WorkspaceFolder, WorkspaceConfiguration } from "vscode";
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
 
@@ -88,7 +88,9 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
         window.showErrorMessage('The provided file URI is invalid!');
         return;
     }
-    const replaceTranslationsDuringImport: boolean = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['replaceTranslationsDuringImport'];
+    const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder.uri);
+    const missingTranslationKeyword: string = xliffWorkspaceConfiguration['missingTranslation'];
+    const replaceTranslationsDuringImport: boolean = xliffWorkspaceConfiguration['replaceTranslationsDuringImport'];
 
     const selFileDocument = await XlfDocument.loadFromUri(fileUri, workspaceFolder.uri);
     let sourceDevNoteTranslations: { [key: string]: (XmlNode | string)[]; } = {};
@@ -96,7 +98,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
         const sourceDevNoteText = getSourceDevNoteText(selFileDocument, unit);
         if (sourceDevNoteText && !(sourceDevNoteText in sourceDevNoteTranslations)) {
             const translChildNodes = selFileDocument.getUnitTranslationChildren(unit);
-            if (translChildNodes) {
+            if (translChildNodes && !(translChildNodes.length === 1 && translChildNodes[0] === missingTranslationKeyword)) {
                 sourceDevNoteTranslations[sourceDevNoteText] = translChildNodes;
             }
         }

@@ -671,7 +671,7 @@ export class XlfDocument {
     if (needsTranslation && !targetNode) {
       let attributes: { [key: string]: string; } = {};
       let newTranslationState: translationState = translationState.translated;
-      if (!translChildNodes) {
+      if (!translChildNodes || (translChildNodes.length === 1 && translChildNodes[0] === this.missingTranslation)) {
         translChildNodes = [this.missingTranslation];
         newTranslationState = translationState.missingTranslation;
       }
