@@ -687,7 +687,7 @@ export class XlfDocument {
     }
 
     if (needsTranslation && targetNode) {
-      if (translChildNodes) {
+      if (translChildNodes && !(translChildNodes.length === 1 && translChildNodes[0] === this.missingTranslation)) {
         targetNode.children = translChildNodes;
         if (!targetNode.attributes) {
           targetNode.attributes = {};
