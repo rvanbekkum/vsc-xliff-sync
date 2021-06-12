@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import open = require('open');
 import {
-    env,
     ProgressLocation,
     QuickPickItem,
     Uri,
@@ -265,7 +265,7 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
             const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
             if (openExternallyAfterEvent.indexOf("Sync") > -1) {
-                env.openExternal(targetUri);
+                open(decodeURIComponent(targetUri.toString()));
             }
         }
         catch (ex) {
