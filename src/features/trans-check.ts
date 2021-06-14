@@ -25,7 +25,6 @@
 import {
     commands,
     DecorationRenderOptions,
-    env,
     ExtensionContext,
     Range,
     Selection,
@@ -41,6 +40,7 @@ import {
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
 import { translationState } from './tools/xlf/xlf-translationState';
+import open = require('open');
 
 // Variables that should be accessible from events
 var currentEditor: TextEditor | undefined;
@@ -367,7 +367,7 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
                 const fileName = FilesHelper.getFileNameFromUri(targetUri);
                 window.showInformationMessage(`"${fileName}":${messagesText}`, 'Open Externally').then(selection => {
                     if (selection === 'Open Externally') {
-                        env.openExternal(targetUri);
+                        open(decodeURIComponent(targetUri.toString()));
                     }
                 });
             }
@@ -383,7 +383,7 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
                 await FilesHelper.createNewTargetFile(targetUri, newFileContents);
             }
             if (openExternallyAutomatically) {
-                env.openExternal(targetUri);
+                open(decodeURIComponent(targetUri.toString()));
             }
         }
 

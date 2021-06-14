@@ -498,6 +498,7 @@
         "arrowParens": "always"
     },
     "dependencies": {
+        "open": "^8.2.0",
         "sax": "^1.2.4",
         "xml2js": "^0.4.19",
         "xmlbuilder": "^9.0.7"
