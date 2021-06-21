@@ -21,9 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, env, WorkspaceFolder, WorkspaceConfiguration } from "vscode";
+import { ExtensionContext, window, commands, OpenDialogOptions, Uri, workspace, WorkspaceFolder, WorkspaceConfiguration } from "vscode";
 import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
+import open = require("open");
 
 export class XliffTranslationImport {
     constructor(context: ExtensionContext) {
@@ -142,7 +143,7 @@ async function importTranslationsFromFile(workspaceFolder: WorkspaceFolder, file
             const messagesText = ` ${translationsImported} translation(s) imported.`;
             window.showInformationMessage(`"${fileName}":${messagesText}`, 'Open Externally').then(selection => {
                 if (selection === 'Open Externally') {
-                    env.openExternal(targetUri);
+                    open(decodeURIComponent(targetUri.toString()));
                 }
             });
 

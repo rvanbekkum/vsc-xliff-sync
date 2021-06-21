@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0] 21-06-2021
+
+* Fixed "Open Externally" no longer working after Visual Studio Code update 1.57.0. This may be a work-around that will be reverted later on. (GitHub issue [#89](https://github.com/rvanbekkum/vsc-xliff-sync/issues/89))
+* Patch "equivalent languages" feature not allowing to override default value but instead merging the setting values (this was not intended). (GitHub issue [#87](https://github.com/rvanbekkum/vsc-xliff-sync/issues/87))
+
+### Thank You
+
+* **[fvet](https://github.com/fvet)** for reporting the issue with the "equivalent languages" feature (GitHub issue [#87](https://github.com/rvanbekkum/vsc-xliff-sync/issues/87))
+* **[dannoe](https://github.com/dannoe)** for reporting "Open Externally" no longer working after Visual Studio Code update 1.57.0 (GitHub issue [#89](https://github.com/rvanbekkum/vsc-xliff-sync/issues/89)) and for your pull request (Pull Request [#90](https://github.com/rvanbekkum/vsc-xliff-sync/pull/90)).
+
 ## [1.1.0] 26-02-2021
 
 * Fixed new unit nodes getting `state="translated"` with no translation. Bug due to changes for GitHub issue [#67](https://github.com/rvanbekkum/vsc-xliff-sync/issues/67). (GitHub issue [#81](https://github.com/rvanbekkum/vsc-xliff-sync/issues/81))

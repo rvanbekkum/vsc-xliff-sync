@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import open = require('open');
 import {
-    env,
     ProgressLocation,
     QuickPickItem,
     Uri,
@@ -265,7 +265,7 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
             const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
             if (openExternallyAfterEvent.indexOf("Sync") > -1) {
-                env.openExternal(targetUri);
+                open(decodeURIComponent(targetUri.toString()));
             }
         }
         catch (ex) {
@@ -278,7 +278,10 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
     const matchingOriginalOnly: string[] = xliffWorkspaceConfiguration['matchingOriginalOnly'];
 
-    const equivalentLanguages = xliffWorkspaceConfiguration['equivalentLanguages'];
+    let equivalentLanguages: any = xliffWorkspaceConfiguration.inspect('equivalentLanguages')?.workspaceFolderValue;
+    if (!equivalentLanguages) {
+        equivalentLanguages = xliffWorkspaceConfiguration['equivalentLanguages'];
+    }
     const equivalentLanguagesEnabled: boolean = xliffWorkspaceConfiguration['equivalentLanguagesEnabled'];
     let slavesToMaster: {[id: string]: string} = {};
     if (equivalentLanguagesEnabled) {
