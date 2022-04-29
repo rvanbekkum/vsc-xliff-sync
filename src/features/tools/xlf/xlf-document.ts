@@ -821,6 +821,7 @@ export class XlfDocument {
               case 'needs-translation':
                 return translationState.missingTranslation;
               case 'needs-adaptation':
+              case 'needs-l10n':
                 return translationState.needsWorkTranslation;
               case 'translated':
                 return translationState.translated;
