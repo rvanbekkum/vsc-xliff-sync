@@ -34,7 +34,7 @@ export class XliffTranslationImport {
                 this.importTranslationsFromFiles();
             },
         );
-        
+
         context.subscriptions.push(importTranslationsDisposable);
     }
 
@@ -43,14 +43,14 @@ export class XliffTranslationImport {
             canSelectMany: true,
             openLabel: 'Select',
             filters: {
-               'XLIFF Files': ['xlf', 'xlf2']
-           }
-       };
-       window.showOpenDialog(options).then(fileUris => {
+                'XLIFF Files': ['xlf', 'xlf2']
+            }
+        };
+        window.showOpenDialog(options).then(fileUris => {
             if (fileUris) {
                 importTranslationsFromFiles(fileUris);
             }
-       });
+        });
     }
 }
 

@@ -416,7 +416,7 @@ export class XlfDocument {
     }
 
     return this.translationUnitNodes.find(
-      (node) => 
+      (node) =>
         (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslationText(node) !== undefined);
   }
 

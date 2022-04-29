@@ -96,19 +96,19 @@ export class XlfTranslator {
 
         if (findByXliffGenNotesIsEnabled) {
           const xliffGeneratorNote = mergedDocument.getUnitXliffGeneratorNote(unit);
-          
+
           if (xliffGeneratorNote) {
             if (findByXliffGeneratorNoteAndSource && xliffGeneratorNote && source) {
               targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNoteAndSource(xliffGeneratorNote, source);
             }
-    
+
             if (!targetUnit && findByXliffGeneratorAndDeveloperNote && xliffGeneratorNote && developerNote) {
               targetUnit = targetDocument.findTranslationUnitByXliffGeneratorAndDeveloperNote(
                 xliffGeneratorNote,
                 developerNote,
               );
             }
-    
+
             if (!targetUnit && findByXliffGeneratorNote && xliffGeneratorNote) {
               targetUnit = targetDocument.findTranslationUnitByXliffGeneratorNote(xliffGeneratorNote);
             }

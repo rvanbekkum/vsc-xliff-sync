@@ -71,19 +71,19 @@ export class XliffTranslationChecker {
         );
 
         const checkForMissingTranslationsDisposable = commands.registerCommand(
-            'xliffSync.checkForMissingTranslations', 
+            'xliffSync.checkForMissingTranslations',
             async() => {
                 this.checkForMissingTranslations();
             }
         );
 
         const checkForNeedWorkTranslationsDisposable = commands.registerCommand(
-            'xliffSync.checkForNeedWorkTranslations', 
+            'xliffSync.checkForNeedWorkTranslations',
             async() => {
                 this.checkForNeedWorkTranslations();
             }
         );
-        
+
         context.subscriptions.push(findNextMissingDisposable);
         context.subscriptions.push(findNextNeedsWorkDisposable);
         context.subscriptions.push(checkForMissingTranslationsDisposable);
@@ -281,7 +281,7 @@ export async function runTranslationChecks(shouldCheckForMissingTranslations: bo
     if (!checkWorkspaceFolders) {
         throw new Error(`No workspace folder found to use`);
     }
-    
+
     for (let checkWorkspaceFolder of checkWorkspaceFolders) {
         await runTranslationChecksForWorkspaceFolder(shouldCheckForMissingTranslations, shouldCheckForNeedWorkTranslations, undefined, checkWorkspaceFolder);
     }
@@ -379,7 +379,7 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
                 if (!newFileContents) {
                     throw new Error(`No ouput generated. File ${targetUri}`);
                 }
-    
+
                 await FilesHelper.createNewTargetFile(targetUri, newFileContents);
             }
             if (openExternallyAutomatically) {
@@ -428,7 +428,7 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
             }
         }
     }
-    
+
     if (isRuleEnabled('Placeholders') && checkForPlaceHolderMismatch(sourceText, translText)) {
         targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of placeholders in the source and translation text do not match.');
         return true;

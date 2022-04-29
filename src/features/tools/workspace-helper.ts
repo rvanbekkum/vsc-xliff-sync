@@ -26,7 +26,7 @@ import { workspace, WorkspaceFolder, window } from "vscode";
 export class WorkspaceHelper {
     public static async getWorkspaceFolders(allFiles: boolean): Promise<WorkspaceFolder[] | undefined> {
         let syncWorkspaceFolders: WorkspaceFolder[] | undefined = workspace.workspaceFolders?.concat([]);
-        
+
         const syncCrossWorkspaceFolders: boolean = workspace.getConfiguration('xliffSync')['syncCrossWorkspaceFolders'];
         if (syncCrossWorkspaceFolders) {
             return syncWorkspaceFolders;
@@ -38,17 +38,17 @@ export class WorkspaceHelper {
         if (currentWorkspaceFolder) {
             return [currentWorkspaceFolder];
         }
-        
+
         if (!allFiles && syncWorkspaceFolders && syncWorkspaceFolders.length > 1) {
             currentWorkspaceFolder = await window.showWorkspaceFolderPick({
-              placeHolder: 'Select a workspace folder' 
+              placeHolder: 'Select a workspace folder'
             });
             syncWorkspaceFolders = undefined;
             if (currentWorkspaceFolder) {
                 syncWorkspaceFolders = [currentWorkspaceFolder];
             }
         }
-    
+
         return syncWorkspaceFolders;
       }
 }
