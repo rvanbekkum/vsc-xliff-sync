@@ -75,6 +75,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.parseFromDeveloperNote | `false` | Specifies whether translations should be parsed from the developer note. Translations can be retrieved from a Developer note in the following format: <code>en-US=My translation&#124;nl-NL=Mijn vertaling</code>. |
 | xliffSync.parseFromDeveloperNoteOverwrite | `false` | Specifies whether translations parsed from the developer note should always overwrite existing translations. |
 | xliffSync.parseFromDeveloperNoteSeparator | <code>&#124;</code> | Specifies the separator that is used when translations are parsed from the developer note. |
+| xliffSync.parseFromDeveloperNoteTrimCharacters | `` | Specifies the characters that will be trimmed from the translation. |
 | xliffSync.equivalentLanguages | `{ "de-DE": "de-.*", "en-US": "en-.*", "es-ES": "es-.*", "fr-FR": "fr-.*", "nl-NL": "nl-.*" }` | Specifies master and slave languages that should be treated as equivalent, i.e., translations are copied from the master language. |
 | xliffSync.equivalentLanguagesEnabled | `false` | Specifies whether languages should be treated as equivalent as specified in the xliffSync.equivalentLanguages setting. |
 | xliffSync.copyFromSourceForLanguages | `[]` | Specifies the languages for which translations should be copied from the source text of trans-units. |

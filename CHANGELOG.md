@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0]
+
+* New setting `xliffSync.parseFromDeveloperNoteTrimCharacters` that can be used to specify the characters to trim from the translations parsed from the developer notes. (GitHub issue [#100](https://github.com/rvanbekkum/vsc-xliff-sync/issues/100))
+* Included `needs-l10n` to be considered as a needs-work state. (GitHub issue [#102](https://github.com/rvanbekkum/vsc-xliff-sync/issues/102))
+
+### Thank You
+
+* **[fvet](https://github.com/fvet)** for your feature request for setting `xliffSync.parseFromDeveloperNoteTrimCharacters` (GitHub issue [#100](https://github.com/rvanbekkum/vsc-xliff-sync/issues/100))
+
 ## [1.2.0] 21-06-2021
 
 * Fixed "Open Externally" no longer working after Visual Studio Code update 1.57.0. This may be a work-around that will be reverted later on. (GitHub issue [#89](https://github.com/rvanbekkum/vsc-xliff-sync/issues/89))
