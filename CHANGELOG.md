@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.3.0]
+## [1.3.0] 19-05-2022
 
 * New setting `xliffSync.parseFromDeveloperNoteTrimCharacters` that can be used to specify the characters to trim from the translations parsed from the developer notes. (GitHub issue [#100](https://github.com/rvanbekkum/vsc-xliff-sync/issues/100))
 * Included `needs-l10n` to be considered as a needs-work state. (GitHub issue [#102](https://github.com/rvanbekkum/vsc-xliff-sync/issues/102))
