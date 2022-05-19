@@ -64,7 +64,7 @@ export async function createNewTargetFiles() {
     const syncCrossWorkspaceFolders: boolean = workspace.getConfiguration('xliffSync')['syncCrossWorkspaceFolders'];
     if (!syncCrossWorkspaceFolders) {
         workspaceFolder = await window.showWorkspaceFolderPick({
-            placeHolder: 'Select a workspace folder' 
+            placeHolder: 'Select a workspace folder'
         });
         if (!workspaceFolder) {
             throw new Error(`Aborted. You need to select a workspace folder.`);
@@ -87,7 +87,7 @@ export async function createNewTargetFiles() {
 
 /**
  * Synchronize translation files in a workspace.
- * 
+ *
  * @param {boolean} allFiles Whether to sync from the base file to all other files or a single one.
  * @param {WorkspaceFolder} workspaceFolder The workspace folder to restrict the sync to.
  */
@@ -104,7 +104,7 @@ async function synchronizeFilesInWorkspace(allFiles: boolean, workspaceFolder?: 
         else {
             await synchronizeAllFiles(sourceUri, targetUris, workspaceFolder);
         }
-    } 
+    }
     catch (ex) {
         window.showErrorMessage(ex.message);
     }
@@ -113,7 +113,7 @@ async function synchronizeFilesInWorkspace(allFiles: boolean, workspaceFolder?: 
 export async function synchronizeWithSelectedFile(fileUri: Uri) {
     try {
         let workspaceFolder: WorkspaceFolder | undefined;
-        
+
         const syncCrossWorkspaceFolders: boolean = workspace.getConfiguration('xliffSync')['syncCrossWorkspaceFolders'];
         if (!syncCrossWorkspaceFolders) {
             workspaceFolder = workspace.getWorkspaceFolder(fileUri);
@@ -125,7 +125,7 @@ export async function synchronizeWithSelectedFile(fileUri: Uri) {
         let uris: Uri[] = await FilesHelper.getXliffFileUris(workspaceFolder);
 
         let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, workspaceFolder);
-        
+
         if (sourceUri.fsPath !== fileUri.fsPath) {
             await synchronizeAndCheckTargetFile(sourceUri, fileUri, undefined, workspaceFolder);
         }
@@ -133,7 +133,7 @@ export async function synchronizeWithSelectedFile(fileUri: Uri) {
             let targetUris = uris.filter((uri) => uri !== sourceUri);
             await synchronizeAllFiles(sourceUri, targetUris, workspaceFolder);
         }
-    } 
+    }
     catch (ex) {
         window.showErrorMessage(ex.message);
     }
@@ -158,14 +158,14 @@ async function synchronizeSingleFile(sourceUri: Uri, targetUris: Uri[], workspac
 
         if (!targetPath) {
             throw new Error('No target file selected');
-        } 
+        }
         else if (targetPath === 'New File...') {
             const fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['fileType'];
             targetLanguage = await selectNewTargetLanguage(fileType!);
             if (!targetLanguage) {
                 throw new Error('No target language specified');
             }
-        } 
+        }
         else {
             targetUri = targetUris.find((uri) => uri.fsPath === targetPath)!;
         }
@@ -260,7 +260,7 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             if (!newFileContents) {
                 throw new Error(`No ouput generated.`);
             }
-        
+
             targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
             const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
             const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
@@ -311,7 +311,7 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
                 if (matchingOriginalOnly) {
                     targetDocOriginal = targetDoc.original;
                 }
-                
+
                 if (equivalentLanguagesEnabled && targetDoc.targetLanguage) {
                     // Check if master language
                     if (targetDoc.targetLanguage in equivalentLanguages) {

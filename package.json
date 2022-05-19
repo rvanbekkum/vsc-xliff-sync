@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -137,6 +137,12 @@
                     "type": "string",
                     "default": "|",
                     "description": "Specifies the separator that is used when translations are parsed from the developer note.",
+                    "scope": "resource"
+                },
+                "xliffSync.parseFromDeveloperNoteTrimCharacters": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Specifies the characters that will be trimmed from the translation.",
                     "scope": "resource"
                 },
                 "xliffSync.equivalentLanguages": {
@@ -489,7 +495,7 @@
         "@types/xml2json": "^0.10.0",
         "@types/xmlbuilder": "0.0.32",
         "tslint": "^5.8.0",
-        "typescript": "^3.8.3"
+        "typescript": "^4.0.0"
     },
     "prettier": {
         "printWidth": 100,

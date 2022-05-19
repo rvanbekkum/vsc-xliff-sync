@@ -168,6 +168,7 @@ export class XlfDocument {
   private preserveTargetOrder: boolean;
   private preserveTargetChildNodes: boolean;
   private parseFromDeveloperNoteSeparator: string;
+  private parseFromDeveloperNoteTrimCharacters: string;
   private missingTranslation: string;
   private needsWorkTranslationSubstate: string;
   private addNeedsWorkTranslationNote: boolean;
@@ -187,6 +188,7 @@ export class XlfDocument {
     this.preserveTargetOrder = xliffWorkspaceConfiguration['preserveTargetAttributesOrder'];
     this.preserveTargetChildNodes = xliffWorkspaceConfiguration['preserveTargetChildNodes'];
     this.parseFromDeveloperNoteSeparator = xliffWorkspaceConfiguration['parseFromDeveloperNoteSeparator'];
+    this.parseFromDeveloperNoteTrimCharacters = xliffWorkspaceConfiguration['parseFromDeveloperNoteTrimCharacters'];
 
     this.missingTranslation = xliffWorkspaceConfiguration['missingTranslation'];
     if (this.missingTranslation === '%EMPTY%') {
@@ -416,7 +418,7 @@ export class XlfDocument {
     }
 
     return this.translationUnitNodes.find(
-      (node) => 
+      (node) =>
         (this.getUnitSource(node) === source) && (this.getUnitDeveloperNote(node) === devNote) && this.getUnitTranslationText(node) !== undefined);
   }
 
@@ -597,7 +599,28 @@ export class XlfDocument {
       }
     }
 
+    if (this.parseFromDeveloperNoteTrimCharacters != "") {
+      translation = this.trimAny(translation, this.parseFromDeveloperNoteTrimCharacters)
+    }
+
     return translation;
+  }
+
+  private trimAny(str: string | undefined, chars: string): string | undefined {
+    if (!str) {
+      return str;
+    }
+
+    var start = 0;
+    var end = str.length;
+
+    while(start < end && chars.indexOf(str[start]) >= 0)
+        ++start;
+
+    while(end > start && chars.indexOf(str[end - 1]) >= 0)
+        --end;
+
+    return (start > 0 || end < str.length) ? str.substring(start, end) : str;
   }
 
   public mergeUnit(sourceUnit: XmlNode, targetUnit: XmlNode | undefined, translChildNodes: (XmlNode | string)[] | undefined): void {
@@ -821,6 +844,7 @@ export class XlfDocument {
               case 'needs-translation':
                 return translationState.missingTranslation;
               case 'needs-adaptation':
+              case 'needs-l10n':
                 return translationState.needsWorkTranslation;
               case 'translated':
                 return translationState.translated;

@@ -41,7 +41,7 @@ export class FilesHelper {
 
   /**
   * Get the list of XLIFF files in the opened workspace
-  * 
+  *
   * @param {WorkspaceFolder} workspaceFolder The folder to restrict the search to.
   *
   * @returns An array of all file URIs to the XLIFF files in the current workspace.
@@ -78,7 +78,7 @@ export class FilesHelper {
   /**
    * Retrieves the base/source/generated XLIFF file from a collection of XLIFF file URIs.
    * Also prompts the user to specify a base file, if this wasn't done already.
-   * 
+   *
    * @param {Uri[]} xliffUris Array of XLIFF file URIs.
    * @param {WorkspaceFolder} workspaceFolder The workspace folder to restrict the search to.
    * @returns The Uri of the base/source XLIFF file.
@@ -116,7 +116,7 @@ export class FilesHelper {
       const sourcePath = await window.showQuickPick(fsPaths, {
           placeHolder: 'Select the base XLIFF file',
       });
-  
+
       if (!sourcePath) {
           return undefined;
       }
@@ -207,7 +207,7 @@ export class FilesHelper {
 
     if (targetUri) {
       document = await workspace.openTextDocument(targetUri);
-    } 
+    }
     else if (sourceUri) {
       targetUri = await FilesHelper.createTranslationFile(targetLanguage!, sourceUri, newFileContents);
       document = await workspace.openTextDocument(targetUri);
