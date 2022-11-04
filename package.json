@@ -212,6 +212,12 @@
                     "description": "Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work.",
                     "scope": "resource"
                 },
+                "xliffSync.useSelfClosingTags": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Determine how empty XML tags must be handled while generating new XLIFF files (<note></note> or <note/>).",
+                    "scope": "resource"
+                },
                 "xliffSync.keepEditorOpenAfterSync": {
                     "type": "boolean",
                     "default": true,
@@ -233,8 +239,7 @@
                             "Open automatically after syncing with the base translation file."
                         ]
                     },
-                    "default": [
-                    ],
+                    "default": [],
                     "uniqueItems": true,
                     "description": "Specifies after which event translation files should be opened automatically with the default XLIFF editor",
                     "scope": "resource"

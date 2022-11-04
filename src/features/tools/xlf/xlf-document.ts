@@ -172,6 +172,7 @@ export class XlfDocument {
   private missingTranslation: string;
   private needsWorkTranslationSubstate: string;
   private addNeedsWorkTranslationNote: boolean;
+  private useSelfClosingTags: boolean;
 
   private idUnitMap: { [id: string]: XmlNode } | undefined;
   private xliffGeneratorNoteSourceUnitMap: { [key: string]: XmlNode } | undefined;
@@ -196,6 +197,7 @@ export class XlfDocument {
     }
     this.needsWorkTranslationSubstate = xliffWorkspaceConfiguration['needsWorkTranslationSubstate'];
     this.addNeedsWorkTranslationNote = xliffWorkspaceConfiguration['addNeedsWorkTranslationNote'];
+    this.useSelfClosingTags = xliffWorkspaceConfiguration['useSelfClosingTags'];
   }
 
   public static async loadFromUri(sourceUri: Uri, resourceUri: Uri | undefined): Promise<XlfDocument> {
@@ -259,7 +261,7 @@ export class XlfDocument {
     let retVal: string | undefined;
 
     if (this.valid) {
-      retVal = XmlBuilder.create(this.root)!;
+      retVal = XmlBuilder.create(this.root, false, ! this.useSelfClosingTags)!;
 
       const rootIdx = retVal.indexOf('<xliff ');
 
