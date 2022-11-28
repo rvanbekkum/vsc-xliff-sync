@@ -85,6 +85,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.ignoreLineEndingTypeChanges | `false` | Specifies whether changes in line ending type (CRLF vs. LF) should not be considered as changes to the source text of a trans-unit. |
 | xliffSync.clearTranslationAfterSourceTextChange | `false` | Specifies whether translations should be cleared when the source text of a trans-unit changed. |
 | xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
+| xliffSync.useSelfClosingTags | `true` | Determine how empty XML tags must be handled while generating new XLIFF files (`<note></note>` or `<note/>`). |
 | xliffSync.keepEditorOpenAfterSync | `true` | Specifies whether XLIFF files should be opened in the editor after syncing. |
 | xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |

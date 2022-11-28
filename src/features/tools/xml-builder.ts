@@ -26,7 +26,7 @@ import { create, XMLElementOrXMLNode } from 'xmlbuilder';
 import { XmlNode } from './xml-node';
 
 export class XmlBuilder {
-  public static create(root: XmlNode | undefined, headless: boolean = false): string | undefined {
+  public static create(root: XmlNode | undefined, headless: boolean = false, allowEmpty: boolean = false): string | undefined {
     if (!root) {
       return undefined;
     }
@@ -63,7 +63,7 @@ export class XmlBuilder {
     }
 
     // TODO: pretty as an option ?
-    return outputNode.end();
+    return outputNode.end({ allowEmpty: allowEmpty });
   }
 
   private static appendNode(dest: XMLElementOrXMLNode, source: XmlNode): XMLElementOrXMLNode {
