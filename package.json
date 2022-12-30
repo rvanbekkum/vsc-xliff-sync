@@ -2,7 +2,7 @@
     "name": "xliff-sync",
     "displayName": "XLIFF Sync",
     "description": "A tool to keep XLIFF translation files in sync.",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "publisher": "rvanbekkum",
     "repository": {
         "type": "git",
@@ -215,7 +215,7 @@
                 "xliffSync.useSelfClosingTags": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Determine how empty XML tags must be handled while generating new XLIFF files (<note></note> or <note/>).",
+                    "description": "Specifies whether the XML tags in the XLIFF target files should be self-closing tags. (i.e., `<note></note>` vs. `<note/>`)",
                     "scope": "resource"
                 },
                 "xliffSync.keepEditorOpenAfterSync": {
