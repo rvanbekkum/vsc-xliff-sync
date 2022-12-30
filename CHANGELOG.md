@@ -3,6 +3,8 @@
 ## [1.4.0] 30-12-2022
 
 * New setting `xliffSync.useSelfClosingTags` that can be used to specify whether to use self-closing tags in the XLIFF target translation files. (GitHub issue [#97](https://github.com/rvanbekkum/vsc-xliff-sync/issues/97))
+* Added `LICENSE` file.
+* Updated `README` with additional references and Contributors section.
 
 ### Thank You
 
