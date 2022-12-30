@@ -34,6 +34,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
   * [Find Next Needs Work Translation in XLIFF File](#find-next-needs-work-translation-in-xliff-file)
   * [Import Translations from File(s)](#import-translations-from-files)
 * [Known Issues](#known-issues)
+* [Contributors](#contributors)
 
 ## Features
 
