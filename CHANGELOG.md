@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.0] 30-12-2022
+
+* New setting `xliffSync.useSelfClosingTags` that can be used to specify whether to use self-closing tags in the XLIFF target translation files. (GitHub issue [#97](https://github.com/rvanbekkum/vsc-xliff-sync/issues/97))
+* Added `LICENSE` file.
+* Updated `README` with additional references and Contributors section.
+
+### Thank You
+
+* **[warlof](https://github.com/warlof)** for your pull request (Pull Request [#110](https://github.com/rvanbekkum/vsc-xliff-sync/pull/110)) which adds the `xliffSync.useSelfClosingTags` setting.
+* **[eclipses](https://github.com/eclipses)** for reporting GitHub issue [#97](https://github.com/rvanbekkum/vsc-xliff-sync/issues/97).
+
 ## [1.3.0] 19-05-2022
 
 * New setting `xliffSync.parseFromDeveloperNoteTrimCharacters` that can be used to specify the characters to trim from the translations parsed from the developer notes. (GitHub issue [#100](https://github.com/rvanbekkum/vsc-xliff-sync/issues/100))
