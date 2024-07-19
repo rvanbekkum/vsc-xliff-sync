@@ -30,8 +30,10 @@ import {
     window,
     workspace,
     WorkspaceConfiguration,
-    WorkspaceFolder
+    WorkspaceFolder,
+    commands
 } from 'vscode';
+import * as fs from 'fs';
 
 import { FilesHelper, LanguageHelper, WorkspaceHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
@@ -73,9 +75,15 @@ export async function createNewTargetFiles() {
 
     let uris: Uri[] = await FilesHelper.getXliffFileUris(workspaceFolder);
     let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, workspaceFolder);
+    await executeCreateNewTargetFiles(workspaceFolder, sourceUri);
+}
 
+async function executeCreateNewTargetFiles(workspaceFolder: WorkspaceFolder | undefined, sourceUri: Uri) {
     const fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['fileType'];
-    const targetLanguages: string[] | undefined = await selectNewTargetLanguages(fileType!, true);
+    let targetLanguages: string[] | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['defaultLanguages'];
+    if (!targetLanguages) {
+        targetLanguages = await selectNewTargetLanguages(fileType!, true);
+    }
     if (!targetLanguages) {
         return;
     }
@@ -83,6 +91,61 @@ export async function createNewTargetFiles() {
     for (let targetLanguage of targetLanguages) {
         await synchronizeAndCheckTargetFile(sourceUri, undefined, targetLanguage, workspaceFolder);
     }
+}
+
+export async function buildWithTranslations() {
+    return await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: `Building with Translations`,
+        cancellable: false
+    }, async progress => {
+        progress.report({ message: "Initializing..." });
+        let workspaceFolder: WorkspaceFolder | undefined = getCurrentWorkspaceFolder();
+        if (!workspaceFolder) {
+            throw new Error(`No workspace found for active file.`);
+        }
+
+        // Delete all target files
+        progress.report({ message: "Deleting existing target files..." });
+        let filesExist = await FilesHelper.checkXliffFilesExist(workspaceFolder);
+        if (filesExist) {
+            let uris: Uri[] = await FilesHelper.getXliffFileUris(workspaceFolder);
+            for (const uri of uris) {
+                await fs.promises.unlink(uri.fsPath);
+            }
+        }
+
+        // Execute the build command (Ctrl + Shift + B)
+        progress.report({ message: "Executing build command..." });
+        const buildCommand: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['buildCommandToExecute'];
+        if (!buildCommand) {
+            throw new Error(`No build command specified`);
+        }
+        await commands.executeCommand(buildCommand);
+
+        // Execute the xliffSync.createNewTargetFiles command
+        progress.report({ message: "Creating New Target File(s)..." });
+        let uris = await FilesHelper.getXliffFileUris(workspaceFolder);
+        let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, workspaceFolder);
+        await executeCreateNewTargetFiles(workspaceFolder, sourceUri);
+        await FilesHelper.saveOpenXliffFiles();
+
+        // Execute the xliffSync.synchronizeSources command
+        progress.report({ message: "Synchronizing Translation Units..." });
+        let fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['fileType'];
+        if (!fileType) {
+            throw new Error(`Failed synchronizing translation files.`);
+        }
+        let translationFiles: Uri[] = await FilesHelper.findTranslationFilesInWorkspaceFolder(fileType, workspaceFolder);
+        for (let file of translationFiles) {
+            if (!file.fsPath.endsWith(`g.${fileType}`)) {
+                await synchronizeWithSelectedFile(file);
+                await FilesHelper.saveOpenXliffFiles();
+            }
+        }
+
+        progress.report({ message: "Build and translation synchronization complete!" });
+    });
 }
 
 /**
@@ -188,9 +251,9 @@ async function selectNewTargetLanguages(fileType: string, multiSelectAllowed: bo
     var enterCustomLabel = '$(pencil) Enter custom...';
     var altActions = [];
     if (multiSelectAllowed) {
-        altActions.push({label: multiSelectLabel});
+        altActions.push({ label: multiSelectLabel });
     }
-    altActions.push({label: enterCustomLabel});
+    altActions.push({ label: enterCustomLabel });
 
     const targetLanguagePickSingle: QuickPickItem | undefined = await window.showQuickPick<QuickPickItem>(
         altActions.concat(languageTagOptions),
@@ -203,7 +266,7 @@ async function selectNewTargetLanguages(fileType: string, multiSelectAllowed: bo
         return undefined;
     }
     if (targetLanguagePickSingle.label === enterCustomLabel) {
-        var customTargetLanguage = await window.showInputBox({prompt: 'Enter target language tag', placeHolder: 'Example: en-US'});
+        var customTargetLanguage = await window.showInputBox({ prompt: 'Enter target language tag', placeHolder: 'Example: en-US' });
         if (!customTargetLanguage) {
             return undefined;
         }
@@ -258,7 +321,7 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
             const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
 
             if (!newFileContents) {
-                throw new Error(`No ouput generated.`);
+                throw new Error(`No output generated.`);
             }
 
             targetUri = await FilesHelper.createNewTargetFile(targetUri, newFileContents, sourceUri, targetLanguage);
@@ -283,7 +346,7 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
         equivalentLanguages = xliffWorkspaceConfiguration['equivalentLanguages'];
     }
     const equivalentLanguagesEnabled: boolean = xliffWorkspaceConfiguration['equivalentLanguagesEnabled'];
-    let slavesToMaster: {[id: string]: string} = {};
+    let slavesToMaster: { [id: string]: string } = {};
     if (equivalentLanguagesEnabled) {
         for (let master in equivalentLanguages) {
             const slavePattern = equivalentLanguages[master];
@@ -362,7 +425,7 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
     await autoRunTranslationChecks(workspaceFolder);
 }
 
-function getMasterLanguage(slavePatternsToMaster: {[id: string]: string}, targetLanguage: string): string | undefined {
+function getMasterLanguage(slavePatternsToMaster: { [id: string]: string }, targetLanguage: string): string | undefined {
     for (let slavePattern in slavePatternsToMaster) {
         if (new RegExp(slavePattern).test(targetLanguage)) {
             return slavePatternsToMaster[slavePattern];
@@ -380,4 +443,14 @@ async function autoRunTranslationChecks(workspaceFolder?: WorkspaceFolder, targe
     ];
 
     await runTranslationChecksForWorkspaceFolder(autoCheckMissingTranslations, autoCheckNeedWorkTranslations, targetUri, workspaceFolder);
+}
+
+function getCurrentWorkspaceFolder(): WorkspaceFolder | undefined {
+    const editor = window.activeTextEditor;
+
+    if (!editor) {
+        return undefined;
+    }
+
+    return workspace.getWorkspaceFolder(editor.document.uri);
 }

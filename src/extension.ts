@@ -4,7 +4,7 @@ import {
 } from 'vscode';
 
 import { registerSnippets } from './features/snippets';
-import { synchronizeFiles, synchronizeWithSelectedFile, createNewTargetFiles } from './features/trans-sync';
+import { synchronizeFiles, synchronizeWithSelectedFile, createNewTargetFiles, buildWithTranslations } from './features/trans-sync';
 import { XliffTranslationChecker } from './features/trans-check';
 import { XliffTranslationImport } from './features/trans-import';
 
@@ -13,7 +13,7 @@ export function activate(context: ExtensionContext) {
     new XliffTranslationImport(context);
 
     context.subscriptions.push(
-        commands.registerCommand('xliffSync.createNewTargetFiles', async() => {
+        commands.registerCommand('xliffSync.createNewTargetFiles', async () => {
             createNewTargetFiles();
         })
     );
@@ -32,6 +32,12 @@ export function activate(context: ExtensionContext) {
             else {
                 synchronizeWithSelectedFile(fileUri);
             }
+        })
+    );
+
+    context.subscriptions.push(
+        commands.registerCommand('xliffSync.buildWithTranslations', async () => {
+            buildWithTranslations();
         })
     );
 
