@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.2] 19-07-2024
+
+* Fixed saving Translation file issue when no Auto Save and using the `xliffSync.buildWithTranslations` command
+* Updated `README` with new Features
+* Created `README-CUSTOM` for new Features
+
+## [1.5.1] 18-07-2024
+
+* New setting `xliffSync.defaultLanguages` that specifies the languages to automatically use when generating translations
+* New setting `xliffSync.buildCommandToExecute` that specifies the build command to execute for the `xliffSync.buildWithTranslations` command
+* Fixed `xliffSync.buildWithTranslations` command syncing translations twice
+
+## [1.5.0] 17-07-2024
+
+* New command `xliffSync.buildWithTranslations` that combines multiple commands into one
+
 ## [1.4.0] 30-12-2022
 
 * New setting `xliffSync.useSelfClosingTags` that can be used to specify whether to use self-closing tags in the XLIFF target translation files. (GitHub issue [#97](https://github.com/rvanbekkum/vsc-xliff-sync/issues/97))

@@ -1,6 +1,6 @@
 # XLIFF Sync
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Version](https://vsmarketplacebadges.dev/version-short/rvanbekkum.xliff-sync.svg?color=blue)](https://marketplace.visualstudio.com/items?itemName=rvanbekkum.xliff-sync) [![Installs](https://vsmarketplacebadges.dev/installs/rvanbekkum.xliff-sync.svg?color=blue)](https://marketplace.visualstudio.com/items?itemName=rvanbekkum.xliff-sync)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.png)](https://opensource.org/licenses/MIT)
 
 <a href="https://www.buymeacoffee.com/robvanbekkum" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
@@ -20,21 +20,39 @@ View the demo in the [Areopa](https://areopa.academy/) webinar recording: [VS Co
 
 More information: [XLIFF Sync: Time for a complete overview](https://robvanbekkum.nl/xliff-sync-overview/)
 
-* [Features](#features)
-* [Contributions](#contributions)
-  * [Commands](#commands)
-  * [Settings](#settings)
-* [Usage](#usage)
-  * [Create New Target File(s)](#create-new-target-files)
-  * [Synchronize to Single File](#synchronize-to-single-file)
-  * [Synchronize Translation Units](#synchronize-translation-units)
-  * [Check for Missing Translations](#check-for-missing-translations)
-  * [Check for Need Work Translations](#check-for-need-work-translations)
-  * [Find Next Missing Translation in XLIFF File](#find-next-missing-translation-in-xliff-file)
-  * [Find Next Needs Work Translation in XLIFF File](#find-next-needs-work-translation-in-xliff-file)
-  * [Import Translations from File(s)](#import-translations-from-files)
-* [Known Issues](#known-issues)
-* [Contributors](#contributors)
+- [XLIFF Sync](#xliff-sync)
+  - [Summary](#summary)
+  - [Features](#features)
+  - [Contributions](#contributions)
+    - [Commands](#commands)
+    - [Settings](#settings)
+  - [Usage](#usage)
+    - [Create New Target File(s)](#create-new-target-files)
+      - [Using the Command Palette](#using-the-command-palette)
+    - [Synchronize to Single File](#synchronize-to-single-file)
+      - [Using the Command Palette](#using-the-command-palette-1)
+      - [Using keyboard shortcut](#using-keyboard-shortcut)
+    - [Synchronize Translation Units](#synchronize-translation-units)
+      - [Using the Command Palette](#using-the-command-palette-2)
+      - [Using keyboard shortcut](#using-keyboard-shortcut-1)
+      - [From the Explorer](#from-the-explorer)
+    - [Check for Missing Translations](#check-for-missing-translations)
+      - [Using the Command Palette](#using-the-command-palette-3)
+    - [Check for Need Work Translations](#check-for-need-work-translations)
+      - [Using the Command Palette](#using-the-command-palette-4)
+    - [Find Next Missing Translation in XLIFF File](#find-next-missing-translation-in-xliff-file)
+      - [Using the Command Palette](#using-the-command-palette-5)
+      - [Using keyboard shortcut](#using-keyboard-shortcut-2)
+    - [Find Next Needs Work Translation in XLIFF File](#find-next-needs-work-translation-in-xliff-file)
+      - [Using the Command Palette](#using-the-command-palette-6)
+      - [Using keyboard shortcut](#using-keyboard-shortcut-3)
+    - [Import Translations from File(s)](#import-translations-from-files)
+      - [Using the Command Palette](#using-the-command-palette-7)
+    - [Build with Translations](#build-with-translations)
+      - [Using the Command Palette](#using-the-command-palette-8)
+      - [Using keyboard shortcut](#using-keyboard-shortcut-4)
+  - [Known Issues](#known-issues)
+  - [Contributors](#contributors)
 
 ## Features
 
@@ -61,6 +79,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | **XLIFF: Next Missing Translation** | In an XLIFF file that is currently opened in the active editor, search for the next missing translation. |
 | **XLIFF: Next Needs Work Translation** | In an XLIFF file that is currently opened in the active editor, search for the next translation tagged as `needs-adaptation`. |
 | **XLIFF: Import Translations from File(s)** | Import/Copy translations from external XLIFF files to trans-units with matching sources of target XLIFF files with the same target-language. |
+| **XLIFF: Build with Translations** | Deletes, Builds and generates Translations all in one for the current opened files App |
 
 ![XLIFF Sync Command Palette Commands](resources/xliffSync_commandPaletteCommands.png)
 
@@ -94,7 +113,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.clearTranslationAfterSourceTextChange | `false` | Specifies whether translations should be cleared when the source text of a trans-unit changed. |
 | xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
 | xliffSync.useSelfClosingTags | `true` | Specifies whether the XML tags in the XLIFF target files should be self-closing tags. (i.e., `<note></note>` vs. `<note/>`). |
-| xliffSync.keepEditorOpenAfterSync | `true` | Specifies whether XLIFF files should be opened in the editor after syncing. |
+| xliffSync.keepEditorOpenAfterSync | `false` | Specifies whether XLIFF files should be opened in the editor after syncing. |
 | xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
@@ -111,6 +130,8 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.decorationTargetTextOnly | `false` | Specifies whether decorations for missing translations and translations that need work should only be applied to the target text. |
 | xliffSync.enableSnippetsForLanguages | `[]` | Specifies the programming languages for which the XLIFF Sync snippets should be enabled. Currently supported: `al`. |
 | xliffSync.snippetTargetLanguage | `TargetLanguageCode` | Specifies which target language to use by default in the XLIFF Sync snippets (e.g., `nl-NL`). |
+| xliffSync.defaultLanguages | `[ en-US, de-DE ]` | Specifies the languages that should automatically be used for the translation file generation.|
+| xliffSync.buildCommandToExecute | `al.package` | Specifies the build command to execute when building with translations. |
 
 ## Usage
 
@@ -138,7 +159,7 @@ If no trans-unit or translation is found, the unit is added and its target node 
 > 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
 > 2. **XLIFF: Create New Target File(s)**
 
-This command will let you create one or more new target files, letting you choose from a set of RFC 4646 or RFC 5646 language tags depending on the XLIFF file type (i.e., `xlf` or `xlf2`).
+This command will let you create one or more new target files, using the languages specified in the `xliffSync.defaultLanguages` setting or when empty letting you choose from a set of RFC 4646 or RFC 5646 language tags depending on the XLIFF file type (i.e., `xlf` or `xlf2`).
 The new file is automatically synced with the base file; if it is not known you will be prompted to specify the file to use as the base file first.
 
 ![XLIFF Sync Create New Target Files Options](resources/xliffSync_createNewTargetFilesOptions.png)
@@ -283,6 +304,25 @@ That way you could utilize the Developer note to have the import perform a more 
 
 More detailed instruction: [Import Translations from Files](https://robvanbekkum.nl/xliff-sync-overview/#import-translations-from-files)
 
+### Build with Translations
+
+#### Using the Command Palette
+
+> 1.  F1 or CMD + Shift + P to open the command palette
+> 2.  **XLIFF: Build with Translations**
+
+#### Using keyboard shortcut
+
+> 1.  Ctrl + Shift + T (default shortcut)
+
+This command combines multiple actions into one command:
+> 1. Delete current translation files
+> 2. Build App using the build command defined in new Setting `xliffSync.buildCommandToExecute`
+> 3. Create new Target files for Languages defined in new Setting `xliffSync.defaultLanguages`
+> 4. Syncs Translations files to show if translations are missing
+
+To use this, a file from the App for which you want to update the Translations has to be opened. Then execute the command.
+
 ## Known Issues
 
 * Automatically inserting _new_ groups into target files is not implemented.
@@ -295,6 +335,7 @@ More detailed instruction: [Import Translations from Files](https://robvanbekkum
 * [manux54](https://github.com/manux54)
 * [rvanbekkum](https://github.com/rvanbekkum)
 * [warlof](https://github.com/warlof)
+* [der_floh](https://github.com/Der-Floh)
 
 You can find the contributions in the [Changelog](https://marketplace.visualstudio.com/items/rvanbekkum.xliff-sync/changelog).
 Thank you all! 🤍
