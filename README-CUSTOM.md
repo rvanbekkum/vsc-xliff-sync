@@ -2,7 +2,8 @@
 
 ## Installation
 ![Install Guide](resources/custom_xliffSync_installSteps.png)
-Then choose the `xliff-sync.vsix` file
+
+Then choose the `xliff-sync.vsix` file found in [Latest Release](https://github.com/FlorianNoeverGOB/vsc-xliff-sync/releases/latest)
 
 ## Added Settings & Features
 
