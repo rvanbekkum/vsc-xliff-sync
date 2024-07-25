@@ -81,10 +81,10 @@ export async function createNewTargetFiles() {
 async function executeCreateNewTargetFiles(workspaceFolder: WorkspaceFolder | undefined, sourceUri: Uri) {
     const fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['fileType'];
     let targetLanguages: string[] | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['defaultLanguages'];
-    if (!targetLanguages) {
+    if (!targetLanguages || targetLanguages.length === 0) {
         targetLanguages = await selectNewTargetLanguages(fileType!, true);
     }
-    if (!targetLanguages) {
+    if (!targetLanguages || targetLanguages.length === 0) {
         return;
     }
 

@@ -222,6 +222,7 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Specifies whether XLIFF files should be opened in the editor after syncing.",
+                    "order": 2,
                     "scope": "resource"
                 },
                 "xliffSync.openExternallyAfterEvent": {
@@ -387,20 +388,23 @@
                 "xliffSync.defaultLanguages": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^[a-z]{2}-[A-Z]{2}$"
                     },
-                    "default": [
+                    "examples": [
                         "en-US",
                         "de-DE"
                     ],
                     "uniqueItems": true,
-                    "description": "Specifies the languages that should automatically be used for the translation file generation.",
+                    "description": "Specifies the languages that should automatically be used for the translation file generation. \nExamples: \"en-US\", \"de-DE\".",
+                    "order": 0,
                     "scope": "resource"
                 },
                 "xliffSync.buildCommandToExecute": {
                     "type": "string",
                     "default": "al.package",
                     "description": "Specifies the build command to execute when building with translations.",
+                    "order": 1,
                     "scope": "resource"
                 }
             }
