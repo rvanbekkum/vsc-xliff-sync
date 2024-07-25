@@ -1,4 +1,4 @@
-# XLIFF Sync Improved
+# XLIFF Sync - New Features
 
 ## Installation
 ![Install Guide](resources/custom_xliffSync_installSteps.png)
