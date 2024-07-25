@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.3] 24-07-2024
+
+* Changed default setting for `xliffSync.defaultLanguages` to empty
+* Fixed extension not asking for languages when generating translations with `xliffSync.defaultLanguages` being empty
+* Changed settings order
+
 ## [1.5.2] 19-07-2024
 
 * Fixed saving Translation file issue when no Auto Save and using the `xliffSync.buildWithTranslations` command
