@@ -1,6 +1,6 @@
 # XLIFF Sync
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.png)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Version](https://vsmarketplacebadges.dev/version-short/rvanbekkum.xliff-sync.svg?color=blue)](https://marketplace.visualstudio.com/items?itemName=rvanbekkum.xliff-sync) [![Installs](https://vsmarketplacebadges.dev/installs/rvanbekkum.xliff-sync.svg?color=blue)](https://marketplace.visualstudio.com/items?itemName=rvanbekkum.xliff-sync)
 
 <a href="https://www.buymeacoffee.com/robvanbekkum" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
