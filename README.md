@@ -113,7 +113,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.clearTranslationAfterSourceTextChange | `false` | Specifies whether translations should be cleared when the source text of a trans-unit changed. |
 | xliffSync.addNeedsWorkTranslationNote | `true` | Specifies whether an XLIFF Sync note should be added to explain why a trans-unit was marked as needs-work. |
 | xliffSync.useSelfClosingTags | `true` | Specifies whether the XML tags in the XLIFF target files should be self-closing tags. (i.e., `<note></note>` vs. `<note/>`). |
-| xliffSync.keepEditorOpenAfterSync | `false` | Specifies whether XLIFF files should be opened in the editor after syncing. |
+| xliffSync.keepEditorOpenAfterSync | `true` | Specifies whether XLIFF files should be opened in the editor after syncing. |
 | xliffSync.openExternallyAfterEvent | `[]` | Specifies after which event translation files should be opened automatically with the default XLIFF editor. Options: "Check", "ProblemDetected", "Sync" |
 | xliffSync.developerNoteDesignation | `Developer` | Specifies the name that is used to designate a developer note. |
 | xliffSync.xliffGeneratorNoteDesignation | `Xliff Generator` | Specifies the name that is used to designate a XLIFF generator note. |
@@ -130,7 +130,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.decorationTargetTextOnly | `false` | Specifies whether decorations for missing translations and translations that need work should only be applied to the target text. |
 | xliffSync.enableSnippetsForLanguages | `[]` | Specifies the programming languages for which the XLIFF Sync snippets should be enabled. Currently supported: `al`. |
 | xliffSync.snippetTargetLanguage | `TargetLanguageCode` | Specifies which target language to use by default in the XLIFF Sync snippets (e.g., `nl-NL`). |
-| xliffSync.defaultLanguages | `[ en-US, de-DE ]` | Specifies the languages that should automatically be used for the translation file generation.|
+| xliffSync.defaultLanguages | `[]` | Specifies the languages that should automatically be used for the translation file generation. If empty, asks which language to use. |
 | xliffSync.buildCommandToExecute | `al.package` | Specifies the build command to execute when building with translations. |
 
 ## Usage

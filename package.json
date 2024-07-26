@@ -220,9 +220,8 @@
                 },
                 "xliffSync.keepEditorOpenAfterSync": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Specifies whether XLIFF files should be opened in the editor after syncing.",
-                    "order": 2,
                     "scope": "resource"
                 },
                 "xliffSync.openExternallyAfterEvent": {
@@ -395,6 +394,7 @@
                         "en-US",
                         "de-DE"
                     ],
+                    "default": [],
                     "uniqueItems": true,
                     "description": "Specifies the languages that should automatically be used for the translation file generation. \nExamples: \"en-US\", \"de-DE\".",
                     "order": 0,
