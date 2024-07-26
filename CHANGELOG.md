@@ -5,13 +5,11 @@
 * Changed default setting for `xliffSync.defaultLanguages` to empty
 * Fixed extension not asking for languages when generating translations with `xliffSync.defaultLanguages` being empty
 * Changed settings order
-* Renamed `README-CUSTOM` to `README-NEW-FEATURES`
 
 ## [1.5.2] 19-07-2024
 
 * Fixed saving Translation file issue when no Auto Save and using the `xliffSync.buildWithTranslations` command
 * Updated `README` with new Features
-* Created `README-CUSTOM` for new Features
 
 ## [1.5.1] 18-07-2024
 
