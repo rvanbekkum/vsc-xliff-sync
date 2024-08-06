@@ -80,9 +80,9 @@ export class FilesHelper {
     *
     * @param {WorkspaceFolder} workspaceFolder The folder to restrict the search to.
     *
-    * @returns A boolean that specifies wether translation files exist in the current workspace.
+    * @returns A boolean that specifies whether translation files exist in the current workspace.
     */
-  public static async checkXliffFilesExist(workspaceFolder?: WorkspaceFolder): Promise<boolean> {
+  public static async xliffFilesExist(workspaceFolder?: WorkspaceFolder): Promise<boolean> {
     let fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['fileType'];
     let uris: Uri[] = [];
 

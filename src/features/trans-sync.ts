@@ -100,14 +100,15 @@ export async function buildWithTranslations() {
         cancellable: false
     }, async progress => {
         progress.report({ message: "Initializing..." });
-        let workspaceFolder: WorkspaceFolder | undefined = getCurrentWorkspaceFolder();
+        let workspaceFolders: WorkspaceFolder[] | undefined = await WorkspaceHelper.getWorkspaceFolders(false);
+        let workspaceFolder: WorkspaceFolder | undefined = workspaceFolders?.[0];
         if (!workspaceFolder) {
             throw new Error(`No workspace found for active file.`);
         }
 
         // Delete all target files
         progress.report({ message: "Deleting existing target files..." });
-        let filesExist = await FilesHelper.checkXliffFilesExist(workspaceFolder);
+        let filesExist = await FilesHelper.xliffFilesExist(workspaceFolder);
         if (filesExist) {
             let uris: Uri[] = await FilesHelper.getXliffFileUris(workspaceFolder);
             for (const uri of uris) {
@@ -443,14 +444,4 @@ async function autoRunTranslationChecks(workspaceFolder?: WorkspaceFolder, targe
     ];
 
     await runTranslationChecksForWorkspaceFolder(autoCheckMissingTranslations, autoCheckNeedWorkTranslations, targetUri, workspaceFolder);
-}
-
-function getCurrentWorkspaceFolder(): WorkspaceFolder | undefined {
-    const editor = window.activeTextEditor;
-
-    if (!editor) {
-        return undefined;
-    }
-
-    return workspace.getWorkspaceFolder(editor.document.uri);
 }
