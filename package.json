@@ -387,8 +387,7 @@
                 "xliffSync.defaultLanguages": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "pattern": "^[a-z]{2}-[A-Z]{2}$"
+                        "type": "string"
                     },
                     "examples": [
                         "en-US",
