@@ -106,16 +106,6 @@ export async function buildWithTranslations() {
             throw new Error(`No workspace found for active file.`);
         }
 
-        // Delete all target files
-        progress.report({ message: "Deleting existing target files..." });
-        let filesExist = await FilesHelper.xliffFilesExist(workspaceFolder);
-        if (filesExist) {
-            let uris: Uri[] = await FilesHelper.getXliffFileUris(workspaceFolder);
-            for (const uri of uris) {
-                await fs.promises.unlink(uri.fsPath);
-            }
-        }
-
         // Execute the build command (Ctrl + Shift + B)
         progress.report({ message: "Executing build command..." });
         const buildCommand: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['buildCommandToExecute'];
@@ -123,13 +113,6 @@ export async function buildWithTranslations() {
             throw new Error(`No build command specified`);
         }
         await commands.executeCommand(buildCommand);
-
-        // Execute the xliffSync.createNewTargetFiles command
-        progress.report({ message: "Creating New Target File(s)..." });
-        let uris = await FilesHelper.getXliffFileUris(workspaceFolder);
-        let sourceUri: Uri = await FilesHelper.getXliffSourceFile(uris, workspaceFolder);
-        await executeCreateNewTargetFiles(workspaceFolder, sourceUri);
-        await FilesHelper.saveOpenXliffFiles();
 
         // Execute the xliffSync.synchronizeSources command
         progress.report({ message: "Synchronizing Translation Units..." });
