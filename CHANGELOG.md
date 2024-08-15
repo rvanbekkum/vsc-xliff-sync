@@ -1,25 +1,14 @@
 # Changelog
 
-## [1.5.3] 24-07-2024
+## [1.5.0] 15-08-2024
 
-* Changed default setting for `xliffSync.defaultLanguages` to empty
-* Fixed extension not asking for languages when generating translations with `xliffSync.defaultLanguages` being empty
-* Changed settings order
-
-## [1.5.2] 19-07-2024
-
-* Fixed saving Translation file issue when no Auto Save and using the `xliffSync.buildWithTranslations` command
-* Updated `README` with new Features
-
-## [1.5.1] 18-07-2024
-
-* New setting `xliffSync.defaultLanguages` that specifies the languages to automatically use when generating translations
+* New command `xliffSync.buildWithTranslations` which first builds the project in the currently open workspace/project folder, and directly afterwards synchronizes all .xlf translation files in the workspace/project folder.
+* New setting `xliffSync.defaultLanguages` that can be used to specify the languages that should automatically be used for the translation file generation.
 * New setting `xliffSync.buildCommandToExecute` that specifies the build command to execute for the `xliffSync.buildWithTranslations` command
-* Fixed `xliffSync.buildWithTranslations` command syncing translations twice
 
-## [1.5.0] 17-07-2024
+### Thank You
 
-* New command `xliffSync.buildWithTranslations` that combines multiple commands into one
+* **[FlorianNoeverGOB](https://github.com/FlorianNoeverGOB)** for your pull request to add the `xliffSync.buildWithTranslations` command (Pull Request [#122](https://github.com/rvanbekkum/vsc-xliff-sync/pull/122))
 
 ## [1.4.0] 30-12-2022
 

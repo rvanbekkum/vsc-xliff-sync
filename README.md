@@ -4,7 +4,6 @@
 
 <a href="https://www.buymeacoffee.com/robvanbekkum" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
-
 A VSCode extension to keep XLIFF translation files in sync with an automatically generated base-XLIFF file.
 
 Note that there is also an ["XLIFF Sync" PowerShell module](https://github.com/rvanbekkum/ps-xliff-sync)!
@@ -20,45 +19,45 @@ View the demo in the [Areopa](https://areopa.academy/) webinar recording: [VS Co
 
 More information: [XLIFF Sync: Time for a complete overview](https://robvanbekkum.nl/xliff-sync-overview/)
 
-- [XLIFF Sync](#xliff-sync)
-  - [Summary](#summary)
-  - [Features](#features)
-  - [Contributions](#contributions)
-    - [Commands](#commands)
-    - [Settings](#settings)
-  - [Usage](#usage)
-    - [Create New Target File(s)](#create-new-target-files)
-      - [Using the Command Palette](#using-the-command-palette)
-    - [Synchronize to Single File](#synchronize-to-single-file)
-      - [Using the Command Palette](#using-the-command-palette-1)
-      - [Using keyboard shortcut](#using-keyboard-shortcut)
-    - [Synchronize Translation Units](#synchronize-translation-units)
-      - [Using the Command Palette](#using-the-command-palette-2)
-      - [Using keyboard shortcut](#using-keyboard-shortcut-1)
-      - [From the Explorer](#from-the-explorer)
-    - [Check for Missing Translations](#check-for-missing-translations)
-      - [Using the Command Palette](#using-the-command-palette-3)
-    - [Check for Need Work Translations](#check-for-need-work-translations)
-      - [Using the Command Palette](#using-the-command-palette-4)
-    - [Find Next Missing Translation in XLIFF File](#find-next-missing-translation-in-xliff-file)
-      - [Using the Command Palette](#using-the-command-palette-5)
-      - [Using keyboard shortcut](#using-keyboard-shortcut-2)
-    - [Find Next Needs Work Translation in XLIFF File](#find-next-needs-work-translation-in-xliff-file)
-      - [Using the Command Palette](#using-the-command-palette-6)
-      - [Using keyboard shortcut](#using-keyboard-shortcut-3)
-    - [Import Translations from File(s)](#import-translations-from-files)
-      - [Using the Command Palette](#using-the-command-palette-7)
-    - [Build with Translations](#build-with-translations)
-      - [Using the Command Palette](#using-the-command-palette-8)
-      - [Using keyboard shortcut](#using-keyboard-shortcut-4)
-  - [Known Issues](#known-issues)
-  - [Contributors](#contributors)
+* [XLIFF Sync](#xliff-sync)
+  * [Summary](#summary)
+  * [Features](#features)
+  * [Contributions](#contributions)
+    * [Commands](#commands)
+    * [Settings](#settings)
+  * [Usage](#usage)
+    * [Create New Target File(s)](#create-new-target-files)
+      * [Using the Command Palette](#using-the-command-palette)
+    * [Synchronize to Single File](#synchronize-to-single-file)
+      * [Using the Command Palette](#using-the-command-palette-1)
+      * [Using keyboard shortcut](#using-keyboard-shortcut)
+    * [Synchronize Translation Units](#synchronize-translation-units)
+      * [Using the Command Palette](#using-the-command-palette-2)
+      * [Using keyboard shortcut](#using-keyboard-shortcut-1)
+      * [From the Explorer](#from-the-explorer)
+    * [Check for Missing Translations](#check-for-missing-translations)
+      * [Using the Command Palette](#using-the-command-palette-3)
+    * [Check for Need Work Translations](#check-for-need-work-translations)
+      * [Using the Command Palette](#using-the-command-palette-4)
+    * [Find Next Missing Translation in XLIFF File](#find-next-missing-translation-in-xliff-file)
+      * [Using the Command Palette](#using-the-command-palette-5)
+      * [Using keyboard shortcut](#using-keyboard-shortcut-2)
+    * [Find Next Needs Work Translation in XLIFF File](#find-next-needs-work-translation-in-xliff-file)
+      * [Using the Command Palette](#using-the-command-palette-6)
+      * [Using keyboard shortcut](#using-keyboard-shortcut-3)
+    * [Import Translations from File(s)](#import-translations-from-files)
+      * [Using the Command Palette](#using-the-command-palette-7)
+    * [Build with Translations](#build-with-translations)
+      * [Using the Command Palette](#using-the-command-palette-8)
+      * [Using keyboard shortcut](#using-keyboard-shortcut-4)
+  * [Known Issues](#known-issues)
+  * [Contributors](#contributors)
 
 ## Features
 
 * Merge new translations from a generated, base-XLIFF file into existing XLIFF files.
-  - Merge from the base-XLIFF file into a manually specified target XLIFF file.
-  - Merge from the base-XLIFF file into all XLIFF files in the open workspace.
+  * Merge from the base-XLIFF file into a manually specified target XLIFF file.
+  * Merge from the base-XLIFF file into all XLIFF files in the open workspace.
 * Search and highlight missing translations in an open XLIFF file.
 * Run technical validations to check for problems in the translations of target XLIFF files.
 * Import/Copy translations for matching sources from external XLIFF files to target XLIFF files.
@@ -79,7 +78,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | **XLIFF: Next Missing Translation** | In an XLIFF file that is currently opened in the active editor, search for the next missing translation. |
 | **XLIFF: Next Needs Work Translation** | In an XLIFF file that is currently opened in the active editor, search for the next translation tagged as `needs-adaptation`. |
 | **XLIFF: Import Translations from File(s)** | Import/Copy translations from external XLIFF files to trans-units with matching sources of target XLIFF files with the same target-language. |
-| **XLIFF: Build with Translations** | Deletes, Builds and generates Translations all in one for the current opened files App |
+| **XLIFF: Build with Translations** | Builds the project in the currently open workspace/project folder (Ctrl + Shift + B) and afterwards synchronizes all translation units from base-XLIFF file into all other XLIFF files in the open workspace/project folder. |
 
 ![XLIFF Sync Command Palette Commands](resources/xliffSync_commandPaletteCommands.png)
 
@@ -93,7 +92,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.matchingOriginalOnly | `true` | Specifies whether the extension will sync only to files where the original-attribute is matching. |
 | xliffSync.unitMaps | `All` | Specifies for which search purposes this command should create in-memory maps in preparation of syncing. |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
-| xliffSync.needsWorkTranslationSubstate | `xliffSync:needsWork` | Specifies the substate to use for translations that need work in xlf2 files. **Tip**: If you use [Poedit](https://poedit.net/), then you could also set this to `poedit:fuzzy`. |
+| xliffSync.needsWorkTranslationSubstate | `xliffSync:needsWork` | Specifies the substate to use for translations that need work in XLIFF 2.0 files. **Tip**: If you use [Poedit](https://poedit.net/), then you could also set this to `poedit:fuzzy`. |
 | xliffSync.findByXliffGeneratorNoteAndSource | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and source. |
 | xliffSync.findByXliffGeneratorAndDeveloperNote | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note and developer note. |
 | xliffSync.findByXliffGeneratorNote | `true` | Specifies whether or not the extension will try to find trans-units by XLIFF generator note. |
@@ -130,7 +129,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 | xliffSync.decorationTargetTextOnly | `false` | Specifies whether decorations for missing translations and translations that need work should only be applied to the target text. |
 | xliffSync.enableSnippetsForLanguages | `[]` | Specifies the programming languages for which the XLIFF Sync snippets should be enabled. Currently supported: `al`. |
 | xliffSync.snippetTargetLanguage | `TargetLanguageCode` | Specifies which target language to use by default in the XLIFF Sync snippets (e.g., `nl-NL`). |
-| xliffSync.defaultLanguages | `[]` | Specifies the languages that should automatically be used for the translation file generation. If empty, asks which language to use. |
+| xliffSync.defaultLanguages | `[]` | Specifies the languages that should automatically be used for the translation file generation. If empty, you will be prompted to select the languages to create translation files for. |
 | xliffSync.buildCommandToExecute | `al.package` | Specifies the build command to execute when building with translations. |
 
 ## Usage
@@ -138,18 +137,26 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 The extension will try to find corresponding trans-units and translations within an existing file as follows:
 
 1. Finding trans-units:
-> 1. By Id
-> 2. By XLIFF Generator Note & Source (enabled by default, configurable with `xliffSync.findByXliffGeneratorNoteAndSource`)
-> 3. By XLIFF Generator Note & Developer Note (enabled by default, configurable with `xliffSync.findByXliffGeneratorAndDeveloperNote`)
-> 4. By XLIFF Generator Note (enabled by default, configurable with `xliffSync.findByXliffGeneratorNote`)
+
+    1\. By Id
+
+    2\. By XLIFF Generator Note & Source (enabled by default, configurable with `xliffSync.findByXliffGeneratorNoteAndSource`)
+
+    3\. By XLIFF Generator Note & Developer Note (enabled by default, configurable with `xliffSync.findByXliffGeneratorAndDeveloperNote`)
+
+    4\. By XLIFF Generator Note (enabled by default, configurable with `xliffSync.findByXliffGeneratorNote`)
 
 2. Finding translations:
-> 5. By Source & Developer Note (disabled by default, configurable with `xliffSync.findBySourceAndDeveloperNote`)
-> 6. By Source (disabled by default, configurable with `xliffSync.findBySource`)
+
+    5\. By Source & Developer Note (disabled by default, configurable with `xliffSync.findBySourceAndDeveloperNote`)
+
+    6\. By Source (disabled by default, configurable with `xliffSync.findBySource`)
 
 3. Initial translation:
-> 7. Parse from Developer Note (disabled by default, configurable with `xliffSync.parseFromDeveloperNote`)
-> 8. Copy from Source, if applicable/configured for target language (disabled by default, configurable with `xliffSync.copyFromSourceFor...`)
+
+    7\. Parse from Developer Note (disabled by default, configurable with `xliffSync.parseFromDeveloperNote`)
+
+    8\. Copy from Source, if applicable/configured for target language (disabled by default, configurable with `xliffSync.copyFromSourceFor...`)
 
 If no trans-unit or translation is found, the unit is added and its target node is tagged with `state="needs-translation"`.
 
@@ -217,8 +224,8 @@ More detailed instruction: [Synchronize Translation Files](https://robvanbekkum.
 
 #### Using the Command Palette
 
-> 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
-> 2. **XLIFF: Check for Missing Translations**
+1. F1 or Ctrl/Cmd + Shift + P to open the command palette
+2. **XLIFF: Check for Missing Translations**
 
 This will check all XLIFF files in the workspace and notify about any missing translations in the files.
 You also have the option to open files with missing translations with your default XLIFF editor using the **Open Externally** button from the informational message.
@@ -231,8 +238,8 @@ More detailed instruction: [Check Translation Files](https://robvanbekkum.nl/xli
 
 #### Using the Command Palette
 
-> 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
-> 2. **XLIFF: Check for Need Work Translations**
+1. F1 or Ctrl/Cmd + Shift + P to open the command palette
+2. **XLIFF: Check for Need Work Translations**
 
 This will run technical validation/checks for all XLIFF files in the workspace and notify about any translations that need work in the files.
 You also have the option to open files containing problems with your default XLIFF editor using the **Open Externally** button from the informational message.
@@ -264,12 +271,12 @@ More detailed instruction: [Check Translation Files](https://robvanbekkum.nl/xli
 
 #### Using the Command Palette
 
-> 1.  F1 or CMD + Shift + P to open the command palette
-> 2.  **XLIFF: Next Missing Translation**
+1. F1 or CMD + Shift + P to open the command palette
+2. **XLIFF: Next Missing Translation**
 
 #### Using keyboard shortcut
 
-> 1.  Alt + X, N (default shortcut)
+1. Alt + X, N (default shortcut)
 
 Missing translations are tagged and highlighted.
 You can use the extension to navigate between missing translations.
@@ -279,12 +286,12 @@ On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 #### Using the Command Palette
 
-> 1.  F1 or CMD + Shift + P to open the command palette
-> 2.  **XLIFF: Next Needs Work Translation**
+1. F1 or CMD + Shift + P to open the command palette
+2. **XLIFF: Next Needs Work Translation**
 
 #### Using keyboard shortcut
 
-> 1.  Alt + X, W (default shortcut)
+1.  Alt + X, W (default shortcut)
 
 Translations that need work are tagged and highlighted.
 You can use this command to navigate between translations that need work.
@@ -294,10 +301,10 @@ On a Macbook Pro, this command appears on the touchbar within XLIFF files.
 
 #### Using the Command Palette
 
-> 1. F1 or Ctrl/Cmd + Shift + P to open the command palette
-> 2. **XLIFF: Import Translations from File(s)**
+1. F1 or Ctrl/Cmd + Shift + P to open the command palette
+2. **XLIFF: Import Translations from File(s)**
 
-This will open a file dialog in which you can select one or more XLIFF files (.xlf or .xlf2).
+This will open a file dialog in which you can select one or more XLIFF files (.xlf).
 The command will copy translations from the selected files to trans-units in the XLIFF files in your project folder with the same target-language for matching sources.
 It will try first to merge translations for trans-units with a matching combination of source-text and Developer note, and only after that try to merge translations to trans-units with matching source-text.
 That way you could utilize the Developer note to have the import perform a more precise merge of the translations (e.g., based on tags in the Developer notes).
@@ -308,20 +315,83 @@ More detailed instruction: [Import Translations from Files](https://robvanbekkum
 
 #### Using the Command Palette
 
-> 1.  F1 or CMD + Shift + P to open the command palette
-> 2.  **XLIFF: Build with Translations**
+1.  F1 or Ctrl/Cmd + Shift + P to open the command palette
+2.  **XLIFF: Build with Translations**
 
 #### Using keyboard shortcut
 
-> 1.  Ctrl + Shift + T (default shortcut)
+1.  Ctrl + Shift + T (default shortcut)
 
 This command combines multiple actions into one command:
-> 1. Delete current translation files
-> 2. Build App using the build command defined in new Setting `xliffSync.buildCommandToExecute`
-> 3. Create new Target files for Languages defined in new Setting `xliffSync.defaultLanguages`
-> 4. Syncs Translations files to show if translations are missing
 
-To use this, a file from the App for which you want to update the Translations has to be opened. Then execute the command.
+1. Build the project of the currently open project folder using the build command defined in the `xliffSync.buildCommandToExecute` setting.
+2. If no .xlf translation files exists, then create new translation files (for the languages specified in the `xliffSync.defaultLanguages` setting).
+3. Merge new translations into all XLIFF files in your workspace folder
+
+#### Default Build Task
+
+If you would like to make **XLIFF: Build with Translations** your default build task, then this is one of the ways you can do that:
+
+1. Run the command **Tasks: Open Workspace/User Tasks** via the command palette, or add/edit a `tasks.json` file at workspace/project folder level.
+2. Add the following task as default build task:
+
+    ```json
+    {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "XLIFF: Build with Translations",
+                "command": "${command:xliffSync.buildWithTranslations}",
+                "problemMatcher": [],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                }
+            }
+        ]
+    }
+    ```
+
+### Parse from Developer Note
+
+An approach that is taken by some app developers is to have the *initial* translation provided by the developers themselves (that is, for languages that they are proficient in, typically their mother tongue).
+This can be done by adding translations as a developer note/comment in the source code:
+
+```pascal
+procedure MyProcedure()
+var
+    DissapointDaveErr: Label 'I am afraid I can not do that, Dave', Comment = 'en-US=I am trepidacious I can not do that, Dave|nl-NL=Ik ben bang dat ik dat niet kan doen, Dave';
+    ExtremeMathMsg: Label 'One plus one = two', Comment = 'en-US=One plus one = TWO|nl-NL=Een plus een is twee|nl-BE=Een plus een is twee';
+    SatisfySamMsg: Label 'I hope you are satisfied, Sam', Comment = 'This is just a regular comment';
+    TerminateTimErr: Label 'Hasta la vista, Tim', Comment = 'nl-BE=Salut, Tim';
+    WorshipWillemMsg: Label 'Thank you Willem';
+begin
+    Error(DissapointDaveErr);
+end;
+```
+
+If you want to utilize this, the "XLIFF Sync" extension for Visual Studio code can help you to automatically get the translations provided by the developer in the comments to your target XLIFF translation files.
+To let "XLIFF Sync" extract/parse translations from the Developer notes, you will need to set the `xliffSync.parseFromDeveloperNote` setting to `true`.
+If you synchronize with this setting enabled, then the translations will be parsed from the Developer notes and added to the translation units in your target translation files.
+
+If you would like the translations from the Developer notes to always overwrite the existing translations in the target translation files, then you can additionally set the `xliffSync.parseFromDeveloperNoteOverwrite` setting to `true`.
+This is typically used in combination with `xliffSync.detectSourceTextChanges` set to `false`, if you wish that the translation states do not change to `needs-adaptation` when the source text of translation units change.
+
+On top of that, you can also enable snippets that help you adding captions, labels and tooltips with translation comments in your [AL](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-programming-in-al) source code.
+For this, you can set the `xliffSync.enableSnippetsForLanguages` setting to `["al"]` and set `xliffSync.snippetTargetLanguage` to your preferred language, e.g.:
+
+```json
+{
+    "xliffSync.enableSnippetsForLanguages": ["al"],
+    "xliffSync.snippetTargetLanguage": "nl-NL"
+}
+```
+
+You can then use snippets `tcaptionwithtranslation`, `tcommentwithtranslation`, `toptioncaptionwithtranslation`, `tpromotedactioncategorieswithtranslation`, `tlabelwithtranslation` and `ttooltipwithtranslation` to add translations in comments in your [AL](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-programming-in-al) source code as follows:
+
+![AL Language Parse from Dev. Note Snippets](resources/alParseFromDevNoteSnippet.gif)
+
+For an extensive example, you can also check GitHub issue [#37](https://github.com/rvanbekkum/vsc-xliff-sync/issues/37) "[Feature Request] Parsing Target from Comment".
 
 ## Known Issues
 
@@ -332,10 +402,10 @@ To use this, a file from the App for which you want to update the Translations h
 ## Contributors
 
 * [dannoe](https://github.com/dannoe)
+* [FlorianNoeverGOB](https://github.com/FlorianNoeverGOB)
 * [manux54](https://github.com/manux54)
 * [rvanbekkum](https://github.com/rvanbekkum)
 * [warlof](https://github.com/warlof)
-* [der_floh](https://github.com/Der-Floh)
 
 You can find the contributions in the [Changelog](https://marketplace.visualstudio.com/items/rvanbekkum.xliff-sync/changelog).
 Thank you all! 🤍

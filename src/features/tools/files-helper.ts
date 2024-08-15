@@ -266,15 +266,4 @@ export class FilesHelper {
   public static getSupportedFileExtensions(): string[] {
     return ['xlf', 'xlf2'];
   }
-
-  public static async saveOpenXliffFiles() {
-    const editorTabs = window.visibleTextEditors;
-
-    for (const editor of editorTabs) {
-      const document = editor.document;
-      if (document.fileName.endsWith('.xlf')) {
-        await document.save();
-      }
-    }
-  }
 }

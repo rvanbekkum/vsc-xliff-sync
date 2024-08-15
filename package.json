@@ -25,21 +25,13 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.47.0"
+        "vscode": "^1.75.0"
     },
     "categories": [
         "Other"
     ],
     "main": "./out/extension",
     "activationEvents": [
-        "onCommand:xliffSync.checkForMissingTranslations",
-        "onCommand:xliffSync.checkForNeedWorkTranslations",
-        "onCommand:xliffSync.createNewTargetFiles",
-        "onCommand:xliffSync.findNextMissingTarget",
-        "onCommand:xliffSync.findNextNeedsWorkTarget",
-        "onCommand:xliffSync.importTranslationsFromFiles",
-        "onCommand:xliffSync.synchronizeFile",
-        "onCommand:xliffSync.synchronizeSources",
         "workspaceContains:**/*.xlf",
         "workspaceContains:**/*.xlf2"
     ],

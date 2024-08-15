@@ -33,7 +33,6 @@ import {
     WorkspaceFolder,
     commands
 } from 'vscode';
-import * as fs from 'fs';
 
 import { FilesHelper, LanguageHelper, WorkspaceHelper } from './tools';
 import { XlfTranslator } from './tools/xlf-translator';
@@ -116,17 +115,7 @@ export async function buildWithTranslations() {
 
         // Execute the xliffSync.synchronizeSources command
         progress.report({ message: "Synchronizing Translation Units..." });
-        let fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder.uri)['fileType'];
-        if (!fileType) {
-            throw new Error(`Failed synchronizing translation files.`);
-        }
-        let translationFiles: Uri[] = await FilesHelper.findTranslationFilesInWorkspaceFolder(fileType, workspaceFolder);
-        for (let file of translationFiles) {
-            if (!file.fsPath.endsWith(`g.${fileType}`)) {
-                await synchronizeWithSelectedFile(file);
-                await FilesHelper.saveOpenXliffFiles();
-            }
-        }
+        await synchronizeFilesInWorkspace(true, workspaceFolder);
 
         progress.report({ message: "Build and translation synchronization complete!" });
     });
