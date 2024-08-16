@@ -520,7 +520,7 @@ function checkForOptionMemberLeadingSpacesMismatch(sourceText: string, translati
     return false;
 }
 
-function getConsecutiveSpacesMatchesFromText(textToCheck: string): RegExpMatchArray {
+function getConsecutiveSpacesMatchesFromText(textToCheck: string): RegExpMatchArray | [] {
     return (textToCheck.match(/\s\s+/g) || []);
 }
 
