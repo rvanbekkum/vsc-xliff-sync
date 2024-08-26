@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0] 26-08-2024
+
+* New command `xliffSync.buildWithTranslations` which first builds the project in the currently open workspace/project folder, and directly afterwards synchronizes all .xlf translation files in the workspace/project folder.
+* New setting `xliffSync.defaultLanguages` that can be used to specify the languages that should automatically be used for the translation file generation.
+* New setting `xliffSync.buildCommandToExecute` that specifies the build command to execute for the `xliffSync.buildWithTranslations` command
+
+### Thank You
+
+* **[FlorianNoeverGOB](https://github.com/FlorianNoeverGOB)** for your pull request to add the `xliffSync.buildWithTranslations` command (Pull Request [#122](https://github.com/rvanbekkum/vsc-xliff-sync/pull/122))
+
 ## [1.4.0] 30-12-2022
 
 * New setting `xliffSync.useSelfClosingTags` that can be used to specify whether to use self-closing tags in the XLIFF target translation files. (GitHub issue [#97](https://github.com/rvanbekkum/vsc-xliff-sync/issues/97))

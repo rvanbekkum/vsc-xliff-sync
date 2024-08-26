@@ -51,28 +51,46 @@ export class FilesHelper {
     let uris: Uri[] = [];
 
     if (fileType) {
+      uris = (await FilesHelper.findTranslationFiles(fileType, workspaceFolder)) || [];
+    }
+
+    if (!uris.length) {
+      fileType = await window.showQuickPick(['xlf', 'xlf2'], {
+        placeHolder: 'Translation file type',
+      });
+
+      if (fileType) {
         uris = (await FilesHelper.findTranslationFiles(fileType, workspaceFolder)) || [];
-    }
 
-    if (!uris.length) {
-        fileType = await window.showQuickPick(['xlf', 'xlf2'], {
-            placeHolder: 'Translation file type',
-        });
-
-        if (fileType) {
-            uris = (await FilesHelper.findTranslationFiles(fileType, workspaceFolder)) || [];
-
-            if (uris.length) {
-                workspace.getConfiguration('xliffSync', workspaceFolder?.uri).update('fileType', fileType);
-            }
+        if (uris.length) {
+          workspace.getConfiguration('xliffSync', workspaceFolder?.uri).update('fileType', fileType);
         }
+      }
     }
 
     if (!uris.length) {
-        throw new Error(`No translation file found (Workspace: "${workspaceFolder?.name}").`);
+      throw new Error(`No translation file found (Workspace: "${workspaceFolder?.name}").`);
     }
 
     return uris;
+  }
+
+  /**
+    * Checks if translation files exist in the opened workspace
+    *
+    * @param {WorkspaceFolder} workspaceFolder The folder to restrict the search to.
+    *
+    * @returns A boolean that specifies whether translation files exist in the current workspace.
+    */
+  public static async xliffFilesExist(workspaceFolder?: WorkspaceFolder): Promise<boolean> {
+    let fileType: string | undefined = workspace.getConfiguration('xliffSync', workspaceFolder?.uri)['fileType'];
+    let uris: Uri[] = [];
+
+    if (fileType) {
+      uris = (await FilesHelper.findTranslationFiles(fileType, workspaceFolder)) || [];
+    }
+
+    return uris.length !== 0;
   }
 
   /**
@@ -114,11 +132,11 @@ export class FilesHelper {
     if (xliffUris.length > 1) {
       const fsPaths = xliffUris.map((uri) => uri.fsPath);
       const sourcePath = await window.showQuickPick(fsPaths, {
-          placeHolder: 'Select the base XLIFF file',
+        placeHolder: 'Select the base XLIFF file',
       });
 
       if (!sourcePath) {
-          return undefined;
+        return undefined;
       }
 
       sourceUri = xliffUris.find((uri) => uri.fsPath === sourcePath)!;
@@ -168,7 +186,7 @@ export class FilesHelper {
   }
 
   public static getTranslationFileExtensions(fileType: string): string {
-    switch(fileType) {
+    switch (fileType) {
       case 'xlf':
         return 'xlf';
       case 'xlf2':
