@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.5.0] 15-08-2024
+## [1.5.0] 26-08-2024
 
 * New command `xliffSync.buildWithTranslations` which first builds the project in the currently open workspace/project folder, and directly afterwards synchronizes all .xlf translation files in the workspace/project folder.
 * New setting `xliffSync.defaultLanguages` that can be used to specify the languages that should automatically be used for the translation file generation.

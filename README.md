@@ -50,6 +50,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
     * [Build with Translations](#build-with-translations)
       * [Using the Command Palette](#using-the-command-palette-8)
       * [Using keyboard shortcut](#using-keyboard-shortcut-4)
+    * [Parse from Developer Note](#parse-from-developer-note)
   * [Known Issues](#known-issues)
   * [Contributors](#contributors)
 
@@ -354,8 +355,8 @@ If you would like to make **XLIFF: Build with Translations** your default build 
 
 ### Parse from Developer Note
 
-An approach that is taken by some app developers is to have the *initial* translation provided by the developers themselves (that is, for languages that they are proficient in, typically their mother tongue).
-This can be done by adding translations as a developer note/comment in the source code:
+An approach that is taken by some developers is to have the *initial* translation provided by the developers themselves (that is, for languages that they are proficient in, typically their mother tongue).
+This can be done by adding translations as a developer note/comment in the source code, e.g.:
 
 ```pascal
 procedure MyProcedure()
