@@ -63,7 +63,6 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 * Run technical validations to check for problems in the translations of target XLIFF files.
 * Import/Copy translations for matching sources from external XLIFF files to target XLIFF files.
 * Support for XLIFF 1.2 and 2.0
-* Convert between XLIFF 1.2 and 2.0 format.
 
 ## Contributions
 
