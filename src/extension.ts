@@ -36,9 +36,7 @@ export function activate(context: ExtensionContext) {
     );
 
     context.subscriptions.push(
-        commands.registerCommand('xliffSync.buildWithTranslations', async () => {
-            buildWithTranslations();
-        })
+        commands.registerCommand('xliffSync.buildWithTranslations', buildWithTranslations)
     );
 
     registerSnippets();
