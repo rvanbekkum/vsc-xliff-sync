@@ -23,22 +23,22 @@
  */
 
 import {
-    commands,
-    DecorationRenderOptions,
-    ExtensionContext,
-    Range,
-    Selection,
-    TextEditor,
-    TextEditorDecorationType,
-    TextEditorRevealType,
-    window,
-    workspace,
-    Uri,
-    WorkspaceConfiguration,
-    WorkspaceFolder
+  commands,
+  DecorationRenderOptions,
+  ExtensionContext,
+  Range,
+  Selection,
+  TextEditor,
+  TextEditorDecorationType,
+  TextEditorRevealType,
+  Uri,
+  window,
+  workspace,
+  WorkspaceConfiguration,
+  WorkspaceFolder
 } from 'vscode';
-import { XlfDocument } from './tools/xlf/xlf-document';
 import { FilesHelper, WorkspaceHelper, XmlNode } from './tools';
+import { XlfDocument } from './tools/xlf/xlf-document';
 import { translationState } from './tools/xlf/xlf-translationState';
 import open = require('open');
 
@@ -243,13 +243,14 @@ export class XliffTranslationChecker {
             'missingTranslation'
         ];
         if (missingTranslationKeyword === '%EMPTY%') {
-            missingTranslationKeyword = '<target[^>]*( state="needs-translation")?[^>]*/>|<target.*( state="needs-translation")?.*></target>';
+            missingTranslationKeyword =
+              '<target[^>]*( state="needs-translation")?[^>]*/>|<target[^>]*( state="needs-translation")?[^>]*></target>';
         }
         else if (decorationTargetTextOnly) {
-            missingTranslationKeyword = `(?<=<target.*( state="needs-translation")?.*>)${missingTranslationKeyword}(?=</target>)`;
+            missingTranslationKeyword = `(?<=<target[^>]*( state="needs-translation")?[^>]*>)${missingTranslationKeyword}(?=</target>)`;
         }
         else {
-            missingTranslationKeyword = `<target.*( state="needs-translation")?.*>${missingTranslationKeyword}</target>`;
+            missingTranslationKeyword = `<target[^>]*( state="needs-translation")?[^>]*>${missingTranslationKeyword}</target>`;
         }
         return missingTranslationKeyword;
     }
