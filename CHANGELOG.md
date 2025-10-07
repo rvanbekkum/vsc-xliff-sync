@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.6.1] 07-10-2025
+
+* Updated badge icon URLs in [`README.md`](https://github.com/rvanbekkum/vsc-xliff-sync/blob/master/README.md) due to verification issues.
+
 ## [1.6.0] 07-10-2025
 
 * Fixed an issue where buildWithTranslations command is not awaited (Fix by **[FlorianNoeverGOB](https://github.com/FlorianNoeverGOB)**)
