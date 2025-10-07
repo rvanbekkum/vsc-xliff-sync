@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.0] 07-10-2025
+
+* Fixed an issue where buildWithTranslations command is not awaited (Fix by **[FlorianNoeverGOB](https://github.com/FlorianNoeverGOB)**)
+
+### Thank You
+
+* **[FlorianNoeverGOB](https://github.com/FlorianNoeverGOB)** for your pull request (Pull Request [#129](https://github.com/rvanbekkum/vsc-xliff-sync/pull/129))
+
 ## [1.5.0] 26-08-2024
 
 * New command `xliffSync.buildWithTranslations` which first builds the project in the currently open workspace/project folder, and directly afterwards synchronizes all .xlf translation files in the workspace/project folder.
