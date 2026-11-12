@@ -7,8 +7,10 @@ import { registerSnippets } from './features/snippets';
 import { synchronizeFiles, synchronizeWithSelectedFile, createNewTargetFiles, buildWithTranslations } from './features/trans-sync';
 import { XliffTranslationChecker } from './features/trans-check';
 import { XliffTranslationImport } from './features/trans-import';
+import { registerAgentTools } from './features/agent-tools';
 
 export function activate(context: ExtensionContext) {
+    registerAgentTools(context);
     new XliffTranslationChecker(context);
     new XliffTranslationImport(context);
 

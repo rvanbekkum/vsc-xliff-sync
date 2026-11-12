@@ -299,20 +299,6 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
         }
 
         const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', checkWorkspaceFolder?.uri);
-        let missingTranslationText: string = xliffWorkspaceConfiguration['missingTranslation'];
-        if (missingTranslationText === '%EMPTY%') {
-            missingTranslationText = '';
-        }
-
-        let needWorkRules: string[] = xliffWorkspaceConfiguration['needWorkTranslationRules'];
-        let needWorkRulesEnableAll: boolean = xliffWorkspaceConfiguration['needWorkTranslationRulesEnableAll'];
-        function isRuleEnabledChecker(ruleName: string): boolean {
-            return needWorkRulesEnableAll || needWorkRules.indexOf(ruleName) >= 0;
-        }
-
-        const copyFromSourceForLanguages: string[] = xliffWorkspaceConfiguration['copyFromSourceForLanguages'];
-        let sourceEqualsTargetExpected: boolean = false;
-
         const openExternallyAfterEvent: string[] = xliffWorkspaceConfiguration['openExternallyAfterEvent'];
 
         let noMissingTranslations: boolean = true;
@@ -327,24 +313,11 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
             let needWorkCount: number = 0;
             let problemResolvedInFile: boolean = false;
             const targetDocument = await XlfDocument.loadFromUri(targetUri, checkWorkspaceFolder?.uri);
-            sourceEqualsTargetExpected = targetDocument.sourceLanguage === targetDocument.targetLanguage;
-            if (targetDocument.targetLanguage) {
-                sourceEqualsTargetExpected = sourceEqualsTargetExpected || (copyFromSourceForLanguages.indexOf(targetDocument.targetLanguage) >= 0);
-            }
-
-            targetDocument.translationUnitNodes.forEach((unit) => {
-                if (shouldCheckForMissingTranslations && checkForMissingTranslation(targetDocument, unit, missingTranslationText)) {
-                    targetDocument.setState(unit, translationState.missingTranslation);
-                    missingCount += 1;
-                }
-                if (shouldCheckForNeedWorkTranslations && checkForNeedWorkTranslation(targetDocument, unit, isRuleEnabledChecker, sourceEqualsTargetExpected)) {
-                    targetDocument.setState(unit, translationState.needsWorkTranslation);
-                    needWorkCount += 1;
-                }
-                if (shouldCheckForNeedWorkTranslations && checkForResolvedProblem(targetDocument, unit)) {
-                    problemResolvedInFile = true;
-                }
-            });
+            const checks = checkTranslationDocument(targetDocument, xliffWorkspaceConfiguration,
+                shouldCheckForMissingTranslations, shouldCheckForNeedWorkTranslations);
+            missingCount = checks.missingCount;
+            needWorkCount = checks.needsWorkCount;
+            problemResolvedInFile = checks.problemResolved;
 
             let problemDetectedInFile: boolean = false;
             let messagesText: string = "";
@@ -402,6 +375,48 @@ export async function runTranslationChecksForWorkspaceFolder(shouldCheckForMissi
     return false;
 }
 
+export interface TranslationFinding {
+    id: string;
+    source: string;
+    target: string;
+    kind: 'missing' | 'needsWork';
+    reason: string;
+}
+
+export function checkTranslationDocument(document: XlfDocument, configuration: WorkspaceConfiguration,
+    checkMissing: boolean, checkNeedsWork: boolean, checkCancellation: () => void = () => {}) {
+    const missingText = configuration['missingTranslation'] === '%EMPTY%' ? '' : configuration['missingTranslation'];
+    const rules: string[] = configuration['needWorkTranslationRules'];
+    const isRuleEnabled = (rule: string): boolean => configuration['needWorkTranslationRulesEnableAll'] || rules.indexOf(rule) >= 0;
+    const copyLanguages: string[] = configuration['copyFromSourceForLanguages'];
+    const sourceEqualsTargetExpected = document.sourceLanguage === document.targetLanguage ||
+        (!!document.targetLanguage && copyLanguages.indexOf(document.targetLanguage) >= 0);
+    const findings: TranslationFinding[] = [];
+    let missingCount = 0;
+    let needsWorkCount = 0;
+    let problemResolved = false;
+    for (const unit of document.translationUnitNodes) {
+        checkCancellation();
+        const finding = { id: unit.attributes.id, source: document.getUnitSourceText(unit) || '',
+            target: document.getUnitTranslationText(unit) || '' };
+        if (checkMissing && checkForMissingTranslation(document, unit, missingText)) {
+            document.setState(unit, translationState.missingTranslation);
+            missingCount++;
+            findings.push({ ...finding, kind: 'missing', reason: 'Translation is absent, empty, or matches the configured missing-translation placeholder.' });
+        }
+        let reason = 'Translation is already marked as needing work.';
+        if (checkNeedsWork && checkForNeedWorkTranslation(document, unit, isRuleEnabled, sourceEqualsTargetExpected, value => reason = value)) {
+            document.setState(unit, translationState.needsWorkTranslation);
+            needsWorkCount++;
+            findings.push({ ...finding, kind: 'needsWork', reason });
+        }
+        if (checkNeedsWork && checkForResolvedProblem(document, unit)) {
+            problemResolved = true;
+        }
+    }
+    return { missingCount, needsWorkCount, problemResolved, findings };
+}
+
 function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, missingTranslationText: string) : boolean {
     const needsTranslation: boolean = targetDocument.getUnitNeedsTranslation(unit);
     if (needsTranslation) {
@@ -413,7 +428,11 @@ function checkForMissingTranslation(targetDocument: XlfDocument, unit: XmlNode, 
     return false;
 }
 
-function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, isRuleEnabled: (ruleName: string) => boolean, sourceEqualsTargetExpected: boolean) : boolean {
+function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode, isRuleEnabled: (ruleName: string) => boolean, sourceEqualsTargetExpected: boolean, onProblem?: (reason: string) => void) : boolean {
+    function reportProblem(reason: string) {
+        targetDocument.setXliffSyncNote(unit, reason);
+        onProblem?.(reason);
+    }
     const sourceText = targetDocument.getUnitSourceText(unit);
     const translText = targetDocument.getUnitTranslationText(unit);
     const devNoteText = targetDocument.getUnitDeveloperNote(unit) || '';
@@ -424,45 +443,45 @@ function checkForNeedWorkTranslation(targetDocument: XlfDocument, unit: XmlNode,
     if (isRuleEnabled('SourceEqualsTarget')) {
         if (sourceEqualsTargetExpected) {
             if (sourceText !== translText) {
-                targetDocument.setXliffSyncNote(unit, 'Problem detected: The source text is not the same as the translation, but the source-language is the same as the target-language.');
+                reportProblem('Problem detected: The source text is not the same as the translation, but the source-language is the same as the target-language.');
                 return true;
             }
         }
     }
 
     if (isRuleEnabled('Placeholders') && checkForPlaceHolderMismatch(sourceText, translText)) {
-        targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of placeholders in the source and translation text do not match.');
+        reportProblem('Problem detected: The number of placeholders in the source and translation text do not match.');
         return true;
     }
     if (isRuleEnabled('PlaceholdersDevNote') && checkForPlaceHolderMismatch(sourceText, devNoteText)) {
-        targetDocument.setXliffSyncNote(unit, 'Problem detected: One or more placeholders are missing an explanation in the Developer note.');
+        reportProblem('Problem detected: One or more placeholders are missing an explanation in the Developer note.');
         return true;
     }
 
     if (isOptionCaptionUnit(targetDocument, unit)) {
         if (isRuleEnabled('OptionMemberCount') && checkForOptionMemberCountMismatch(sourceText, translText)) {
-            targetDocument.setXliffSyncNote(unit, 'Problem detected: The number of option members in the source and translation text do not match.');
+            reportProblem('Problem detected: The number of option members in the source and translation text do not match.');
             return true;
         }
         if (isRuleEnabled('OptionLeadingSpaces') && checkForOptionMemberLeadingSpacesMismatch(sourceText, translText)) {
-            targetDocument.setXliffSyncNote(unit, 'Problem detected: The leading spaces in the option values of the source and translation text do not match.');
+            reportProblem('Problem detected: The leading spaces in the option values of the source and translation text do not match.');
             return true;
         }
     }
 
     if (isRuleEnabled('ConsecutiveSpacesExist')) {
         if (checkForConsecutiveSpaces(sourceText)) {
-            targetDocument.setXliffSyncNote(unit, 'Problem detected: Consecutive spaces exist in the source text.');
+            reportProblem('Problem detected: Consecutive spaces exist in the source text.');
             return true;
         }
         if (checkForConsecutiveSpaces(translText)) {
-            targetDocument.setXliffSyncNote(unit, 'Problem detected: Consecutive spaces exist in the translation text.');
+            reportProblem('Problem detected: Consecutive spaces exist in the translation text.');
             return true;
         }
     }
 
     if (isRuleEnabled('ConsecutiveSpacesConsistent') && checkForConsecutiveSpacesInconsistency(sourceText, translText)) {
-        targetDocument.setXliffSyncNote(unit, 'Problem detected: The "consecutive space"-occurrences in source and translation text do not match.');
+        reportProblem('Problem detected: The "consecutive space"-occurrences in source and translation text do not match.');
         return true;
     }
 

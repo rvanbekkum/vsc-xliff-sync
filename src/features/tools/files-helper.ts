@@ -31,13 +31,92 @@ import {
   workspace,
   WorkspaceFolder,
   RelativePattern,
-  commands
+  commands,
+  CancellationToken,
+  CancellationError
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { WorkspaceHelper } from './workspace-helper';
 
 export class FilesHelper {
+
+  public static useFileSystem(resourceUri: Uri): boolean {
+    return workspace.getConfiguration('xliffSync', resourceUri)['useFileSystem'];
+  }
+
+  public static async getReferenceFilePaths(resourceUri: Uri): Promise<string[]> {
+    const configured: string[] = workspace.getConfiguration('xliffSync', resourceUri)['referenceTranslationFiles'] || [];
+    const paths: string[] = [];
+    for (const filePath of configured) {
+      if (typeof filePath !== 'string' || !filePath.trim()) {
+        throw new Error('referenceTranslationFiles must contain nonempty XLIFF file paths.');
+      }
+      const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(resourceUri.fsPath, filePath);
+      if (!/\.xlf2?$/i.test(resolved)) {
+        throw new Error(`Reference translation must be an .xlf or .xlf2 file: ${resolved}`);
+      }
+      paths.push(await fs.promises.realpath(resolved));
+    }
+    return Array.from(new Set(paths));
+  }
+
+  public static assertSaved(fileUri: Uri): void {
+    const document = workspace.textDocuments.find(document => document.uri.toString() === fileUri.toString());
+    if (document?.isDirty) {
+      throw new Error(`Save or revert unsaved changes before processing ${fileUri.fsPath}.`);
+    }
+  }
+
+  private static assertLocalFile(fileUri: Uri): void {
+    if (fileUri.scheme !== 'file') {
+      throw new Error(`Filesystem I/O requires a local file URI: ${fileUri}. Disable xliffSync.useFileSystem to use a VS Code filesystem provider.`);
+    }
+  }
+
+  public static async readFile(fileUri: Uri, resourceUri: Uri = fileUri): Promise<string> {
+    if (!this.useFileSystem(resourceUri)) {
+      return (await workspace.openTextDocument(fileUri)).getText();
+    }
+    this.assertLocalFile(fileUri);
+    this.assertSaved(fileUri);
+    const contents = await fs.promises.readFile(fileUri.fsPath, 'utf8');
+    return contents.replace(/^\uFEFF/, '');
+  }
+
+  public static async writeFile(fileUri: Uri, contents: string, create: boolean = false, token?: CancellationToken): Promise<void> {
+    this.assertLocalFile(fileUri);
+    this.assertSaved(fileUri);
+    const folder = workspace.getWorkspaceFolder(fileUri);
+    if (folder) {
+      const references = await this.getReferenceFilePaths(folder.uri);
+      if (!create && references.includes(await fs.promises.realpath(fileUri.fsPath))) {
+        throw new Error(`Configured reference translation files are read-only: ${fileUri.fsPath}`);
+      }
+    }
+    let bom = '';
+    let original: string | undefined;
+    if (!create) {
+      original = await fs.promises.readFile(fileUri.fsPath, 'utf8');
+      if (original.startsWith('\uFEFF')) {
+        bom = '\uFEFF';
+      }
+    }
+    let output = contents.replace(/^\uFEFF/, '');
+    const lineEnding = original?.match(/\r\n|\n|\r/)?.[0];
+    if (lineEnding) {
+      output = output.replace(/\r\n|\n|\r/g, lineEnding);
+    }
+    output = bom + output;
+    this.assertSaved(fileUri);
+    if (token?.isCancellationRequested) {
+      throw new CancellationError();
+    }
+    if (original === output) {
+      return;
+    }
+    await fs.promises.writeFile(fileUri.fsPath, output, { encoding: 'utf8', flag: create ? 'wx' : 'w' });
+  }
 
   /**
   * Get the list of XLIFF files in the opened workspace
@@ -175,14 +254,20 @@ export class FilesHelper {
     const fileExt: string = FilesHelper.getTranslationFileExtensions(fileType);
 
     let relativePattern: RelativePattern = new RelativePattern(workspaceFolder, `**/*.${fileExt}`);
-    return workspace.findFiles(relativePattern).then((files) =>
-      files.sort((a, b) => {
+    const references = await this.getReferenceFilePaths(workspaceFolder.uri);
+    const files = await workspace.findFiles(relativePattern);
+    const targets: Uri[] = [];
+    for (const file of files) {
+      if (!references.includes(await fs.promises.realpath(file.fsPath))) {
+        targets.push(file);
+      }
+    }
+    return targets.sort((a, b) => {
         if (a.fsPath.length !== b.fsPath.length) {
           return a.fsPath.length - b.fsPath.length;
         }
         return a.fsPath.localeCompare(b.fsPath);
-      }),
-    );
+      });
   }
 
   public static getTranslationFileExtensions(fileType: string): string {
@@ -210,17 +295,34 @@ export class FilesHelper {
     }
     const xlfPath = path.format(newFilePath);
 
-    return new Promise<Uri>((resolve, reject) => {
-      fs.writeFile(xlfPath, content, (error) => {
-        if (error) {
-          throw error;
-        }
-        resolve(Uri.file(xlfPath));
-      });
-    });
+    const uri = Uri.file(xlfPath);
+    if (this.useFileSystem(baseUri)) {
+      await this.writeFile(uri, content, true);
+    }
+    else {
+      await fs.promises.writeFile(xlfPath, content, 'utf8');
+    }
+    return uri;
   }
 
   public static async createNewTargetFile(targetUri: Uri | undefined, newFileContents: string, sourceUri?: Uri | undefined, targetLanguage?: string | undefined): Promise<Uri> {
+    if (targetUri) {
+      const folder = workspace.getWorkspaceFolder(targetUri);
+      if (folder && (await this.getReferenceFilePaths(folder.uri)).includes(await fs.promises.realpath(targetUri.fsPath))) {
+        throw new Error(`Configured reference translation files are read-only: ${targetUri.fsPath}`);
+      }
+    }
+    const resourceUri = targetUri || sourceUri;
+    if (resourceUri && this.useFileSystem(resourceUri)) {
+      if (targetUri) {
+        await this.writeFile(targetUri, newFileContents);
+        return targetUri;
+      }
+      if (sourceUri && targetLanguage) {
+        return this.createTranslationFile(targetLanguage, sourceUri, newFileContents);
+      }
+      throw new Error('Could not generate new target file');
+    }
     let document: TextDocument;
 
     if (targetUri) {

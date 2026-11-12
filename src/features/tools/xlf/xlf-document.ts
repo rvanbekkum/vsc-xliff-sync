@@ -24,6 +24,7 @@
 
 import { XmlNode, XmlParser, XmlBuilder } from '..';
 import { workspace, Uri, WorkspaceConfiguration } from 'vscode';
+import { FilesHelper } from '../files-helper';
 import { translationState } from './xlf-translationState';
 
 export class XlfDocument {
@@ -202,7 +203,7 @@ export class XlfDocument {
 
   public static async loadFromUri(sourceUri: Uri, resourceUri: Uri | undefined): Promise<XlfDocument> {
     try {
-    const source: string = (await workspace.openTextDocument(sourceUri)).getText();
+    const source: string = await FilesHelper.readFile(sourceUri, resourceUri);
     return await this.load(source, resourceUri);
     }
     catch (ex) {
@@ -485,7 +486,21 @@ export class XlfDocument {
       if (!children) {
         return undefined;
       }
+
       return this.getChildrenText(children);
+  }
+
+  public setUnitTranslationText(unit: XmlNode, text: string): void {
+    let target = this.getNode('target', unit);
+    if (!target) {
+      target = this.createTargetNode(unit, {}, [text]);
+      this.appendTargetNode(unit, target);
+    }
+    else {
+      target.children = [text];
+    }
+    this.setState(unit, translationState.translated);
+    this.tryDeleteXliffSyncNote(unit);
   }
 
   private getChildrenText(children: (XmlNode | string)[]): string {

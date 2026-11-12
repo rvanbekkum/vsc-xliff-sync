@@ -23,6 +23,7 @@
  */
 
 import open = require('open');
+import * as path from 'path';
 import {
     ProgressLocation,
     QuickPickItem,
@@ -31,7 +32,12 @@ import {
     workspace,
     WorkspaceConfiguration,
     WorkspaceFolder,
-    commands
+    commands,
+    CancellationToken,
+    CancellationError,
+    Range,
+    Position,
+    WorkspaceEdit
 } from 'vscode';
 
 import { FilesHelper, LanguageHelper, WorkspaceHelper } from './tools';
@@ -270,7 +276,26 @@ async function synchronizeAndCheckTargetFile(sourceUri: Uri, targetUri: Uri | un
     }
 }
 
-async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined, workspaceFolder?: WorkspaceFolder) {
+export interface AgentSynchronization {
+    token: CancellationToken;
+    synchronizedFiles: string[];
+    skippedFiles: string[];
+}
+
+export async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined, workspaceFolder?: WorkspaceFolder, agent?: AgentSynchronization) {
+    if (agent) {
+        if (!targetUri) {
+            throw new Error('An explicit target file is required for agent synchronization.');
+        }
+        const source = await FilesHelper.readFile(sourceUri, workspaceFolder?.uri);
+        const target = targetLanguage ? undefined : await FilesHelper.readFile(targetUri, workspaceFolder?.uri);
+        const contents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
+        if (!contents) {
+            throw new Error(`No output generated for ${targetUri.fsPath}.`);
+        }
+        await saveAgentTarget(targetUri, contents, agent, !!targetLanguage);
+        return;
+    }
     let fileName: string = targetLanguage || '';
     if (targetUri) {
         fileName = FilesHelper.getFileNameFromUri(targetUri);
@@ -286,9 +311,9 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
         }
 
         try {
-            const source = (await workspace.openTextDocument(sourceUri)).getText();
+            const source = await FilesHelper.readFile(sourceUri, workspaceFolder?.uri);
             const target = targetUri
-                ? (await workspace.openTextDocument(targetUri)).getText()
+                ? await FilesHelper.readFile(targetUri, workspaceFolder?.uri)
                 : undefined;
 
             const newFileContents = await XlfTranslator.synchronize(source, target, targetLanguage, workspaceFolder);
@@ -310,9 +335,46 @@ async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | undefined,
     });
 }
 
-async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceFolder?: WorkspaceFolder) {
+export async function saveAgentTarget(targetUri: Uri, contents: string, agent: AgentSynchronization, create: boolean = false) {
+    if (/\.g\.xlf2?$/i.test(targetUri.fsPath)) {
+        throw new Error(`Generated base XLIFF must never receive translations: ${targetUri.fsPath}`);
+    }
+    if (agent.token.isCancellationRequested) {
+        throw new CancellationError();
+    }
+    if (FilesHelper.useFileSystem(targetUri)) {
+        await FilesHelper.writeFile(targetUri, contents, create, agent.token);
+        agent.synchronizedFiles.push(targetUri.fsPath);
+        return;
+    }
+    const edit = new WorkspaceEdit();
+    if (create) {
+        edit.createFile(targetUri, { overwrite: false });
+        edit.insert(targetUri, new Position(0, 0), contents);
+    }
+    else {
+        const document = await workspace.openTextDocument(targetUri);
+        if (document.isDirty) {
+            throw new Error(`Save or revert unsaved changes before synchronizing ${targetUri.fsPath}.`);
+        }
+        edit.replace(targetUri, new Range(document.positionAt(0), document.positionAt(document.getText().length)), contents);
+    }
+    if (agent.token.isCancellationRequested) {
+        throw new CancellationError();
+    }
+    if (!await workspace.applyEdit(edit)) {
+        throw new Error(`Failed to edit ${targetUri.fsPath}.`);
+    }
+    const document = await workspace.openTextDocument(targetUri);
+    if (!await document.save()) {
+        throw new Error(`Failed to save ${targetUri.fsPath}.`);
+    }
+    agent.synchronizedFiles.push(targetUri.fsPath);
+}
+
+export async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceFolder?: WorkspaceFolder, agent?: AgentSynchronization) {
     const xliffWorkspaceConfiguration: WorkspaceConfiguration = workspace.getConfiguration('xliffSync', workspaceFolder?.uri);
-    const matchingOriginalOnly: string[] = xliffWorkspaceConfiguration['matchingOriginalOnly'];
+    const matchingOriginalOnly: boolean = xliffWorkspaceConfiguration['matchingOriginalOnly'];
 
     let equivalentLanguages: any = xliffWorkspaceConfiguration.inspect('equivalentLanguages')?.workspaceFolderValue;
     if (!equivalentLanguages) {
@@ -329,6 +391,7 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
     let masterLanguageToUri: { [masterLangCode: string]: Uri } = {};
     let masterLanguageToSlaveLanguages: { [masterLangCode: string]: string[] } = {};
     let slaveLanguageToUri: { [slaveLangCode: string]: Uri } = {};
+    const skippedFiles: string[] = [];
 
     let sourceDocOriginal: string | undefined = undefined;
     if (matchingOriginalOnly) {
@@ -346,6 +409,12 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
                 const targetDoc = await XlfDocument.loadFromUri(targetUri, workspaceFolder?.uri);
                 if (matchingOriginalOnly) {
                     targetDocOriginal = targetDoc.original;
+                    if (targetDocOriginal !== sourceDocOriginal &&
+                        !(sourceDocOriginal && targetDocOriginal === path.basename(sourceUri.fsPath))) {
+                        skippedFiles.push(targetUri.fsPath);
+                        agent?.skippedFiles.push(targetUri.fsPath);
+                        continue;
+                    }
                 }
 
                 if (equivalentLanguagesEnabled && targetDoc.targetLanguage) {
@@ -368,11 +437,14 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
                 }
             }
 
-            if ((sourceDocOriginal == targetDocOriginal) && !isSlaveLanguage) {
-                await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder);
+            if (!isSlaveLanguage) {
+                await synchronizeTargetFile(sourceUri, targetUri, undefined, workspaceFolder, agent);
             }
         }
         catch (ex) {
+            if (agent) {
+                throw ex;
+            }
             window.showErrorMessage(ex.message);
         }
     }
@@ -387,13 +459,34 @@ async function synchronizeAllFiles(sourceUri: Uri, targetUris: Uri[], workspaceF
                 newSlaveDoc.targetLanguage = slaveLanguage;
                 const newSlaveContent: string | undefined = newSlaveDoc.extract();
                 if (newSlaveContent) {
-                    await FilesHelper.createNewTargetFile(slaveLanguageToUri[slaveLanguage], newSlaveContent, sourceUri, slaveLanguage);
+                    if (agent) {
+                        await saveAgentTarget(slaveLanguageToUri[slaveLanguage], newSlaveContent, agent);
+                    }
+                    else {
+                        await FilesHelper.createNewTargetFile(slaveLanguageToUri[slaveLanguage], newSlaveContent, sourceUri, slaveLanguage);
+                    }
+                }
+                else if (agent) {
+                    throw new Error(`No output generated for language ${slaveLanguage}.`);
                 }
             }
         }
     }
 
-    window.showInformationMessage('Translation files successfully synchronized!');
+    if (agent) {
+        for (const slaveLanguage in slaveLanguageToUri) {
+            if (agent.synchronizedFiles.indexOf(slaveLanguageToUri[slaveLanguage].fsPath) < 0) {
+                throw new Error(`No matching master file found for equivalent language ${slaveLanguage}. Synchronize its master language first or disable equivalentLanguagesEnabled.`);
+            }
+        }
+        return;
+    }
+    if (skippedFiles.length) {
+        window.showWarningMessage(`Skipped translation files with a different original attribute: ${skippedFiles.join(', ')}`);
+    }
+    else {
+        window.showInformationMessage('Translation files successfully synchronized!');
+    }
 
     await autoRunTranslationChecks(workspaceFolder);
 }

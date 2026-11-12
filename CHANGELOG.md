@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.7.0] Upcoming release
+
+* Broadened project-update tool discovery guidance for short requests such as "Update translations" and "Refresh translations", with clarification for ambiguous scope and narrower tools for explicit sync/check/single-file requests.
+* Added project-agnostic reference translation lookup for configured XLIFF files, supporting exact-source batches, terminology searches, language filtering, pagination and provenance. Resolution agents are instructed to consult references while prioritizing user rules and established project terminology. Reference files are read-only and excluded from normal translation discovery; no automatic downloads.
+* Fixed reversed agent synchronization: generated XLIFF files are protected as read-only translation sources; target-language files cannot replace a discovered generated source. Listings identify source/target roles.
+* Project workflows support nested project directories. AL projects without build tasks use the AL Language build command with explicit project activation and verified success; build failures never trigger synchronization.
+* Added project-update and read-only final-verification agent tools: refresh source, synchronize, check, guide translation resolution, and report remaining counts/skipped files/blockers explicitly.
+* Added `xliffSync.translationRefreshTask` for a finite workspace build/extraction task, defaulting to the current project's default build task (or its sole build-group task if no default is marked), regardless of task provider. Project updates wait for successful exit before discovering and synchronizing the generated source; `refreshSource: false` skips regeneration explicitly.
+* Filesystem writes preserve existing target line endings and UTF-8 BOMs and skip identical output, preventing no-op timestamp churn during synchronization.
+* Added agent-driven translation resolution context and validated batch-save tools. Agents use existing terminology and current user instructions; saves reject stale proposals, unresolved technical problems, and unsupported inline markup.
+* Added native VS Code agent tools to list XLIFF files, synchronize one or all target files, and create target-language files using existing XLIFF Sync settings.
+* Added agent tools to check missing translations and needs-work problems using the existing validation rules, with paginated findings and per-file counts. Checks save state/note updates by default; read-only reporting is available with `updateFiles: false`.
+* Agent tools require trusted local workspaces, validate paths, request confirmation for writes, and report saved/skipped files and failures without interactive file pickers.
+* Minimum supported VS Code version is now 1.99.0 for the Language Model Tools API.
+* Added `xliffSync.useFileSystem` (enabled by default) for asynchronous UTF-8 filesystem I/O during synchronization, checks, imports and agent operations, bypassing VS Code's text-document size limit (#88). Disable it to restore document/editor I/O. Filesystem mode refuses unsaved editor changes and preserves existing UTF-8 BOMs.
+
 ## [1.6.1] 07-10-2025
 
 * Updated badge icon URLs in [`README.md`](https://github.com/rvanbekkum/vsc-xliff-sync/blob/master/README.md) due to verification issues.

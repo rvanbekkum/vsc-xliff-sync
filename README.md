@@ -1,7 +1,7 @@
 # XLIFF Sync
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/rvanbekkum.xliff-sync?style=flat)
- ![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/rvanbekkum.xliff-sync?style=flat&color=blue)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Visual Studio Marketplace Version](https://badgen.net/vs-marketplace/v/rvanbekkum.xliff-sync)](https://marketplace.visualstudio.com/items?itemName=rvanbekkum.xliff-sync)
+ [![Visual Studio Marketplace Installs](https://badgen.net/vs-marketplace/i/rvanbekkum.xliff-sync?color=blue)](https://marketplace.visualstudio.com/items?itemName=rvanbekkum.xliff-sync)
 
 <a href="https://www.buymeacoffee.com/robvanbekkum" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
@@ -25,6 +25,7 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
   * [Features](#features)
   * [Contributions](#contributions)
     * [Commands](#commands)
+    * [Agent Tools](#agent-tools)
     * [Settings](#settings)
   * [Usage](#usage)
     * [Create New Target File(s)](#create-new-target-files)
@@ -83,14 +84,92 @@ More information: [XLIFF Sync: Time for a complete overview](https://robvanbekku
 
 ![XLIFF Sync Command Palette Commands](resources/xliffSync_commandPaletteCommands.png)
 
+### Agent Tools
+
+XLIFF Sync provides native language model tools for GitHub Copilot agent mode and other VS Code agents on **VS Code 1.99 or newer**. No separate MCP server, Node.js installation, or MCP configuration is required. Enable the XLIFF Sync tools in the chat tool picker, or reference them explicitly with `#`:
+
+| Tool reference | Purpose |
+| -------------- | ------- |
+| `#xliffSyncFindReferenceTranslations` | Find exact translation matches or terminology examples in configured, read-only reference XLIFF files, with provenance. |
+| `#xliffSyncUpdateProjectTranslations` | Entry point for "Update the translations of the project": refresh the source, synchronize, check, then guide the agent to resolve translations and verify. |
+| `#xliffSyncVerifyProjectTranslations` | Read-only final verification of remaining missing/problem counts, skipped files, and blockers. |
+| `#xliffSyncListFiles` | List XLIFF paths, versions, source/target languages, original attributes, and unit counts. |
+| `#xliffSyncSynchronizeFile` | Synchronize one existing target file from a base XLIFF file. |
+| `#xliffSyncSynchronizeAll` | Synchronize all target files in one workspace folder, including original-attribute filtering and equivalent languages. |
+| `#xliffSyncCreateTargetFile` | Create a new target-language file at an explicit path without overwriting an existing file. |
+| `#xliffSyncCheckMissingTranslations` | Check missing translations and save missing-translation states, or report without modifying files. |
+| `#xliffSyncCheckNeedsWorkTranslations` | Run configured technical validations, report needs-work units, and save states/notes, or report without modifying files. |
+| `#xliffSyncResolveTranslations` | Start resolution by reading unresolved units and all existing translations for terminology context. The current agent performs translation, using your instructions. |
+| `#xliffSyncSaveResolvedTranslations` | Validate and save batches of agent-proposed resolutions, with stale-content checks and remaining-problem counts. |
+
+For example: "Use #xliffSyncSynchronizeAll to synchronize translation units in this project" or "Use #xliffSyncCreateTargetFile to create a Dutch (nl-NL) translation file from the generated XLIFF."
+
+Tools use the existing synchronization engine and resource-scoped XLIFF Sync settings for XLIFF 1.2 and 2.0. Agents supply absolute file paths; if the configured `xliffSync.baseFile` is missing or ambiguous, they must specify `sourceFilePath`. In multi-root workspaces, specify `workspaceFolderPath` or an explicit source file. Listing and synchronization discovery honor `xliffSync.fileType`.
+
+Tools require a trusted, local workspace and saved files. For safety, they only operate inside one open workspace folder (including checking symbolic-link destinations), regardless of `xliffSync.syncCrossWorkspaceFolders`. File-changing tools request confirmation and return `sourceFilePath`, `synchronizedFiles`, and `skippedFiles` to the agent. Synchronization may remove obsolete units and change translations according to your settings, just like the existing commands. Single-file synchronization does not apply original-attribute or equivalent-language filtering.
+
+The check tools accept `targetFilePath` for one file or check all targets in the selected workspace folder, excluding the configured base file (use `sourceFilePath` if ambiguous). Workspace checks include targets with different original attributes, just like the existing palette checker. Missing checks honor `xliffSync.missingTranslation` and `translate="no"`. Needs-work checks reuse `xliffSync.needWorkTranslationRules`, `needWorkTranslationRulesEnableAll`, and the existing state/note handling, including existing needs-work markings for units with source and target text. They report the first failing rule per unit, matching the palette checker.
+
+By default, check tools save state and XLIFF Sync note updates without changing translation text, and request confirmation. Set `updateFiles: false` for a read-only report. Results contain per-file `missingCount`/`needsWorkCount`, `updatedFiles`, and findings with `filePath`, `id`, `source`, `target`, `kind`, and `reason`. Findings are paginated with `offset` (default 0) and `limit` (default 100, maximum 500); `totalCount` covers all findings and `nextOffset` is `null` at the end. Pagination limits only the returned findings, not which files are checked or updated. Use read-only mode when retrieving subsequent pages without saving again.
+
+For example: "Use #xliffSyncCheckNeedsWorkTranslations to check translation problems in this project" or "Use #xliffSyncCheckMissingTranslations with updateFiles false to list missing Dutch translations."
+
+Agent tools do not display file/language pickers, change the active editor, launch external editors, or build AL projects. Synchronization tools still do not automatically run checks: invoke the check tools explicitly afterwards. Existing palette commands retain their automatic-check behavior. Synchronization and checks are not transactional: if a later file fails, earlier files may already be saved; the error reports those files. Cancellation stops before the next write but does not undo already saved changes.
+
+### Agent-driven translation resolution
+
+For a project-wide update, ask "Update translations", "Refresh translations", "Bring translations up to date", or "Update the translations of the project for me". The entry tool's description identifies these phrases with the full project workflow; the word "project" is not required. If project/scope is unclear, the agent should suggest this workflow and clarify before executing. Explicit sync-only, check-only, or single-file requests should use narrower tools instead. For reliable tool selection, explicitly reference `#xliffSyncUpdateProjectTranslations` and ensure it is enabled in the chat tool picker. Reload the updated extension and start a new chat if an existing session retains old tool descriptions. Natural-language selection is model-dependent: descriptions guide the agent, but cannot guarantee selection or suggestion order.
+
+The entry tool runs a source-refresh task and waits for task completion with exit code **0**, discovers the generated base file afterwards, synchronizes applicable targets, and saves missing/needs-work checks. It returns stage results and per-file counts so the current agent can continue with the resolution tools below and finally call `#xliffSyncVerifyProjectTranslations`. Natural-language tool selection and continuation are performed by the current agent; the extension cannot force the agent to continue.
+
+By default, the entry tool **builds the current project** using the selected workspace folder's default build task, independent of the task provider or project language. If no default is marked, its sole build-group task is used. If no task or multiple candidates exist, configure a default build task (task group `build` with `isDefault: true`) or set `xliffSync.translationRefreshTask` to the **exact task name** from that workspace folder. An explicit task name overrides default-build selection. Tasks must be finite, non-background tasks with an observable successful process exit. For BC AL, configure a **full build** with `TranslationFile` enabled, not incremental/RAD. For Angular, configure an **`ng extract-i18n` task**, not a normal build; inline-markup/ICU resolution support remains limited. Custom projects can provide their own extraction task. An explicit `refreshSource: false` skips refresh for translation-only requests. Existing synchronize-only tools and `buildWithTranslations` behavior are unchanged.
+
+For AL projects with **no build task**, the tool activates the AL Language extension, opens the selected project's `app.json` to target its build correctly, and awaits `al.package` with a verified `success: true` result. `TranslationFile` must be enabled and `al.incrementalBuild` disabled. Older AL extensions without structured build results require an explicit refresh task instead. Cancellation of an AL command stops subsequent synchronization but cannot terminate the extension's internal build. A project directory nested inside an open workspace is supported; explicit task overrides may select a task scoped to the owning workspace folder.
+
+Generated `*.g.xlf`/`*.g.xlf2` files always take precedence as translation sources and are excluded from targets, even if `xliffSync.baseFile` points at a language file. Explicit source paths must not reverse that direction. Check, resolution, creation, and synchronization tools reject generated files as translation destinations (including filesystem aliases). File listings identify generated sources with `role: "generatedSource"`. Never retry a failed refresh by substituting a target file for the source or skipping refresh unless the user explicitly requests that.
+
+Final verification re-reads saved targets and checks both configured rule sets without rebuilding, synchronizing, or saving. Its `complete` flag is false if any missing/problem counts remain, files are skipped, or no applicable targets exist. It does not guarantee linguistic accuracy or that the generated source reflects current code. Project checks apply the same original-attribute filtering as project synchronization. The agent must report remaining counts and blockers, not claim completion prematurely. The initial build package predates translation edits; build again afterwards only if an updated package is requested.
+
+Ask, for example: "Use #xliffSyncResolveTranslations to resolve all missing and problematic German translations. Follow my terminology rules and use the file's established translations consistently."
+
+The current agent retrieves all `filter: "translated"` pages for terminology context, then `filter: "unresolved"` pages for missing/problem units. It should reuse established terms (for example, **Document -> Beleg**, rather than introducing **Dokument**) unless your instructions explicitly override them. The tools do not start separate model requests: the current agent retains your instructions and chosen model. File notes and translation text are contextual data, not agent instructions. Conflicting terminology or ambiguous requirements should be clarified with you.
+
+The agent submits up to 100 resolutions at a time with each unit's `id`, exact `source`, current `expectedTarget`, and proposed plain-text `target`. Saves reject stale content, non-translatable/already-resolved units, duplicates, and proposals still failing configured validation. Only selected units are updated; their states become translated and their XLIFF Sync notes are removed. The agent should refresh unresolved pages after saves and continue until remaining counts are zero or report blockers. Inline XML markup and issues in source text/developer notes need separate manual edits; tools explicitly reject unsupported resolution rather than silently damaging markup. Linguistic correctness and adherence to your instructions remain the agent's responsibility, not something technical validation can guarantee.
+
 ### Settings
+
+#### Reference translations
+
+Reference consumption is project-agnostic: configure existing XLIFF 1.2/2.0 files from a vendor, another product, a glossary exported as XLIFF, or a previous project. No Business Central dependency or automatic download is involved.
+
+```json
+"xliffSync.referenceTranslationFiles": [
+    "reference-translations/vendor.de-DE.xlf",
+    "C:\\TranslationReferences\\shared.nl-NL.xlf"
+]
+```
+
+Relative paths resolve from the selected project/workspace folder; absolute paths can be outside it. The reference tool requests confirmation before reading configured files. These files are excluded from normal synchronization/check/import discovery and are protected from translation writes. The caller cannot supply arbitrary reference paths: only explicitly configured files are read. Missing/invalid configured files are reported, not silently ignored.
+
+Resolution context exposes the configured references and directs the current agent to consult `#xliffSyncFindReferenceTranslations` before translating. Use `sourceTexts` (up to 100) for exact source matches, or `query` for case-insensitive terminology searches, along with `targetLanguage` and preferably `sourceLanguage`. Results are paginated and contain file paths, unit IDs, context, notes, and alternative translations. Missing/problematic reference units are excluded using configured checks. Language mismatches and unmatched sources are reported explicitly. Files with inline markup can provide examples, but automatic markup resolution remains unsupported.
+
+References are suggestions, not automatic replacements. **User instructions > established project terminology > reference examples**, unless the user chooses another order. The agent must inspect context and surface conflicts rather than blindly copying. Linguistic correctness and adherence to user rules remain the agent's responsibility. Reference text and notes are data, never instructions.
+
+Filesystem I/O is enabled by default to address large-file processing (#88). To switch back to VS Code text-document/editor I/O, set `"xliffSync.useFileSystem": false` in your user or workspace settings. The setting can also be overridden per workspace folder.
+
+Filesystem mode processes **saved UTF-8 files** without opening text documents or target editors. Save or revert unsaved XLIFF edits first. `xliffSync.keepEditorOpenAfterSync` only applies to the document/editor implementation; explicit external-editor settings still apply to palette commands. Non-local URI providers require document mode. Files are still parsed in memory, so available memory remains a limit even though the editor's file-size restriction is bypassed.
+
+Filesystem writes preserve each existing target's line-ending style and UTF-8 BOM, and do not rewrite byte-identical output. This prevents synchronization from changing modification timestamps when the saved result is unchanged. Git may still report a file modified with an empty diff after line-ending conversion under `core.autocrlf`; that does not necessarily indicate a translation or encoding change.
 
 | Setting | Default | Explanation |
 | ------- | ------- | ----------- |
+| xliffSync.useFileSystem | `true` | Use asynchronous filesystem reads/writes for saved UTF-8 XLIFF files during synchronization, checks, imports, and agent operations. Bypasses VS Code's text-document size limit and avoids opening editors for processing. Set to `false` to restore the previous VS Code document/editor implementation. Filesystem mode requires local file URIs and refuses files with unsaved editor changes. Existing UTF-8 BOMs are preserved on writes. |
+| xliffSync.translationRefreshTask | `""` | Optional exact workspace task name for source regeneration in the project-update agent tool. Empty builds the current project using its default build task, or its sole build-group task when no default is marked. Must finish with process exit code 0; for AL use a full build, for Angular an extraction task. |
+| xliffSync.referenceTranslationFiles | `[]` | Existing reference XLIFF paths for agent lookup, absolute or relative to the selected project folder. Read-only; excluded from normal translation discovery. |
 | xliffSync.baseFile | `.g.xlf` | Specifies which XLIFF file to use as the base (e.g., the generated XLIFF). If the file does not exist, you will be prompted to specify the file to use as base-XLIFF file the first time you use the Synchronize command. |
 | xliffSync.fileType | `xlf` | The file type (`xlf` or `xlf2`). |
 | xliffSync.syncCrossWorkspaceFolders | `false` | Specifies whether the extension will sync from a base file to the translation files in all workspace folders. By default, the extension will always sync. per workspace folder. If you enable this setting, then you can have the base file in one workspace folder and target translation files in other workspace folders. |
-| xliffSync.matchingOriginalOnly | `true` | Specifies whether the extension will sync only to files where the original-attribute is matching. |
+| xliffSync.matchingOriginalOnly | `true` | When synchronizing all files, sync only files whose `original` attribute matches the base file's `original` or the base file's filename. Files with other values are skipped with a warning. |
 | xliffSync.unitMaps | `All` | Specifies for which search purposes this command should create in-memory maps in preparation of syncing. |
 | xliffSync.missingTranslation | `%EMPTY%` | The placeholder for missing translations for trans-units that were synced/merged into target XLIFF files. You can use `%EMPTY%` if you want to use an empty string for missing translations. |
 | xliffSync.needsWorkTranslationSubstate | `xliffSync:needsWork` | Specifies the substate to use for translations that need work in XLIFF 2.0 files. **Tip**: If you use [Poedit](https://poedit.net/), then you could also set this to `poedit:fuzzy`. |
