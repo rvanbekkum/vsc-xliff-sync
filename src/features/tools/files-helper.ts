@@ -209,16 +209,21 @@ export class FilesHelper {
   private static async selectBaseFile(xliffUris: Uri[], resourceUri?: Uri): Promise<Uri | undefined> {
     let sourceUri: Uri | undefined;
     if (xliffUris.length > 1) {
-      const fsPaths = xliffUris.map((uri) => uri.fsPath);
-      const sourcePath = await window.showQuickPick(fsPaths, {
+      const items = xliffUris.map((uri) => ({
+        label: path.basename(uri.fsPath),
+        description: workspace.asRelativePath(uri, true),
+        uri,
+      }));
+      const selectedItem = await window.showQuickPick(items, {
         placeHolder: 'Select the base XLIFF file',
+        matchOnDescription: true,
       });
 
-      if (!sourcePath) {
+      if (!selectedItem) {
         return undefined;
       }
 
-      sourceUri = xliffUris.find((uri) => uri.fsPath === sourcePath)!;
+      sourceUri = selectedItem.uri;
     }
     else if (xliffUris.length === 1) {
       sourceUri = xliffUris[0];

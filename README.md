@@ -161,6 +161,8 @@ Filesystem mode processes **saved UTF-8 files** without opening text documents o
 
 Filesystem writes preserve each existing target's line-ending style and UTF-8 BOM, and do not rewrite byte-identical output. This prevents synchronization from changing modification timestamps when the saved result is unchanged. Git may still report a file modified with an empty diff after line-ending conversion under `core.autocrlf`; that does not necessarily indicate a translation or encoding change.
 
+Per-file synchronization progress in filesystem mode appears in the status bar rather than notification toasts. Completion and automatic check results remain notifications, avoiding a burst of per-file progress toasts that can trigger VS Code's toast spam protection.
+
 | Setting | Default | Explanation |
 | ------- | ------- | ----------- |
 | xliffSync.useFileSystem | `true` | Use asynchronous filesystem reads/writes for saved UTF-8 XLIFF files during synchronization, checks, imports, and agent operations. Bypasses VS Code's text-document size limit and avoids opening editors for processing. Set to `false` to restore the previous VS Code document/editor implementation. Filesystem mode requires local file URIs and refuses files with unsaved editor changes. Existing UTF-8 BOMs are preserved on writes. |

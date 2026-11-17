@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.1] 17-11-2026 (Pre-release)
+
+* Moved per-file filesystem synchronization progress to the status bar to avoid VS Code's toast burst limit hiding automatic missing/needs-work check-result notifications.
+* Fixed automatic missing/needs-work checks and notifications after creating target files, including with filesystem I/O enabled. Synchronization now passes the saved target URI to the automatic checker.
+* Fixed the base XLIFF file picker showing truncated absolute paths. It now shows filenames first with searchable workspace-relative paths to distinguish files with the same name.
+
 ## [1.7.0] 13-11-2026 (Pre-release)
 
 * Added `xliffSync.useFileSystem` (enabled by default) for asynchronous UTF-8 filesystem I/O during synchronization, checks, imports and agent operations, bypassing VS Code's text-document size limit (#88). Disable it to restore document/editor I/O. Filesystem mode refuses unsaved editor changes and preserves existing UTF-8 BOMs.

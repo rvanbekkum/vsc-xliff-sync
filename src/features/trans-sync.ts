@@ -270,9 +270,9 @@ async function selectNewTargetLanguages(fileType: string, multiSelectAllowed: bo
 }
 
 async function synchronizeAndCheckTargetFile(sourceUri: Uri, targetUri: Uri | undefined, targetLanguage?: string | undefined, workspaceFolder?: WorkspaceFolder) {
-    await synchronizeTargetFile(sourceUri, targetUri, targetLanguage, workspaceFolder);
-    if (targetUri) {
-        await autoRunTranslationChecks(workspaceFolder, targetUri);
+    const synchronizedUri = await synchronizeTargetFile(sourceUri, targetUri, targetLanguage, workspaceFolder);
+    if (synchronizedUri) {
+        await autoRunTranslationChecks(workspaceFolder, synchronizedUri);
     }
 }
 
@@ -294,7 +294,7 @@ export async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | und
             throw new Error(`No output generated for ${targetUri.fsPath}.`);
         }
         await saveAgentTarget(targetUri, contents, agent, !!targetLanguage);
-        return;
+        return targetUri;
     }
     let fileName: string = targetLanguage || '';
     if (targetUri) {
@@ -302,7 +302,9 @@ export async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | und
     }
 
     return await window.withProgress({
-        location: ProgressLocation.Notification,
+        location: FilesHelper.useFileSystem(workspaceFolder?.uri || sourceUri)
+            ? ProgressLocation.Window
+            : ProgressLocation.Notification,
         title: `Syncing "${fileName}"`,
         cancellable: false
     }, async progress => {
@@ -328,6 +330,7 @@ export async function synchronizeTargetFile(sourceUri: Uri, targetUri: Uri | und
             if (openExternallyAfterEvent.indexOf("Sync") > -1) {
                 open(decodeURIComponent(targetUri.toString()));
             }
+            return targetUri;
         }
         catch (ex) {
             window.showErrorMessage(`Failed to sync: ${ex.message}; File: ${targetUri} / Target Language: ${targetLanguage}`)
